@@ -1,28 +1,16 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { BottomNavigation } from "./components/BottomNavigation";
+import { HomeScreen } from "./features/home/HomeScreen";
+import { TarotResultScreen, TarotSelectionScreen } from "./features/tarot/TarotScreens";
+import { NatalChartScreen } from "./features/natal-chart/NatalChartScreen";
+import { AstrologerScreen } from "./features/ai-astrologer/AstrologerScreen";
+import { JournalScreen } from "./features/journal/JournalScreen";
+import { PremiumScreen } from "./features/profile/PremiumScreen";
+import { ProfileScreen } from "./features/profile/ProfileScreen";
+import type { BirthProfile, Screen, SpreadId, UserProfile } from "./types";
+import "./styles.css";
 
-type BirthProfile = {
-  displayName: string;
-  birthDate: string;
-  birthTime?: string;
-  birthPlace?: string;
-  birthTimeZone?: string;
-};
-
-type UserProfile = {
-  telegramId?: string;
-  firstName: string;
-  lastName: string | null;
-  username: string | null;
-  plan: "free" | "premium";
-  birthProfile: BirthProfile | null;
-};
-
-type AuthResponse = {
-  accessToken: string;
-  user: UserProfile;
-};
-
-type Screen = "home" | "tarot" | "natal" | "astrologer" | "journal" | "profile" | "premium";
+type AuthResponse = { accessToken: string; user: UserProfile };
 type AppStatus = "loading" | "onboarding" | "ready" | "error";
 
 const API_URL = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
@@ -33,25 +21,15 @@ function getTelegramApp() {
   return window.Telegram?.WebApp;
 }
 
-async function apiRequest<T>(
-  path: string,
-  token: string,
-  init: RequestInit = {},
-): Promise<T> {
+async function apiRequest<T>(path: string, token: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers);
   headers.set("Content-Type", "application/json");
   headers.set("Authorization", `Bearer ${token}`);
-
-  const response = await fetch(`${API_URL}${path}`, {
-    ...init,
-    headers,
-  });
-
+  const response = await fetch(`${API_URL}${path}`, { ...init, headers });
   if (!response.ok) {
     const result = await response.json().catch(() => ({})) as { message?: string };
     throw new Error(result.message ?? `Ошибка сервера: ${response.status}`);
   }
-
   return response.json() as Promise<T>;
 }
 
@@ -71,6 +49,8 @@ export default function App() {
   const [accessToken, setAccessToken] = useState("");
   const [previewMode, setPreviewMode] = useState(false);
   const [activeScreen, setActiveScreen] = useState<Screen>("home");
+  const [selectedSpread, setSelectedSpread] = useState<SpreadId>("past-present-future");
+  const [savedNotice, setSavedNotice] = useState(false);
 
   useEffect(() => {
     const telegram = getTelegramApp();
@@ -149,67 +129,63 @@ export default function App() {
       return;
     }
 
-    const result = await apiRequest<{ user: UserProfile }>(
-      "/api/me/onboarding",
-      accessToken,
-      { method: "PUT", body: JSON.stringify(input) },
-    );
+    const result = await apiRequest<{ user: UserProfile }>("/api/me/onboarding", accessToken, {
+      method: "PUT",
+      body: JSON.stringify(input),
+    });
     setProfile(result.user);
     setStatus("ready");
     setActiveScreen("home");
   }
 
-  if (status === "loading") {
-    return <LoadingScreen />;
-  }
-
-  if (status === "error") {
-    return <MessageScreen title="Не удалось открыть журнал" message={error} />;
-  }
-
+  if (status === "loading") return <LoadingScreen />;
+  if (status === "error") return <MessageScreen title="Не удалось открыть журнал" message={error} />;
   if (status === "onboarding") {
-    return (
-      <OnboardingScreen
-        initialName={profile?.firstName ?? ""}
-        previewMode={previewMode}
-        onComplete={completeOnboarding}
-      />
-    );
+    return <OnboardingScreen initialName={profile?.firstName ?? ""} previewMode={previewMode} onComplete={completeOnboarding} />;
+  }
+  if (!profile) return <MessageScreen title="Профиль не найден" message="Открой приложение через Telegram ещё раз." />;
+
+  function navigate(screen: Screen) {
+    setSavedNotice(false);
+    setActiveScreen(screen);
   }
 
-  if (!profile) {
-    return <MessageScreen title="Профиль не найден" message="Открой приложение через Telegram ещё раз." />;
+  function openSpread(spread: SpreadId) {
+    setSelectedSpread(spread);
+    setSavedNotice(false);
+    setActiveScreen("tarot-result");
+  }
+
+  function saveReading() {
+    setSavedNotice(true);
   }
 
   return (
-    <MainApp
-      profile={profile}
-      displayName={displayName}
-      activeScreen={activeScreen}
-      onNavigate={setActiveScreen}
-    />
+    <div className="app-frame">
+      <main className="app-content">
+        {activeScreen === "home" && <HomeScreen profile={profile} displayName={displayName} onNavigate={navigate} />}
+        {activeScreen === "tarot" && <TarotSelectionScreen onSelect={openSpread} onBack={() => navigate("home")} />}
+        {activeScreen === "tarot-result" && (
+          <TarotResultScreen spread={selectedSpread} onBack={() => navigate("tarot")} onSave={saveReading} />
+        )}
+        {activeScreen === "natal" && <NatalChartScreen onBack={() => navigate("home")} />}
+        {activeScreen === "astrologer" && <AstrologerScreen onBack={() => navigate("home")} />}
+        {activeScreen === "journal" && <JournalScreen onBack={() => navigate("home")} />}
+        {activeScreen === "profile" && <ProfileScreen profile={profile} displayName={displayName} onPremium={() => navigate("premium")} />}
+        {activeScreen === "premium" && <PremiumScreen onBack={() => navigate("profile")} />}
+        {savedNotice && <div className="toast-notice" role="status">В демо-режиме результат не сохранён в базу данных.</div>}
+      </main>
+      <BottomNavigation activeScreen={activeScreen} onNavigate={navigate} />
+    </div>
   );
 }
 
 function LoadingScreen() {
-  return (
-    <main className="loading-screen">
-      <div className="moon-mark" aria-hidden="true">☾</div>
-      <p className="eyebrow">PERSONAL COSMIC JOURNAL</p>
-      <span className="loading-line" />
-      <p className="muted-copy">Настраиваем твоё пространство…</p>
-    </main>
-  );
+  return <main className="loading-screen"><div className="moon-mark" aria-hidden="true">☾</div><p className="eyebrow">PERSONAL COSMIC JOURNAL</p><span className="loading-line" /><p className="muted-copy">Настраиваем твоё пространство…</p></main>;
 }
 
 function MessageScreen({ title, message }: { title: string; message: string }) {
-  return (
-    <main className="message-screen">
-      <div className="moon-mark" aria-hidden="true">☾</div>
-      <h1>{title}</h1>
-      <p>{message}</p>
-    </main>
-  );
+  return <main className="message-screen"><div className="moon-mark" aria-hidden="true">☾</div><h1>{title}</h1><p>{message}</p></main>;
 }
 
 function OnboardingScreen({
@@ -232,12 +208,10 @@ function OnboardingScreen({
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
-
     if (name.trim().length < 2 || !birthDate) {
       setError("Укажи имя и дату рождения.");
       return;
     }
-
     setSaving(true);
     try {
       await onComplete({
@@ -261,232 +235,29 @@ function OnboardingScreen({
         <div className="moon-mark" aria-hidden="true">☾</div>
         <p className="eyebrow">PERSONAL COSMIC JOURNAL</p>
         <h1>Давай познакомимся</h1>
-        <p className="muted-copy">
-          Несколько деталей помогут подготовить персональное пространство.
-        </p>
+        <p className="muted-copy">Несколько деталей помогут подготовить персональное пространство.</p>
       </header>
-
       <form className="onboarding-card" onSubmit={submit}>
         {previewMode && <p className="preview-note">Предварительный просмотр · данные сохраняются только в этом браузере</p>}
-        <label>
-          Как к тебе обращаться?
-          <input
-            autoComplete="nickname"
-            maxLength={48}
-            placeholder="Имя или псевдоним"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            required
-          />
+        <label>Как к тебе обращаться?
+          <input autoComplete="nickname" maxLength={48} placeholder="Имя или псевдоним" value={name} onChange={(event) => setName(event.target.value)} required />
         </label>
-
-        <label>
-          Дата рождения
-          <input
-            type="date"
-            value={birthDate}
-            onChange={(event) => setBirthDate(event.target.value)}
-            required
-          />
+        <label>Дата рождения
+          <input type="date" value={birthDate} onChange={(event) => setBirthDate(event.target.value)} required />
         </label>
-
-        <label>
-          Время рождения <span className="optional">необязательно</span>
-          <input
-            type="time"
-            value={birthTime}
-            onChange={(event) => setBirthTime(event.target.value)}
-          />
+        <label>Время рождения <span className="optional">необязательно</span>
+          <input type="time" value={birthTime} onChange={(event) => setBirthTime(event.target.value)} />
         </label>
-
-        <label>
-          Место рождения <span className="optional">необязательно</span>
-          <input
-            maxLength={160}
-            placeholder="Город, страна"
-            value={birthPlace}
-            onChange={(event) => setBirthPlace(event.target.value)}
-          />
+        <label>Место рождения <span className="optional">необязательно</span>
+          <input maxLength={160} placeholder="Город, страна" value={birthPlace} onChange={(event) => setBirthPlace(event.target.value)} />
         </label>
-
-        <label>
-          Часовой пояс места рождения <span className="optional">необязательно</span>
-          <input
-            maxLength={64}
-            placeholder="Например, Europe/Tallinn"
-            value={birthTimeZone}
-            onChange={(event) => setBirthTimeZone(event.target.value)}
-          />
+        <label>Часовой пояс места рождения <span className="optional">необязательно</span>
+          <input maxLength={64} placeholder="Например, Europe/Tallinn" value={birthTimeZone} onChange={(event) => setBirthTimeZone(event.target.value)} />
         </label>
-
         {error && <p className="form-error" role="alert">{error}</p>}
-        <button className="primary-button" type="submit" disabled={saving}>
-          {saving ? "Сохраняем…" : "Продолжить"}
-          <span aria-hidden="true">→</span>
-        </button>
-        <p className="privacy-hint">
-          Время и место рождения можно добавить позже. Неизвестное время не будет подменяться.
-        </p>
+        <button className="primary-button" type="submit" disabled={saving}>{saving ? "Сохраняем…" : "Продолжить"} <span>→</span></button>
+        <p className="privacy-hint">Время и место рождения можно добавить позже. Неизвестное время не будет подменяться.</p>
       </form>
     </main>
-  );
-}
-
-function MainApp({
-  profile,
-  displayName,
-  activeScreen,
-  onNavigate,
-}: {
-  profile: UserProfile;
-  displayName: string;
-  activeScreen: Screen;
-  onNavigate: (screen: Screen) => void;
-}) {
-  const [cardOpen, setCardOpen] = useState(false);
-  const firstName = displayName.split(/\s+/)[0] || "Путешественница";
-
-  return (
-    <main className="app-shell">
-      <header className="app-header">
-        <div className="brand-moon" aria-hidden="true">☾</div>
-        <button className="icon-button" onClick={() => onNavigate("profile")} aria-label="Открыть профиль">⚙</button>
-        <h1>Привет, {firstName} <span className="sparkle">✦</span></h1>
-        <p>Твой день начинается здесь</p>
-      </header>
-
-      {activeScreen === "home" && (
-        <section className="home-content">
-          <button
-            className={`daily-card ${cardOpen ? "is-open" : ""}`}
-            onClick={() => setCardOpen((value) => !value)}
-            aria-expanded={cardOpen}
-          >
-            <span className="daily-card__front">
-              <span className="serif-title">Карта дня</span>
-              <span className="daily-card__copy">Раскрой энергию сегодняшнего дня</span>
-              <span className="round-arrow" aria-hidden="true">→</span>
-            </span>
-            <span className="daily-card__back">
-              <span className="serif-title">Звезда</span>
-              <span className="daily-card__copy">Надежда, вдохновение и тихая уверенность в своём пути.</span>
-              <span className="daily-card__demo">Демонстрационная трактовка</span>
-            </span>
-          </button>
-
-          <section className="section-block">
-            <h2>Быстрый доступ</h2>
-            <div className="quick-grid">
-              <QuickAction icon="♧" title="Таро" onClick={() => onNavigate("tarot")} />
-              <QuickAction icon="✧" title="Натальная карта" onClick={() => onNavigate("natal")} />
-              <QuickAction icon="☼" title="Астролог" onClick={() => onNavigate("astrologer")} />
-            </div>
-          </section>
-
-          <button className="horoscope-card" onClick={() => onNavigate("natal")}>
-            <span className="horoscope-symbol">☼</span>
-            <span>
-              <strong>Гороскоп дня</strong>
-              <small>Твоя астрологическая погода на сегодня</small>
-            </span>
-            <span className="subtle-arrow">→</span>
-          </button>
-
-          <div className="streak-card">
-            <span className="streak-flame">✦</span>
-            <div className="streak-text">
-              <strong>Твоя серия дней</strong>
-              <small>Начни свой первый ритуал сегодня</small>
-              <div className="streak-track"><i /><i /><i /><i /><i /></div>
-            </div>
-            <span className="streak-value">0 дней</span>
-          </div>
-        </section>
-      )}
-
-      {activeScreen !== "home" && (
-        <FeaturePlaceholder screen={activeScreen} profile={profile} onNavigate={onNavigate} />
-      )}
-
-      <nav className="bottom-nav" aria-label="Основная навигация">
-        <NavButton active={activeScreen === "home"} label="Главная" icon="⌂" onClick={() => onNavigate("home")} />
-        <NavButton active={activeScreen === "tarot"} label="Таро" icon="▱" onClick={() => onNavigate("tarot")} />
-        <NavButton active={activeScreen === "journal"} label="Журнал" icon="▤" onClick={() => onNavigate("journal")} />
-        <NavButton active={activeScreen === "profile" || activeScreen === "premium"} label="Профиль" icon="♙" onClick={() => onNavigate("profile")} />
-      </nav>
-    </main>
-  );
-}
-
-function QuickAction({
-  icon,
-  title,
-  onClick,
-}: {
-  icon: string;
-  title: string;
-  onClick: () => void;
-}) {
-  return (
-    <button className="quick-action" onClick={onClick}>
-      <span aria-hidden="true">{icon}</span>
-      <small>{title}</small>
-    </button>
-  );
-}
-
-function NavButton({
-  active,
-  label,
-  icon,
-  onClick,
-}: {
-  active: boolean;
-  label: string;
-  icon: string;
-  onClick: () => void;
-}) {
-  return (
-    <button className={`nav-button ${active ? "active" : ""}`} onClick={onClick}>
-      <span aria-hidden="true">{icon}</span>
-      <small>{label}</small>
-    </button>
-  );
-}
-
-function FeaturePlaceholder({
-  screen,
-  profile,
-  onNavigate,
-}: {
-  screen: Screen;
-  profile: UserProfile;
-  onNavigate: (screen: Screen) => void;
-}) {
-  const content: Record<Screen, { title: string; description: string }> = {
-    home: { title: "Главная", description: "" },
-    tarot: { title: "Таро", description: "Три стартовых расклада: карта дня, прошлое — настоящее — будущее, любовь и отношения." },
-    natal: { title: "Натальная карта", description: "Основные положения планет и персональные интерпретации появятся в следующей итерации." },
-    astrologer: { title: "AI-астролог", description: "Готовые темы и личный диалог будут подключены следующим этапом." },
-    journal: { title: "Твой журнал", description: "Здесь появятся сохранённые расклады и астрологические материалы." },
-    profile: { title: "Твой профиль", description: `${profile.birthProfile?.displayName ?? profile.firstName} · ${profile.plan === "premium" ? "Premium" : "Free"}` },
-    premium: { title: "Premium", description: "Расширенные возможности журнала." },
-  };
-  const selected = content[screen];
-
-  return (
-    <section className="placeholder-screen">
-      <span className="placeholder-star" aria-hidden="true">✧</span>
-      <p className="eyebrow">PERSONAL COSMIC JOURNAL</p>
-      <h2>{selected.title}</h2>
-      <p>{selected.description}</p>
-      {screen === "profile" && (
-        <button className="secondary-button" onClick={() => onNavigate("premium")}>
-          Посмотреть Premium <span aria-hidden="true">→</span>
-        </button>
-      )}
-      <button className="text-button" onClick={() => onNavigate("home")}>Вернуться на главную</button>
-      <p className="feature-note">Раздел подготовлен в навигации. Функциональность будет добавляться отдельными итерациями.</p>
-    </section>
   );
 }
