@@ -2,9 +2,9 @@
 
 Telegram Bot + Telegram WebApp: персональный астрологический журнал с Таро, натальной картой, ежедневным гороскопом и AI-астрологом.
 
-## Состояние
+## Состояние проекта
 
-На ветке `setup/project-foundation` находится каркас проекта и согласованная документация. Функциональные модули MVP ещё не реализованы.
+Этапы 0–4 утверждены. Ветка `feat/telegram-webapp-foundation` содержит Telegram Bot, серверную Telegram Mini App authorization, onboarding API и восемь связанных UI-разделов WebApp. Функциональная итерация Таро реализует 78-карточную колоду, три расклада, серверную случайную выборку и сохранение истории. Натальные расчёты, AI-астролог, ежедневный гороскоп, платежи и production deployment ещё не подключены.
 
 ## Стек
 
@@ -12,7 +12,7 @@ Telegram Bot + Telegram WebApp: персональный астрологиче�
 - API и Bot: Node.js, TypeScript, Fastify, grammY
 - Shared: общие типы и контракты
 - Database: PostgreSQL, Drizzle ORM, Postgres.js
-- Astronomy: Astronomy Engine; Асцендент рассчитывается изолированным модулем
+- Astronomy: Astronomy Engine; Асцендент рассчитывается отдельным проверяемым модулем
 - AI: подключаемый LLM-провайдер через adapter
 - Payments: Telegram Stars для цифровых товаров и услуг внутри Telegram
 
@@ -20,12 +20,12 @@ Telegram Bot + Telegram WebApp: персональный астрологиче�
 
 ```text
 apps/
-  web/       Telegram WebApp
+  web/       Telegram WebApp и экраны продукта
   server/    Fastify API и grammY Bot
 packages/
   shared/    Общие типы и схемы
 assets/
-  references/ Папка для утверждённых визуальных референсов
+  references/ Утверждённые визуальные референсы
   tarot/      Материалы колод Таро
   astrology/  Астрологические иллюстрации
 docs/        PRD, решения, архитектура и дизайн-система
@@ -35,11 +35,32 @@ docs/        PRD, решения, архитектура и дизайн-сис�
 
 1. Установить Node.js версии из `.nvmrc`.
 2. Выполнить `npm install` в корне.
-3. Скопировать `.env.example` в `.env` и заполнить локальные значения.
-4. WebApp: `npm run dev:web`.
-5. API: `npm run dev:server`.
+3. Скопировать корневой `.env.example` в `.env`; для Vite скопировать `apps/web/.env.example` в `apps/web/.env.local`.
+4. Заполнить `TELEGRAM_BOT_TOKEN`, `SESSION_SECRET`, `DATABASE_URL`, `TELEGRAM_WEBAPP_URL`, `WEBAPP_ORIGIN` и `VITE_API_URL` подходящими локальными/публичными значениями.
+5. Применить SQL-миграции по порядку:
+   `psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f apps/server/migrations/0001_core.sql`
+   `psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f apps/server/migrations/0002_tarot_readings.sql`
+6. API + Bot: `npm run dev:server`.
+7. WebApp: `npm run dev:web`.
 
-На этапе каркаса API предоставляет только `GET /health`. Telegram Bot, база данных, авторизация, платежи и пользовательские сценарии добавляются отдельными этапами.
+Без `TELEGRAM_BOT_TOKEN` сервер запускается в режиме API preview; Telegram polling не стартует. Для реальных Mini App кнопок нужен публичный HTTPS URL. При локальной разработке вне Telegram WebApp доступен preview onboarding и демонстрационный Tarot preview с локальным хранением браузера. При отсутствии `DATABASE_URL` сервер в development использует временное in-memory хранилище; это не подходит для production.
+
+## Tarot API
+
+- `GET /api/tarot/spreads` — список доступных раскладов.
+- `POST /api/tarot/readings` — создать расклад (`spreadId: daily | past-present-future | love`).
+- `GET /api/tarot/readings` — список сохранённых раскладов текущего пользователя.
+- `GET /api/tarot/readings/:id` — получить собственный расклад.
+
+Карта дня сохраняется один раз на пользователя за UTC-день. Повторный запрос в этот день возвращает уже сохранённую карту. Остальные расклады пока не ограничены тарифными лимитами, потому что числовые Free/Premium лимиты ещё не утверждены.
+
+## Проверки
+
+- `npm run typecheck`
+- `npm run test:server`
+- `npm run build`
+
+GitHub Actions выполняет эти проверки для feature-ветки.
 
 ## Документация
 
@@ -53,4 +74,4 @@ docs/        PRD, решения, архитектура и дизайн-сис�
 
 ## Безопасность
 
-Не коммитить `.env`, Telegram Bot Token, AI API keys, приватные данные пользователей и платёжные секреты. Секреты передаются серверу через переменные окружения.
+Не коммитить `.env`, Telegram Bot Token, AI API keys, приватные данные пользователей и платёжные секреты. Секреты передаются серверу через переменные окружения. Сервер проверяет Telegram `initData` до создания session token; `initDataUnsafe` не используется для авторизации.

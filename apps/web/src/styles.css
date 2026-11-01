@@ -1,54 +1,40 @@
-:root {
-  color-scheme: dark;
-  --color-night: #0b0a14;
-  --color-cosmic-violet: #5847b8;
-  --color-lavender: #a392d8;
-  --color-milk: #f1dccb;
-  --color-gold: #d9b983;
-  font-family: Inter, Arial, sans-serif;
-  color: var(--color-milk);
-  background: var(--color-night);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
+/* Additions for the functional Tarot reading flow */
+.reading-date { margin: -.6rem 0 0; color: rgb(241 220 203 / 45%); font-size: .62rem; text-align: center; }
+.tarot-flip-card {
+  display: block; width: 100%; padding: .28rem;
+  border: 1px solid var(--color-gold, #d9b983); border-radius: .65rem;
+  background: linear-gradient(145deg, #241a28, #08070d);
+  perspective: 1000px; cursor: pointer;
+  box-shadow: 0 8px 30px rgb(0 0 0 / 32%), 0 0 18px rgb(217 185 131 / 8%);
 }
-* { box-sizing: border-box; }
-html, body, #root { min-width: 320px; min-height: 100%; margin: 0; }
-body {
-  min-height: 100vh;
+.tarot-flip-card__inner {
+  position: relative; display: block; width: 100%; aspect-ratio: 3 / 4.7;
+  transform-style: preserve-3d;
+  transition: transform 650ms cubic-bezier(.2,.7,.2,1);
+}
+.tarot-flip-card.is-revealed .tarot-flip-card__inner { transform: rotateY(180deg); }
+.tarot-flip-card__back, .tarot-flip-card__front {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: space-between; padding: .6rem .3rem;
+  border: 1px solid rgb(217 185 131 / 44%); border-radius: .42rem;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+}
+.tarot-flip-card__back {
   background:
-    radial-gradient(ellipse at 50% 16%, rgb(88 71 184 / 10%), transparent 42%),
-    var(--color-night);
+    radial-gradient(circle at 50% 45%, rgb(217 185 131 / 13%), transparent 42%),
+    repeating-radial-gradient(circle at 50% 50%, transparent 0 13px, rgb(217 185 131 / 7%) 14px 15px),
+    #100c17;
 }
-.foundation {
-  min-height: 100vh;
-  display: grid;
-  align-content: center;
-  justify-items: center;
-  gap: 1rem;
-  padding: 2rem 1.5rem;
-  text-align: center;
-}
-.foundation__moon {
-  color: var(--color-gold);
-  font-family: Georgia, serif;
-  font-size: 4rem;
-  line-height: 1;
-}
-.foundation__eyebrow, .foundation__status {
-  color: var(--color-gold);
-  font-size: .72rem;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-}
-.foundation h1 {
-  margin: 0;
-  color: var(--color-milk);
-  font-family: "Playfair Display", Georgia, serif;
-  font-size: clamp(2rem, 7vw, 3.4rem);
-  font-weight: 500;
-}
-.foundation__message {
-  max-width: 34rem;
-  color: rgb(241 220 203 / 78%);
-  line-height: 1.65;
+.tarot-back-moon { margin-top: 28%; color: var(--color-milk, #f1dccb); font-family: Georgia, serif; font-size: clamp(2.2rem, 11vw, 3.5rem); text-shadow: 0 0 20px rgb(217 185 131 / 25%); }
+.tarot-back-stars { color: var(--color-gold, #d9b983); font-size: .7rem; letter-spacing: .18em; }
+.tarot-back-caption { color: rgb(217 185 131 / 58%); font-size: .38rem; letter-spacing: .12em; }
+.tarot-flip-card__front { transform: rotateY(180deg); background: radial-gradient(circle at 50% 48%, rgb(217 185 131 / 16%), transparent 55%); }
+.reveal-text-button { margin-top: .32rem; padding: .35rem .45rem; border: 0; background: transparent; color: var(--color-gold, #d9b983); font-size: .62rem; cursor: pointer; }
+.reflection-question { margin-top: .35rem !important; color: var(--color-gold, #d9b983) !important; font-size: .67rem !important; }
+.keyword-list { display: flex; flex-wrap: wrap; gap: .25rem; margin-top: .45rem; }
+.keyword-list span { padding: .2rem .42rem; border: 1px solid rgb(217 185 131 / 18%); border-radius: 999px; color: rgb(241 220 203 / 70%); font-size: .53rem; }
+.journal-saved-note { margin: 0; color: var(--color-gold, #d9b983); font-size: .72rem; text-align: center; }
+.journal-entry--button { width: 100%; color: inherit; text-align: left; cursor: pointer; }
+@media (prefers-reduced-motion: reduce) {
+  .tarot-flip-card__inner { transition-duration: .01ms; }
 }
