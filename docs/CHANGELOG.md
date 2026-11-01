@@ -1,14 +1,16 @@
 # Changelog
 
-## 2026-11-02 — Этап 4: проектная структура
+## 2026-11-02 — Этап 5: Telegram Bot и WebApp foundation
 
-- Создана рабочая ветка `setup/project-foundation` от `main`.
-- Добавлен npm workspaces monorepo: `apps/web`, `apps/server`, `packages/shared`.
-- Добавлены базовые конфигурации TypeScript, Vite и Fastify.
-- Добавлен пример переменных окружения без секретов.
-- Добавлены PRD, DECISIONS, ARCHITECTURE, UI-GUIDELINES и REFERENCE-ASSETS.
-- Добавлены каталоги будущих функциональных модулей.
-- Добавлен компактный WebP-контактный лист восьми утверждённых направлений дизайна; полноразмерная библиотека передана владельцу отдельным архивом.
-- Сверен CSS token золота с утверждённой палитрой: #D9B983.
-- Не добавлялись бизнес-логика Telegram Bot, функциональные WebApp-экраны, схема базы данных, платежи и AI-интеграция.
-- Проверка: структура и исходники сверены; npm install, сборка и typecheck ещё не запускались в CI.
+- Создана feature-ветка `feat/telegram-webapp-foundation` от утверждённой основы `setup/project-foundation`.
+- Добавлен Telegram Bot на grammY: /start, /app, /help, inline WebApp launch button и кнопка меню Mini App при наличии HTTPS URL.
+- Добавлена проверка Telegram Mini App initData на backend (HMAC-SHA-256, auth_date freshness).
+- Добавлены подписанные серверные сессии и API профиля.
+- Добавлено сохранение onboarding-профиля через PostgreSQL/Drizzle; в development без DATABASE_URL используется только временное in-memory хранилище.
+- Добавлена SQL-миграция пользователей и данных рождения.
+- Добавлен WebApp onboarding с необязательными временем, местом рождения и IANA timezone.
+- Добавлена начальная домашняя оболочка в утверждённой палитре, быстрые ссылки, блок гороскопа, streak placeholder и нижняя навигация.
+- Добавлены unit tests для Telegram initData validation.
+- Telegram Bot не запущен против реального аккаунта: токен не предоставлен через безопасные переменные окружения.
+- Полные функциональные разделы Таро, натальной карты, AI, журнала, платежей и аналитики остаются следующими реализационными задачами.
+- Проверка сборки и тестов — требуется локальный npm install / CI; без запуска в реальной Telegram Mini App среде визуальная адаптация пока предварительная.

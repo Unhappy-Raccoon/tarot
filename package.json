@@ -1,8 +1,8 @@
 {
   "name": "personal-cosmic-journal",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "Telegram Bot and WebApp for Personal Cosmic Journal",
+  "description": "Telegram Bot and Telegram WebApp for Personal Cosmic Journal",
   "workspaces": ["apps/*", "packages/*"],
   "engines": {
     "node": ">=26.13.0",
@@ -12,7 +12,8 @@
     "dev:web": "npm run dev --workspace=@pcj/web",
     "dev:server": "npm run dev --workspace=@pcj/server",
     "build": "npm run build --workspace=@pcj/shared && npm run build --workspace=@pcj/server && npm run build --workspace=@pcj/web",
-    "typecheck": "npm run typecheck --workspace=@pcj/shared && npm run typecheck --workspace=@pcj/server && npm run typecheck --workspace=@pcj/web"
+    "typecheck": "npm run typecheck --workspace=@pcj/shared && npm run typecheck --workspace=@pcj/server && npm run typecheck --workspace=@pcj/web",
+    "test:server": "npm run test --workspace=@pcj/server"
   },
   "devDependencies": {
     "@types/node": "^26.0.0",
