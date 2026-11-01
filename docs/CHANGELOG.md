@@ -1,0 +1,12 @@
+# Changelog
+
+## 2026-11-02 — Этап 4: проектная структура
+
+- Создана рабочая ветка `setup/project-foundation` от `main`.
+- Добавлен npm workspaces monorepo: `apps/web`, `apps/server`, `packages/shared`.
+- Добавлены базовые конфигурации TypeScript, Vite и Fastify.
+- Добавлен пример переменных окружения без секретов.
+- Добавлены PRD, DECISIONS, ARCHITECTURE, UI-GUIDELINES и REFERENCE-ASSETS.
+- Добавлены каталоги будущих функциональных модулей.
+- Не добавлялись бизнес-логика Telegram Bot, функциональные WebApp-экраны, схема базы данных, платежи и AI-интеграция.
+- Проверка: структура и исходники просмотрены; npm install, сборка и typecheck ещё не запускались в CI.

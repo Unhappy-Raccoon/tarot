@@ -1,0 +1,54 @@
+:root {
+  color-scheme: dark;
+  --color-night: #0b0a14;
+  --color-cosmic-violet: #5847b8;
+  --color-lavender: #a392d8;
+  --color-milk: #f1dccb;
+  --color-gold: #d4ad80;
+  font-family: Inter, Arial, sans-serif;
+  color: var(--color-milk);
+  background: var(--color-night);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+* { box-sizing: border-box; }
+html, body, #root { min-width: 320px; min-height: 100%; margin: 0; }
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at 50% 16%, rgb(88 71 184 / 10%), transparent 42%),
+    var(--color-night);
+}
+.foundation {
+  min-height: 100vh;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 1rem;
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
+.foundation__moon {
+  color: var(--color-gold);
+  font-family: Georgia, serif;
+  font-size: 4rem;
+  line-height: 1;
+}
+.foundation__eyebrow, .foundation__status {
+  color: var(--color-gold);
+  font-size: .72rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+.foundation h1 {
+  margin: 0;
+  color: var(--color-milk);
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(2rem, 7vw, 3.4rem);
+  font-weight: 500;
+}
+.foundation__message {
+  max-width: 34rem;
+  color: rgb(241 220 203 / 78%);
+  line-height: 1.65;
+}
