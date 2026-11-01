@@ -1,10 +1,11 @@
-import { useState } from "react";
 import type { Screen, UserProfile } from "../../types";
 
 interface Props {
   profile: UserProfile;
   displayName: string;
   onNavigate: (screen: Screen) => void;
+  onDailyCard: () => void;
+  busy?: boolean;
 }
 
 function QuickTile({ icon, label, onClick }: { icon: string; label: string; onClick: () => void }) {
@@ -16,8 +17,7 @@ function QuickTile({ icon, label, onClick }: { icon: string; label: string; onCl
   );
 }
 
-export function HomeScreen({ profile, displayName, onNavigate }: Props) {
-  const [cardOpen, setCardOpen] = useState(false);
+export function HomeScreen({ profile, displayName, onNavigate, onDailyCard, busy = false }: Props) {
   const firstName = displayName.trim().split(/\s+/)[0] || profile.firstName || "Путешественница";
 
   return (
@@ -27,36 +27,18 @@ export function HomeScreen({ profile, displayName, onNavigate }: Props) {
           <span className="moon-crescent">☾</span>
           <span className="moon-star">✦</span>
         </div>
-        <button
-          className="icon-button home-settings"
-          type="button"
-          aria-label="Открыть профиль и настройки"
-          onClick={() => onNavigate("profile")}
-        >
-          ⚙
-        </button>
+        <button className="icon-button home-settings" type="button" aria-label="Открыть профиль и настройки" onClick={() => onNavigate("profile")}>⚙</button>
         <h1>Привет, {firstName} <span className="gold-sparkle">✦</span></h1>
         <p>Твой день начинается здесь</p>
       </header>
 
       <section className="home-section" aria-label="Карта дня">
-        <button
-          className={`daily-card ${cardOpen ? "is-open" : ""}`}
-          type="button"
-          aria-expanded={cardOpen}
-          onClick={() => setCardOpen((value) => !value)}
-        >
+        <button className="daily-card" type="button" onClick={onDailyCard} disabled={busy}>
           <span className="daily-card__front">
             <span className="daily-card__eyebrow">ТАРО · ТВОЙ ЕЖЕДНЕВНЫЙ РИТУАЛ</span>
             <span className="serif-title">Карта дня</span>
-            <span className="daily-card__copy">Раскрой энергию сегодняшнего дня</span>
+            <span className="daily-card__copy">{busy ? "Открываем твою карту…" : "Раскрой энергию сегодняшнего дня"}</span>
             <span className="round-arrow" aria-hidden="true">→</span>
-          </span>
-          <span className="daily-card__back">
-            <span className="daily-card__eyebrow">ДЕМОНСТРАЦИОННАЯ КАРТА</span>
-            <span className="serif-title">Звезда</span>
-            <span className="daily-card__copy">Надежда, вдохновение и тихая уверенность в своём пути.</span>
-            <span className="daily-card__demo">Нажми, чтобы закрыть карту</span>
           </span>
         </button>
       </section>
@@ -88,9 +70,7 @@ export function HomeScreen({ profile, displayName, onNavigate }: Props) {
         <span className="streak-text">
           <strong>Серия дней</strong>
           <small>Создай свой первый ежедневный ритуал</small>
-          <span className="streak-track" aria-hidden="true">
-            <i /><i /><i /><i /><i />
-          </span>
+          <span className="streak-track" aria-hidden="true"><i /><i /><i /><i /><i /></span>
         </span>
         <span className="streak-value">0 дней <span aria-hidden="true">→</span></span>
       </button>

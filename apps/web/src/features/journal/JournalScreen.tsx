@@ -1,20 +1,27 @@
 import { useState } from "react";
 import { PageHeading } from "../../components/PageHeading";
+import type { TarotReading } from "../../types";
 
-interface Props { onBack: () => void; }
+interface Props {
+  onBack: () => void;
+  readings: TarotReading[];
+  onOpenReading: (reading: TarotReading) => void;
+  loading?: boolean;
+  error?: string;
+}
 
 type Filter = "Все" | "Таро" | "Гороскоп" | "Натальная карта";
 
-const entries = [
-  { category: "Таро", title: "Прошлое · настоящее · будущее", subtitle: "Три карты и общая трактовка", date: "Сегодня", glyph: "♧" },
-  { category: "Гороскоп", title: "Твой день", subtitle: "Астрологическая погода", date: "Вчера", glyph: "☼" },
-  { category: "Натальная карта", title: "Три опорные точки", subtitle: "Солнце · Луна · Асцендент", date: "Вчера", glyph: "✧" },
-] as const;
+function formatDate(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.valueOf())) return "";
+  return new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long" }).format(date);
+}
 
-export function JournalScreen({ onBack }: Props) {
+export function JournalScreen({ onBack, readings, onOpenReading, loading = false, error }: Props) {
   const [filter, setFilter] = useState<Filter>("Все");
   const filters: Filter[] = ["Все", "Таро", "Гороскоп", "Натальная карта"];
-  const visible = entries.filter((entry) => filter === "Все" || entry.category === filter);
+  const visible = filter === "Все" || filter === "Таро" ? readings : [];
 
   return (
     <div className="page-screen journal-screen">
@@ -24,21 +31,25 @@ export function JournalScreen({ onBack }: Props) {
           <button type="button" role="tab" aria-selected={filter === item} className={filter === item ? "selected" : ""} key={item} onClick={() => setFilter(item)}>{item}</button>
         ))}
       </div>
+      {error && <p className="form-error" role="alert">{error}</p>}
       <div className="journal-list">
-        {visible.length ? visible.map((entry, index) => (
-          <article className="journal-entry" key={entry.title}>
-            <div className="journal-entry__icon" aria-hidden="true">{entry.glyph}</div>
+        {loading ? (
+          <div className="empty-state"><span>✧</span><h2>Открываем журнал</h2><p>Собираем сохранённые моменты…</p></div>
+        ) : visible.length ? visible.map((entry) => (
+          <button className="journal-entry journal-entry--button" key={entry.id} type="button" onClick={() => onOpenReading(entry)}>
+            <div className="journal-entry__icon" aria-hidden="true">♧</div>
             <div className="journal-entry__body">
-              <div className="journal-entry__meta"><span>{entry.category}</span><time>{entry.date}</time></div>
+              <div className="journal-entry__meta"><span>Таро · {entry.cards.length} {entry.cards.length === 1 ? "карта" : "карты"}</span><time>{formatDate(entry.createdAt)}</time></div>
               <h2>{entry.title}</h2>
-              <p>{entry.subtitle}</p>
+              <p>{entry.cards.map((card) => card.name).join(" · ")}</p>
             </div>
             <span className="subtle-arrow" aria-hidden="true">→</span>
-            {index === 0 && <span className="journal-entry__demo">ПРИМЕР</span>}
-          </article>
-        )) : <div className="empty-state"><span>✧</span><h2>Пока здесь тихо</h2><p>Сохранённые расклады и заметки появятся в этом разделе.</p></div>}
+          </button>
+        )) : (
+          <div className="empty-state"><span>✧</span><h2>{filter === "Все" || filter === "Таро" ? "Пока здесь тихо" : "Раздел скоро откроется"}</h2><p>{filter === "Все" || filter === "Таро" ? "Завершённые расклады будут автоматически сохраняться здесь." : "Этот тип записей появится после подключения соответствующего раздела."}</p></div>
+        )}
       </div>
-      <p className="demo-disclaimer">Записи в этом макете демонстрационные. Журнал будет наполняться сохранёнными материалами пользователя.</p>
+      <p className="demo-disclaimer">Расклады Таро сохраняются в твоём аккаунте и доступны только тебе.</p>
     </div>
   );
 }

@@ -1,10 +1,15 @@
+import type { TarotCardDraw, TarotSpreadId } from "../modules/tarot/types.js";
 import {
   date,
   integer,
+  jsonb,
   pgTable,
   serial,
+  text,
   timestamp,
+  uniqueIndex,
   varchar,
+  index,
 } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
@@ -33,3 +38,23 @@ export const birthProfiles = pgTable("birth_profiles", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+export const tarotReadings = pgTable(
+  "tarot_readings",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    spreadId: varchar("spread_id", { length: 32 }).$type<TarotSpreadId>().notNull(),
+    title: varchar("title", { length: 120 }).notNull(),
+    summary: text("summary").notNull(),
+    cards: jsonb("cards").$type<TarotCardDraw[]>().notNull(),
+    dailyDate: date("daily_date", { mode: "string" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("tarot_readings_daily_unique").on(table.userId, table.dailyDate),
+    index("tarot_readings_user_created_idx").on(table.userId, table.createdAt),
+  ],
+);

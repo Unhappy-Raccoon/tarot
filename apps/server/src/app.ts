@@ -7,6 +7,12 @@ import {
   upsertTelegramUser,
   type BirthProfileInput,
 } from "./modules/users/repository.js";
+import { getTarotSpread, isTarotSpreadId, tarotSpreads } from "./modules/tarot/spreads.js";
+import {
+  createTarotReading,
+  getTarotReading,
+  listTarotReadings,
+} from "./modules/tarot/repository.js";
 
 interface AppOptions {
   botToken?: string;
@@ -24,6 +30,10 @@ interface OnboardingBody {
   birthTime?: unknown;
   birthPlace?: unknown;
   birthTimeZone?: unknown;
+}
+
+interface CreateTarotReadingBody {
+  spreadId?: unknown;
 }
 
 function getBearerToken(request: FastifyRequest): string | null {
@@ -102,6 +112,8 @@ export function buildApp(options: AppOptions = {}) {
     service: "personal-cosmic-journal-api",
     database: process.env.DATABASE_URL ? "configured" : "development-memory",
   }));
+
+  app.get("/api/tarot/spreads", async () => ({ spreads: tarotSpreads }));
 
   app.post<{ Body: AuthBody }>(
     "/api/auth/telegram",
@@ -232,6 +244,58 @@ export function buildApp(options: AppOptions = {}) {
       }
     },
   );
+
+  app.post<{ Body: CreateTarotReadingBody }>(
+    "/api/tarot/readings",
+    async (request, reply) => {
+      const telegramId = getTelegramId(request);
+      if (!telegramId) return reply.code(401).send({ error: "unauthorized" });
+      if (!isTarotSpreadId(request.body?.spreadId)) {
+        return reply.code(400).send({
+          error: "invalid_spread",
+          message: "Choose one of the supported tarot spreads.",
+        });
+      }
+
+      try {
+        const reading = await createTarotReading(telegramId, request.body.spreadId);
+        return { reading };
+      } catch (error) {
+        request.log.error({ err: error }, "Unable to create tarot reading");
+        return reply.code(503).send({
+          error: "tarot_storage_unavailable",
+          message: "Не удалось сохранить расклад. Попробуй ещё раз.",
+        });
+      }
+    },
+  );
+
+  app.get("/api/tarot/readings", async (request, reply) => {
+    const telegramId = getTelegramId(request);
+    if (!telegramId) return reply.code(401).send({ error: "unauthorized" });
+
+    try {
+      const readings = await listTarotReadings(telegramId);
+      return { readings };
+    } catch (error) {
+      request.log.error({ err: error }, "Unable to load tarot journal");
+      return reply.code(503).send({ error: "tarot_storage_unavailable" });
+    }
+  });
+
+  app.get<{ Params: { id: string } }>("/api/tarot/readings/:id", async (request, reply) => {
+    const telegramId = getTelegramId(request);
+    if (!telegramId) return reply.code(401).send({ error: "unauthorized" });
+
+    try {
+      const reading = await getTarotReading(telegramId, request.params.id);
+      if (!reading) return reply.code(404).send({ error: "reading_not_found" });
+      return { reading };
+    } catch (error) {
+      request.log.error({ err: error }, "Unable to load tarot reading");
+      return reply.code(503).send({ error: "tarot_storage_unavailable" });
+    }
+  });
 
   return app;
 }

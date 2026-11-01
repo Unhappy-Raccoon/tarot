@@ -1,9 +1,12 @@
-import type { SpreadId } from "../../types";
+import { useState } from "react";
+import type { SpreadId, TarotReading } from "../../types";
 import { PageHeading } from "../../components/PageHeading";
 
 interface SelectionProps {
   onSelect: (spread: SpreadId) => void;
   onBack: () => void;
+  busySpread?: SpreadId | null;
+  error?: string;
 }
 
 const spreads: { id: SpreadId; number: string; title: string; subtitle: string; count: string; glyph: string }[] = [
@@ -12,7 +15,7 @@ const spreads: { id: SpreadId; number: string; title: string; subtitle: string; 
   { id: "love", number: "03", title: "Любовь и отношения", subtitle: "Три позиции · чувства, динамика и направление", count: "3 КАРТЫ", glyph: "♡" },
 ];
 
-export function TarotSelectionScreen({ onSelect, onBack }: SelectionProps) {
+export function TarotSelectionScreen({ onSelect, onBack, busySpread = null, error }: SelectionProps) {
   return (
     <div className="page-screen tarot-selection-screen">
       <PageHeading title="Таро" description="Остановись на мгновение. Выбери расклад, который откликается тебе сегодня." onBack={onBack} />
@@ -28,95 +31,98 @@ export function TarotSelectionScreen({ onSelect, onBack }: SelectionProps) {
               <span className="card-eyebrow">{spread.count}</span>
               <h2>{spread.title}</h2>
               <p>{spread.subtitle}</p>
-              <button className="text-cta" type="button" onClick={() => onSelect(spread.id)}>
-                Выбрать расклад <span aria-hidden="true">→</span>
+              <button className="text-cta" type="button" disabled={busySpread !== null} onClick={() => onSelect(spread.id)}>
+                {busySpread === spread.id ? "Перемешиваем карты…" : "Выбрать расклад"} <span aria-hidden="true">→</span>
               </button>
             </div>
           </article>
         ))}
       </div>
+      {error && <p className="form-error" role="alert">{error}</p>}
       <p className="disclaimer">Таро — инструмент саморефлексии и вдохновения, а не гарантированное предсказание.</p>
     </div>
   );
 }
 
 interface ResultProps {
-  spread: SpreadId;
+  reading: TarotReading;
   onBack: () => void;
-  onSave: () => void;
 }
 
-const readingContent: Record<SpreadId, {
-  title: string;
-  positions: { position: string; card: string; meaning: string; symbol: string }[];
-  summary: string;
-}> = {
-  daily: {
-    title: "Карта дня",
-    positions: [{ position: "ТВОЯ КАРТА", card: "Звезда", meaning: "Надежда, восстановление и доверие своему внутреннему ориентиру.", symbol: "✦" }],
-    summary: "Сегодня можно позволить себе замедлиться и вспомнить, что вдохновение часто приходит в тишине.",
-  },
-  "past-present-future": {
-    title: "Прошлое · настоящее · будущее",
-    positions: [
-      { position: "ПРОШЛОЕ", card: "Луна", meaning: "Интуиция помогала пройти через неопределённость и услышать себя.", symbol: "☾" },
-      { position: "НАСТОЯЩЕЕ", card: "Звезда", meaning: "Время восстановить силы, вернуть надежду и выбрать спокойный темп.", symbol: "✦" },
-      { position: "БУДУЩЕЕ", card: "Солнце", meaning: "Ясность приходит через открытость, честность и простые радости.", symbol: "☼" },
-    ],
-    summary: "Этот пример расклада напоминает: путь не обязан быть прямым. Прислушайся к тому, что уже стало яснее, и выбери один небольшой шаг.",
-  },
-  love: {
-    title: "Любовь и отношения",
-    positions: [
-      { position: "ТВОИ ЧУВСТВА", card: "Императрица", meaning: "Нежность к себе создаёт пространство для близости.", symbol: "❀" },
-      { position: "ДИНАМИКА", card: "Влюблённые", meaning: "Честный выбор и открытый разговор помогают увидеть главное.", symbol: "♡" },
-      { position: "НАПРАВЛЕНИЕ", card: "Умеренность", meaning: "Баланс, терпение и уважение к границам поддерживают связь.", symbol: "✧" },
-    ],
-    summary: "В отношениях важно не угадывать чужие мысли, а оставаться в контакте со своими чувствами и говорить о них бережно.",
-  },
-};
+export function TarotResultScreen({ reading, onBack }: ResultProps) {
+  const [revealed, setRevealed] = useState<string[]>([]);
+  const allRevealed = reading.cards.every((card) => revealed.includes(card.cardId));
 
-export function TarotResultScreen({ spread, onBack, onSave }: ResultProps) {
-  const content = readingContent[spread];
+  function toggleCard(cardId: string) {
+    setRevealed((current) => current.includes(cardId)
+      ? current.filter((id) => id !== cardId)
+      : [...current, cardId]);
+  }
+
+  const createdAt = new Date(reading.createdAt);
+  const dateLabel = Number.isNaN(createdAt.valueOf())
+    ? ""
+    : new Intl.DateTimeFormat("ru-RU", { dateStyle: "long" }).format(createdAt);
 
   return (
     <div className="page-screen tarot-result-screen">
-      <PageHeading eyebrow="ТВОЙ РАСКЛАД" title={content.title} description="Карты открыты. Прочитай трактовку в своём темпе." onBack={onBack} />
-      <div className={`revealed-cards revealed-cards--${content.positions.length}`}>
-        {content.positions.map((item, index) => (
-          <article className="revealed-card-wrap" key={item.position}>
-            <span className="revealed-card-position">{item.position}</span>
-            <div className="revealed-card">
-              <div className="revealed-card__frame">
-                <span className="revealed-card__corner">{index + 1}</span>
-                <span className="revealed-card__symbol">{item.symbol}</span>
-                <span className="revealed-card__title">{item.card}</span>
-                <span className="revealed-card__ornament">✧ · ✧</span>
-              </div>
-            </div>
-            <p className="revealed-card-name">{item.card}</p>
-          </article>
-        ))}
+      <PageHeading eyebrow="ТВОЙ РАСКЛАД" title={reading.title} description="Открывай карты по очереди и прислушивайся к собственным ощущениям." onBack={onBack} />
+      <p className="reading-date">{dateLabel}</p>
+      <div className={`revealed-cards revealed-cards--${reading.cards.length}`}>
+        {reading.cards.map((card, index) => {
+          const isRevealed = revealed.includes(card.cardId);
+          return (
+            <article className="revealed-card-wrap" key={card.positionId}>
+              <span className="revealed-card-position">{card.positionLabel}</span>
+              <button
+                className={`tarot-flip-card ${isRevealed ? "is-revealed" : ""}`}
+                type="button"
+                aria-pressed={isRevealed}
+                aria-label={isRevealed ? `Закрыть карту ${card.name}` : `Открыть карту в позиции ${card.positionLabel}`}
+                onClick={() => toggleCard(card.cardId)}
+              >
+                <span className="tarot-flip-card__inner">
+                  <span className="tarot-flip-card__back">
+                    <span className="tarot-back-moon">☾</span>
+                    <span className="tarot-back-stars">✧ · ✦ · ✧</span>
+                    <span className="tarot-back-caption">PERSONAL COSMIC JOURNAL</span>
+                  </span>
+                  <span className="tarot-flip-card__front">
+                    <span className="revealed-card__corner">{index + 1}</span>
+                    <span className="revealed-card__symbol">{card.glyph}</span>
+                    <span className="revealed-card__title">{card.name}</span>
+                    <span className="revealed-card__ornament">✧ · ✧</span>
+                  </span>
+                </span>
+              </button>
+              <p className="revealed-card-name">{isRevealed ? card.name : "Карта закрыта"}</p>
+              {!isRevealed && <button className="reveal-text-button" type="button" onClick={() => toggleCard(card.cardId)}>Открыть карту</button>}
+            </article>
+          );
+        })}
       </div>
       <section className="interpretation-panel">
         <span className="card-eyebrow">ОБЩАЯ ТРАКТОВКА</span>
         <h2>Главное послание</h2>
-        <p>{content.summary}</p>
+        <p>{reading.summary}</p>
         <div className="interpretation-divider" />
-        {content.positions.map((item) => (
-          <article className="meaning-row" key={item.position}>
-            <span className="meaning-symbol" aria-hidden="true">{item.symbol}</span>
+        {reading.cards.map((card) => (
+          <article className="meaning-row" key={card.positionId}>
+            <span className="meaning-symbol" aria-hidden="true">{card.glyph}</span>
             <div>
-              <small>{item.position}</small>
-              <h3>{item.card}</h3>
-              <p>{item.meaning}</p>
+              <small>{card.positionLabel}</small>
+              <h3>{card.name}</h3>
+              <p>{card.interpretation}</p>
+              <p className="reflection-question">Для размышления: {card.reflectionPrompt}</p>
+              <div className="keyword-list">{card.keywords.map((keyword) => <span key={keyword}>{keyword}</span>)}</div>
             </div>
           </article>
         ))}
       </section>
       <div className="result-actions">
-        <button className="primary-button" type="button" onClick={onSave}>Сохранить в журнал <span>✦</span></button>
-        <p className="demo-disclaimer">Демонстрационная трактовка интерфейса. Реальный выбор карт и сохранение будут подключены отдельно.</p>
+        <p className="journal-saved-note">✦ Расклад сохранён в твоём журнале</p>
+        <p className="demo-disclaimer">Карты выбираются случайно на сервере. Трактовки — авторские справочные тексты для саморефлексии, не гарантированные предсказания.</p>
+        {!allRevealed && <p className="demo-disclaimer">Открыто карт: {revealed.length} из {reading.cards.length}</p>}
       </div>
     </div>
   );

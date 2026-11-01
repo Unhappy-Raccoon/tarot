@@ -7,7 +7,7 @@ import { AstrologerScreen } from "./features/ai-astrologer/AstrologerScreen";
 import { JournalScreen } from "./features/journal/JournalScreen";
 import { PremiumScreen } from "./features/profile/PremiumScreen";
 import { ProfileScreen } from "./features/profile/ProfileScreen";
-import type { BirthProfile, Screen, SpreadId, UserProfile } from "./types";
+import type { BirthProfile, Screen, SpreadId, TarotReading, UserProfile } from "./types";
 import "./styles.css";
 
 type AuthResponse = { accessToken: string; user: UserProfile };
@@ -15,11 +15,10 @@ type AppStatus = "loading" | "onboarding" | "ready" | "error";
 
 const API_URL = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
 const PREVIEW_PROFILE_KEY = "pcj.preview.profile.v1";
+const PREVIEW_READINGS_KEY = "pcj.preview.tarot-readings.v1";
 const SESSION_KEY = "pcj.session.v1";
 
-function getTelegramApp() {
-  return window.Telegram?.WebApp;
-}
+function getTelegramApp() { return window.Telegram?.WebApp; }
 
 async function apiRequest<T>(path: string, token: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers);
@@ -37,9 +36,62 @@ function getPreviewProfile(): UserProfile | null {
   try {
     const raw = localStorage.getItem(PREVIEW_PROFILE_KEY);
     return raw ? JSON.parse(raw) as UserProfile : null;
-  } catch {
-    return null;
-  }
+  } catch { return null; }
+}
+
+function getPreviewReadings(): TarotReading[] {
+  try {
+    const raw = localStorage.getItem(PREVIEW_READINGS_KEY);
+    return raw ? JSON.parse(raw) as TarotReading[] : [];
+  } catch { return []; }
+}
+
+function createPreviewReading(spreadId: SpreadId): TarotReading {
+  const spreadConfig: Record<SpreadId, { title: string; positions: { label: string; name: string; glyph: string; interpretation: string; prompt: string }[]; summary: string }> = {
+    daily: {
+      title: "Карта дня",
+      positions: [{ label: "ТВОЯ КАРТА ДНЯ", name: "Звезда", glyph: "✦", interpretation: "Надежда, восстановление и доверие своему внутреннему ориентиру.", prompt: "Что возвращает тебе надежду?" }],
+      summary: "Это демонстрационный расклад. Используй его как повод для спокойной саморефлексии.",
+    },
+    "past-present-future": {
+      title: "Прошлое · настоящее · будущее",
+      positions: [
+        { label: "ПРОШЛОЕ", name: "Луна", glyph: "☾", interpretation: "Прислушайся к опыту, который помог лучше понять собственные чувства.", prompt: "Что ты узнала о себе?" },
+        { label: "НАСТОЯЩЕЕ", name: "Звезда", glyph: "✦", interpretation: "Сейчас важно восстановить силы и увидеть доступные ресурсы.", prompt: "Что поддерживает тебя сегодня?" },
+        { label: "БУДУЩЕЕ", name: "Солнце", glyph: "☼", interpretation: "Ясность может прийти через открытость и небольшие конкретные шаги.", prompt: "Какой шаг ты выбираешь?" },
+      ],
+      summary: "Демонстрационный расклад помогает посмотреть на опыт, настоящий момент и возможное направление.",
+    },
+    love: {
+      title: "Любовь и отношения",
+      positions: [
+        { label: "ТВОИ ЧУВСТВА", name: "Императрица", glyph: "❀", interpretation: "Забота о себе создаёт пространство для близости.", prompt: "В чём нуждаются твои чувства?" },
+        { label: "ДИНАМИКА", name: "Влюблённые", glyph: "♡", interpretation: "Честный выбор и открытый разговор помогают прояснить ситуацию.", prompt: "О чём важно поговорить?" },
+        { label: "НАПРАВЛЕНИЕ", name: "Умеренность", glyph: "✧", interpretation: "Баланс, терпение и уважение к границам поддерживают контакт.", prompt: "Какой шаг будет бережным?" },
+      ],
+      summary: "Демонстрационный расклад посвящён твоим чувствам, взаимодействию и личным границам.",
+    },
+  };
+  const config = spreadConfig[spreadId];
+  return {
+    id: `preview-${Date.now()}`,
+    spreadId,
+    title: config.title,
+    summary: config.summary,
+    cards: config.positions.map((card, index) => ({
+      positionId: String(index),
+      positionLabel: card.label,
+      cardId: `preview-${index}-${card.name}`,
+      name: card.name,
+      arcana: "major" as const,
+      glyph: card.glyph,
+      keywords: ["демо", "саморефлексия"],
+      orientation: "upright" as const,
+      interpretation: card.interpretation,
+      reflectionPrompt: card.prompt,
+    })),
+    createdAt: new Date().toISOString(),
+  };
 }
 
 export default function App() {
@@ -49,8 +101,12 @@ export default function App() {
   const [accessToken, setAccessToken] = useState("");
   const [previewMode, setPreviewMode] = useState(false);
   const [activeScreen, setActiveScreen] = useState<Screen>("home");
-  const [selectedSpread, setSelectedSpread] = useState<SpreadId>("past-present-future");
-  const [savedNotice, setSavedNotice] = useState(false);
+  const [reading, setReading] = useState<TarotReading | null>(null);
+  const [busySpread, setBusySpread] = useState<SpreadId | null>(null);
+  const [tarotError, setTarotError] = useState("");
+  const [journalReadings, setJournalReadings] = useState<TarotReading[]>([]);
+  const [journalLoading, setJournalLoading] = useState(false);
+  const [journalError, setJournalError] = useState("");
 
   useEffect(() => {
     const telegram = getTelegramApp();
@@ -78,11 +134,8 @@ export default function App() {
             setProfile(restored.user);
             setStatus(restored.user.birthProfile ? "ready" : "onboarding");
             return;
-          } catch {
-            sessionStorage.removeItem(SESSION_KEY);
-          }
+          } catch { sessionStorage.removeItem(SESSION_KEY); }
         }
-
         if (!API_URL) throw new Error("Не задан VITE_API_URL для WebApp.");
         const response = await fetch(`${API_URL}/api/auth/telegram`, {
           method: "POST",
@@ -90,10 +143,7 @@ export default function App() {
           body: JSON.stringify({ initData }),
         });
         const result = await response.json() as AuthResponse & { message?: string };
-        if (!response.ok || !result.accessToken) {
-          throw new Error(result.message ?? "Не удалось подтвердить вход через Telegram.");
-        }
-
+        if (!response.ok || !result.accessToken) throw new Error(result.message ?? "Не удалось подтвердить вход через Telegram.");
         sessionStorage.setItem(SESSION_KEY, result.accessToken);
         setAccessToken(result.accessToken);
         setProfile(result.user);
@@ -103,9 +153,30 @@ export default function App() {
         setStatus("error");
       }
     };
-
     void restoreSession();
   }, []);
+
+  useEffect(() => {
+    if (status !== "ready" || activeScreen !== "journal") return;
+    let cancelled = false;
+    setJournalLoading(true);
+    setJournalError("");
+
+    const load = async () => {
+      try {
+        const readings = previewMode
+          ? getPreviewReadings()
+          : (await apiRequest<{ readings: TarotReading[] }>("/api/tarot/readings", accessToken)).readings;
+        if (!cancelled) setJournalReadings(readings);
+      } catch (caught) {
+        if (!cancelled) setJournalError(caught instanceof Error ? caught.message : "Не удалось открыть журнал.");
+      } finally {
+        if (!cancelled) setJournalLoading(false);
+      }
+    };
+    void load();
+    return () => { cancelled = true; };
+  }, [status, activeScreen, previewMode, accessToken]);
 
   const displayName = useMemo(
     () => profile?.birthProfile?.displayName || profile?.firstName || "Путешественница",
@@ -128,7 +199,6 @@ export default function App() {
       setActiveScreen("home");
       return;
     }
-
     const result = await apiRequest<{ user: UserProfile }>("/api/me/onboarding", accessToken, {
       method: "PUT",
       body: JSON.stringify(input),
@@ -146,34 +216,59 @@ export default function App() {
   if (!profile) return <MessageScreen title="Профиль не найден" message="Открой приложение через Telegram ещё раз." />;
 
   function navigate(screen: Screen) {
-    setSavedNotice(false);
     setActiveScreen(screen);
+    setTarotError("");
   }
 
-  function openSpread(spread: SpreadId) {
-    setSelectedSpread(spread);
-    setSavedNotice(false);
+  async function startSpread(spreadId: SpreadId) {
+    setBusySpread(spreadId);
+    setTarotError("");
+    try {
+      let nextReading: TarotReading;
+      if (previewMode) {
+        const existing = getPreviewReadings();
+        const today = new Date().toISOString().slice(0, 10);
+        const existingDaily = spreadId === "daily"
+          ? existing.find((item) => item.spreadId === "daily" && item.createdAt.slice(0, 10) === today)
+          : undefined;
+        nextReading = existingDaily ?? createPreviewReading(spreadId);
+        if (!existingDaily) {
+          localStorage.setItem(PREVIEW_READINGS_KEY, JSON.stringify([nextReading, ...existing].slice(0, 50)));
+        }
+      } else {
+        nextReading = (await apiRequest<{ reading: TarotReading }>("/api/tarot/readings", accessToken, {
+          method: "POST",
+          body: JSON.stringify({ spreadId }),
+        })).reading;
+      }
+      setJournalReadings((current) => [nextReading, ...current.filter((item) => item.id !== nextReading.id)]);
+      setReading(nextReading);
+      setActiveScreen("tarot-result");
+    } catch (caught) {
+      setTarotError(caught instanceof Error ? caught.message : "Не удалось создать расклад.");
+      setActiveScreen(spreadId === "daily" ? "home" : "tarot");
+    } finally {
+      setBusySpread(null);
+    }
+  }
+
+  function openReading(savedReading: TarotReading) {
+    setReading(savedReading);
     setActiveScreen("tarot-result");
-  }
-
-  function saveReading() {
-    setSavedNotice(true);
   }
 
   return (
     <div className="app-frame">
       <main className="app-content">
-        {activeScreen === "home" && <HomeScreen profile={profile} displayName={displayName} onNavigate={navigate} />}
-        {activeScreen === "tarot" && <TarotSelectionScreen onSelect={openSpread} onBack={() => navigate("home")} />}
-        {activeScreen === "tarot-result" && (
-          <TarotResultScreen spread={selectedSpread} onBack={() => navigate("tarot")} onSave={saveReading} />
-        )}
+        {activeScreen === "home" && <HomeScreen profile={profile} displayName={displayName} onNavigate={navigate} onDailyCard={() => void startSpread("daily")} busy={busySpread === "daily"} />}
+        {activeScreen === "tarot" && <TarotSelectionScreen onSelect={(spread) => void startSpread(spread)} onBack={() => navigate("home")} busySpread={busySpread} error={tarotError} />}
+        {activeScreen === "tarot-result" && reading && <TarotResultScreen reading={reading} onBack={() => navigate("tarot")} />}
         {activeScreen === "natal" && <NatalChartScreen onBack={() => navigate("home")} />}
         {activeScreen === "astrologer" && <AstrologerScreen onBack={() => navigate("home")} />}
-        {activeScreen === "journal" && <JournalScreen onBack={() => navigate("home")} />}
+        {activeScreen === "journal" && <JournalScreen onBack={() => navigate("home")} readings={journalReadings} onOpenReading={openReading} loading={journalLoading} error={journalError} />}
         {activeScreen === "profile" && <ProfileScreen profile={profile} displayName={displayName} onPremium={() => navigate("premium")} />}
         {activeScreen === "premium" && <PremiumScreen onBack={() => navigate("profile")} />}
-        {savedNotice && <div className="toast-notice" role="status">В демо-режиме результат не сохранён в базу данных.</div>}
+        {tarotError && activeScreen === "home" && <div className="toast-notice" role="alert">{tarotError}</div>}
       </main>
       <BottomNavigation activeScreen={activeScreen} onNavigate={navigate} />
     </div>

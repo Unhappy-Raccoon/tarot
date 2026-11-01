@@ -8,25 +8,27 @@
 | Этап 3 — technical architecture | Approved |
 | Этап 4 — repository foundation | Approved |
 | Этап 5.1 — Bot, auth, onboarding foundation | Implemented and approved |
-| Этап 5.2 — WebApp screen implementation | Implemented in `feat/telegram-webapp-foundation`, pending review |
-| Bot commands and WebApp launch | Implemented; live test requires bot token + public HTTPS URL |
+| Этап 5.2 — WebApp screen implementation | Implemented and approved |
+| Этап 5.3 — Tarot reading engine and journal persistence | Implemented in feature branch, pending review |
+| Tarot catalog | 78 cards (22 Major + 56 Minor Arcana) |
+| Tarot spreads | Daily, Past–Present–Future, Love & Relationships |
+| Tarot draw | Server-side cryptographic random selection, no duplicates within a spread |
+| Tarot persistence | PostgreSQL migration + development in-memory adapter |
+| Daily card | One stored daily reading per user per UTC date |
+| Journal | Connected to actual Tarot reading history |
 | Telegram initData verification | Implemented; unit tests passing |
 | Onboarding API | Implemented; persistent mode requires PostgreSQL migration |
-| WebApp onboarding | Implemented; local preview mode available |
-| Main screen and 7 product sections | Implemented as UI with explicitly marked demo data |
-| CI (typecheck, Telegram auth tests, workspace build) | Passing on latest UI implementation commit |
-| Tarot engine / natal calculations / AI | Not implemented |
-| Journal backend persistence | Not implemented |
+| AI / natal calculations / horoscope | Not implemented |
 | Telegram Stars payments | Not implemented |
 | Production deployment | Not configured |
 
 ## Current constraints
 
-- Set `TELEGRAM_BOT_TOKEN`, `SESSION_SECRET`, `DATABASE_URL`, `TELEGRAM_WEBAPP_URL`, `WEBAPP_ORIGIN`, and `VITE_API_URL` outside Git.
-- Apply SQL migration `apps/server/migrations/0001_core.sql` before using persistent onboarding in production.
-- Telegram Mini App launch buttons require a public HTTPS URL.
-- Development without DATABASE_URL uses in-memory user profiles; data is lost when the server restarts.
-- Tarot cards and interpretations, natal placements, AI conversation and journal entries are demo UI data and are not yet backend-connected.
-- Exact Free/Premium limits and prices are not approved.
-- AI provider/model is not selected.
+- Apply migrations in order: `0001_core.sql`, then `0002_tarot_readings.sql`.
+- Development without DATABASE_URL uses in-memory user profiles and readings; data is lost when server restarts.
+- Daily Tarot date boundary currently uses UTC; user-local timezone scheduling is a separate follow-up.
+- Tarot interpretations are static editorial texts, not AI-generated.
+- Reversed-card orientation and per-plan spread limits are not implemented; exact Free/Premium limits are not approved.
+- Telegram bot live test requires secrets and a public HTTPS Mini App URL.
+- AI provider/model and Premium prices are not selected.
 - Behavior parity with `@my_first_tarot_test_bot` still needs a user-provided walkthrough or test account access.
