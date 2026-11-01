@@ -16,9 +16,8 @@
 | Tarot persistence | PostgreSQL migration + development in-memory adapter |
 | Daily card | One stored daily reading per user per UTC date |
 | Journal | Connected to actual Tarot reading history |
-| Telegram initData verification | Implemented; unit tests passing |
-| Onboarding API | Implemented; persistent mode requires PostgreSQL migration |
-| AI / natal calculations / horoscope | Not implemented |
+| CI (typecheck, tests, workspace build) | Passing on Tarot iteration |
+| Natal calculations / real horoscope / AI | Not implemented |
 | Telegram Stars payments | Not implemented |
 | Production deployment | Not configured |
 
