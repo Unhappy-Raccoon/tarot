@@ -38,13 +38,13 @@ async function apiRequest<T>(
   token: string,
   init: RequestInit = {},
 ): Promise<T> {
+  const headers = new Headers(init.headers);
+  headers.set("Content-Type", "application/json");
+  headers.set("Authorization", `Bearer ${token}`);
+
   const response = await fetch(`${API_URL}${path}`, {
     ...init,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-      ...init.headers,
-    },
+    headers,
   });
 
   if (!response.ok) {
@@ -92,11 +92,15 @@ export default function App() {
     const restoreSession = async () => {
       try {
         if (cachedToken && API_URL) {
-          const restored = await apiRequest<{ user: UserProfile }>("/api/me", cachedToken);
-          setAccessToken(cachedToken);
-          setProfile(restored.user);
-          setStatus(restored.user.birthProfile ? "ready" : "onboarding");
-          return;
+          try {
+            const restored = await apiRequest<{ user: UserProfile }>("/api/me", cachedToken);
+            setAccessToken(cachedToken);
+            setProfile(restored.user);
+            setStatus(restored.user.birthProfile ? "ready" : "onboarding");
+            return;
+          } catch {
+            sessionStorage.removeItem(SESSION_KEY);
+          }
         }
 
         if (!API_URL) throw new Error("Не задан VITE_API_URL для WebApp.");
