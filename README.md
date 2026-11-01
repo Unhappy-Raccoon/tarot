@@ -4,7 +4,7 @@ Telegram Bot + Telegram WebApp: персональный астрологиче�
 
 ## Состояние проекта
 
-Этапы 0–4 утверждены. Ветка `feat/telegram-webapp-foundation` содержит первую реализацию Этапа 5: Telegram Bot commands, серверную Telegram Mini App authorization, onboarding API и начальную WebApp-оболочку. Функциональные расклады, расчёт натальной карты, AI, журнал, платежи и production deployment ещё не реализованы.
+Этапы 0–4 утверждены. Ветка `feat/telegram-webapp-foundation` содержит первую реализацию Этапа 5: Telegram Bot commands, серверную Telegram Mini App authorization, onboarding API и восемь связанных UI-разделов WebApp. Данные для карт, астрологии, чата и журнала пока демонстрационные; AI, платежи и полноценная backend-логика функций ещё не подключены.
 
 ## Стек
 
@@ -12,7 +12,7 @@ Telegram Bot + Telegram WebApp: персональный астрологиче�
 - API и Bot: Node.js, TypeScript, Fastify, grammY
 - Shared: общие типы и контракты
 - Database: PostgreSQL, Drizzle ORM, Postgres.js
-- Astronomy: Astronomy Engine; Асцендент рассчитывается изолированным модулем
+- Astronomy: Astronomy Engine; Асцендент рассчитывается отдельным проверяемым модулем
 - AI: подключаемый LLM-провайдер через adapter
 - Payments: Telegram Stars для цифровых товаров и услуг внутри Telegram
 
@@ -20,7 +20,7 @@ Telegram Bot + Telegram WebApp: персональный астрологиче�
 
 ```text
 apps/
-  web/       Telegram WebApp
+  web/       Telegram WebApp и экраны продукта
   server/    Fastify API и grammY Bot
 packages/
   shared/    Общие типы и схемы
@@ -49,7 +49,7 @@ docs/        PRD, решения, архитектура и дизайн-сис�
 - `npm run test:server`
 - `npm run build`
 
-GitHub Actions выполняет эти три проверки для ветки `feat/telegram-webapp-foundation`.
+GitHub Actions выполняет эти проверки для feature-ветки. Последняя проверка после добавления UI-экранов прошла успешно.
 
 ## Документация
 
