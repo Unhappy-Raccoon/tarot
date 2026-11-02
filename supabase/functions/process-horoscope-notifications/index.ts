@@ -1,15 +1,5 @@
 import process from "node:process";
 import { Bot } from "grammy";
-import { createAIProviderFromEnv } from "../../../apps/server/dist/modules/ai/provider.js";
-import {
-  generateDailyHoroscope,
-} from "../../../apps/server/dist/modules/horoscope/service.js";
-import {
-  claimHoroscopeNotification,
-  listDueHoroscopeNotifications,
-  markHoroscopeNotificationSent,
-  releaseHoroscopeNotification,
-} from "../../../apps/server/dist/modules/horoscope/repository.js";
 import { hydrateNodeEnvironment } from "../_shared/runtime-env.ts";
 import { hasValidSecretHeader } from "../_shared/security.ts";
 
@@ -34,16 +24,41 @@ const ENV_KEYS = [
   "DATABASE_POOL_MAX",
 ] as const;
 
-let workerPromise: Promise<{ bot: Bot; provider: ReturnType<typeof createAIProviderFromEnv> }> | null = null;
+let workerPromise: Promise<{
+  bot: Bot;
+  provider: Awaited<ReturnType<typeof import("../../../apps/server/dist/modules/ai/provider.js")["createAIProviderFromEnv"]>>;
+  generateDailyHoroscope: typeof import("../../../apps/server/dist/modules/horoscope/service.js")["generateDailyHoroscope"];
+  listDueHoroscopeNotifications: typeof import("../../../apps/server/dist/modules/horoscope/repository.js")["listDueHoroscopeNotifications"];
+  claimHoroscopeNotification: typeof import("../../../apps/server/dist/modules/horoscope/repository.js")["claimHoroscopeNotification"];
+  markHoroscopeNotificationSent: typeof import("../../../apps/server/dist/modules/horoscope/repository.js")["markHoroscopeNotificationSent"];
+  releaseHoroscopeNotification: typeof import("../../../apps/server/dist/modules/horoscope/repository.js")["releaseHoroscopeNotification"];
+}> | null = null;
 
 async function getWorker() {
   if (!workerPromise) {
     workerPromise = (async () => {
+      // The database module reads DATABASE_URL at import time, so bridge secrets first.
       hydrateNodeEnvironment(process, ENV_KEYS);
+      const [
+        ai,
+        horoscope,
+        repository,
+      ] = await Promise.all([
+        import("../../../apps/server/dist/modules/ai/provider.js"),
+        import("../../../apps/server/dist/modules/horoscope/service.js"),
+        import("../../../apps/server/dist/modules/horoscope/repository.js"),
+      ]);
       const token = Deno.env.get("TELEGRAM_BOT_TOKEN");
       if (!token) throw new Error("telegram_bot_not_configured");
-      const [{ Bot: TelegramBot }] = await Promise.all([import("grammy")]);
-      return { bot: new TelegramBot(token), provider: createAIProviderFromEnv() };
+      return {
+        bot: new Bot(token),
+        provider: ai.createAIProviderFromEnv(),
+        generateDailyHoroscope: horoscope.generateDailyHoroscope,
+        listDueHoroscopeNotifications: repository.listDueHoroscopeNotifications,
+        claimHoroscopeNotification: repository.claimHoroscopeNotification,
+        markHoroscopeNotificationSent: repository.markHoroscopeNotificationSent,
+        releaseHoroscopeNotification: repository.releaseHoroscopeNotification,
+      };
     })().catch((error) => {
       workerPromise = null;
       throw error;
@@ -62,38 +77,46 @@ Deno.serve(async (request) => {
   }
 
   try {
-    const { bot, provider } = await getWorker();
-    if (!provider) return Response.json({ error: "ai_provider_not_configured" }, { status: 503 });
+    const worker = await getWorker();
+    if (!worker.provider) {
+      return Response.json({ error: "ai_provider_not_configured" }, { status: 503 });
+    }
 
     // Small bounded batch keeps each invocation under serverless wall-clock limits.
-    const due = await listDueHoroscopeNotifications(3);
+    const due = await worker.listDueHoroscopeNotifications(3);
     let sent = 0;
     let skipped = 0;
     let failed = 0;
 
     for (const item of due) {
-      const claimed = await claimHoroscopeNotification(item.telegramId, item.localDate);
+      const claimed = await worker.claimHoroscopeNotification(item.telegramId, item.localDate);
       if (!claimed) {
         skipped += 1;
         continue;
       }
       try {
-        const horoscope = await generateDailyHoroscope(item.telegramId, item.timeZone, provider, item.localDate);
+        const horoscope = await worker.generateDailyHoroscope(
+          item.telegramId,
+          item.timeZone,
+          worker.provider,
+          item.localDate,
+        );
+        const webAppUrl = Deno.env.get("TELEGRAM_WEBAPP_URL") ?? "";
         const message = [
           `☾ Гороскоп на ${item.localDate}`,
           "",
           horoscope.content,
           "",
           "Это символическая подсказка для саморефлексии, а не прогноз неизбежных событий.",
-          Deno.env.get("TELEGRAM_WEBAPP_URL") ? `Открыть журнал: ${Deno.env.get("TELEGRAM_WEBAPP_URL")}` : "",
+          webAppUrl ? `Открыть журнал: ${webAppUrl}` : "",
         ].filter(Boolean).join("\n").slice(0, 3900);
-        await bot.api.sendMessage(item.telegramId, message, {
+        await worker.bot.api.sendMessage(item.telegramId, message, {
           link_preview_options: { is_disabled: true },
         });
-        await markHoroscopeNotificationSent(item.telegramId, item.localDate);
+        await worker.markHoroscopeNotificationSent(item.telegramId, item.localDate);
         sent += 1;
       } catch (error) {
-        await releaseHoroscopeNotification(item.telegramId, item.localDate).catch(() => undefined);
+        await worker.releaseHoroscopeNotification(item.telegramId, item.localDate).catch(() => undefined);
         failed += 1;
         console.warn("Horoscope notification failed", error instanceof Error ? error.name : "unknown");
       }
