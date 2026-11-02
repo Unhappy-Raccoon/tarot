@@ -1,6 +1,8 @@
 import type { TarotCardDraw, TarotSpreadId } from "../modules/tarot/types.js";
+import type { NatalChartResult } from "../modules/astrology/types.js";
 import {
   date,
+  doublePrecision,
   integer,
   jsonb,
   pgTable,
@@ -35,6 +37,8 @@ export const birthProfiles = pgTable("birth_profiles", {
   birthTime: varchar("birth_time", { length: 5 }),
   birthPlace: varchar("birth_place", { length: 160 }),
   birthTimeZone: varchar("birth_time_zone", { length: 64 }),
+  birthLatitude: doublePrecision("birth_latitude"),
+  birthLongitude: doublePrecision("birth_longitude"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
@@ -58,3 +62,16 @@ export const tarotReadings = pgTable(
     index("tarot_readings_user_created_idx").on(table.userId, table.createdAt),
   ],
 );
+
+
+export const natalCharts = pgTable("natal_charts", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .notNull()
+    .unique()
+    .references(() => users.id, { onDelete: "cascade" }),
+  inputHash: varchar("input_hash", { length: 64 }).notNull(),
+  algorithmVersion: varchar("algorithm_version", { length: 32 }).notNull(),
+  chartData: jsonb("chart_data").$type<NatalChartResult>().notNull(),
+  calculatedAt: timestamp("calculated_at", { withTimezone: true }).notNull(),
+});

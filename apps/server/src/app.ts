@@ -8,6 +8,8 @@ import {
   type BirthProfileInput,
 } from "./modules/users/repository.js";
 import { getTarotSpread, isTarotSpreadId, tarotSpreads } from "./modules/tarot/spreads.js";
+import { NatalCalculationError } from "./modules/astrology/calculator.js";
+import { getOrCreateNatalChart } from "./modules/astrology/repository.js";
 import {
   createTarotReading,
   getTarotReading,
@@ -30,6 +32,8 @@ interface OnboardingBody {
   birthTime?: unknown;
   birthPlace?: unknown;
   birthTimeZone?: unknown;
+  birthLatitude?: unknown;
+  birthLongitude?: unknown;
 }
 
 interface CreateTarotReadingBody {
@@ -51,6 +55,21 @@ function isValidDate(value: string): boolean {
 
 function isValidTime(value: string): boolean {
   return /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value);
+}
+
+function normalizeOptionalCoordinate(
+  value: unknown,
+  minimum: number,
+  maximum: number,
+): number | undefined | null {
+  if (value === undefined || value === null || value === "") return undefined;
+  const parsed = typeof value === "number"
+    ? value
+    : typeof value === "string"
+      ? Number(value.trim())
+      : Number.NaN;
+  if (!Number.isFinite(parsed) || parsed < minimum || parsed > maximum) return null;
+  return parsed;
 }
 
 function normalizeOptionalString(
@@ -114,6 +133,38 @@ export function buildApp(options: AppOptions = {}) {
   }));
 
   app.get("/api/tarot/spreads", async () => ({ spreads: tarotSpreads }));
+
+  app.post("/api/astrology/natal-chart", async (request, reply) => {
+    const telegramId = getTelegramId(request);
+    if (!telegramId) return reply.code(401).send({ error: "unauthorized" });
+
+    try {
+      const chart = await getOrCreateNatalChart(telegramId);
+      return { chart };
+    } catch (error) {
+      if (error instanceof NatalCalculationError) {
+        return reply.code(422).send({
+          error: error.code,
+          message: error.message,
+        });
+      }
+      if (error instanceof Error && error.message === "Birth profile is required before calculating a natal chart") {
+        return reply.code(409).send({
+          error: "birth_profile_required",
+          message: "Сначала заполни дату рождения в профиле.",
+        });
+      }
+      if (error instanceof Error && error.message === "User not found") {
+        return reply.code(404).send({ error: "user_not_found" });
+      }
+      request.log.error({ err: error }, "Unable to calculate natal chart");
+      return reply.code(503).send({
+        error: "natal_chart_unavailable",
+        message: "Не удалось рассчитать натальную карту. Попробуй ещё раз.",
+      });
+    }
+  });
+
 
   app.post<{ Body: AuthBody }>(
     "/api/auth/telegram",
@@ -200,6 +251,8 @@ export function buildApp(options: AppOptions = {}) {
       const birthTime = normalizeOptionalString(request.body?.birthTime, 5);
       const birthPlace = normalizeOptionalString(request.body?.birthPlace, 160);
       const birthTimeZone = normalizeOptionalString(request.body?.birthTimeZone, 64);
+      const birthLatitude = normalizeOptionalCoordinate(request.body?.birthLatitude, -90, 90);
+      const birthLongitude = normalizeOptionalCoordinate(request.body?.birthLongitude, -180, 180);
 
       if (
         !displayName ||
@@ -208,6 +261,9 @@ export function buildApp(options: AppOptions = {}) {
         birthTime === null ||
         birthPlace === null ||
         birthTimeZone === null ||
+        birthLatitude === null ||
+        birthLongitude === null ||
+        ((birthLatitude === undefined) !== (birthLongitude === undefined)) ||
         (birthTime !== undefined && !isValidTime(birthTime))
       ) {
         return reply.code(400).send({
@@ -233,6 +289,8 @@ export function buildApp(options: AppOptions = {}) {
         ...(birthTime ? { birthTime } : {}),
         ...(birthPlace ? { birthPlace } : {}),
         ...(birthTimeZone ? { birthTimeZone } : {}),
+        ...(birthLatitude !== undefined ? { birthLatitude } : {}),
+        ...(birthLongitude !== undefined ? { birthLongitude } : {}),
       };
 
       try {

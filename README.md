@@ -39,7 +39,8 @@ docs/        PRD, решения, архитектура и дизайн-сис�
 4. Заполнить `TELEGRAM_BOT_TOKEN`, `SESSION_SECRET`, `DATABASE_URL`, `TELEGRAM_WEBAPP_URL`, `WEBAPP_ORIGIN` и `VITE_API_URL` подходящими локальными/публичными значениями.
 5. Применить SQL-миграции по порядку:
    `psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f apps/server/migrations/0001_core.sql`
-   `psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f apps/server/migrations/0002_tarot_readings.sql`
+   `psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f apps/server/migrations/0002_tarot_readings.sql
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f apps/server/migrations/0003_natal_charts.sql`
 6. API + Bot: `npm run dev:server`.
 7. WebApp: `npm run dev:web`.
 
@@ -75,3 +76,13 @@ GitHub Actions выполняет эти проверки для feature-вет�
 ## Безопасность
 
 Не коммитить `.env`, Telegram Bot Token, AI API keys, приватные данные пользователей и платёжные секреты. Секреты передаются серверу через переменные окружения. Сервер проверяет Telegram `initData` до создания session token; `initDataUnsafe` не используется для авторизации.
+
+
+## Натальная карта
+
+- `POST /api/astrology/natal-chart` — рассчитать и сохранить натальную карту текущего пользователя.
+- Поддерживаются тропические геоцентрические положения Солнца, Луны и восьми планет до Плутона.
+- Местное время преобразуется по IANA timezone, включая переходы летнего времени.
+- Без точного времени рассчитывается диапазон возможных моментов; градусы, Асцендент и дома не подменяются предположениями.
+- Асцендент и дома Whole Sign доступны только при точном времени, IANA timezone и координатах рождения.
+- Координаты пока указываются вручную; сервис геокодирования не выбран.
