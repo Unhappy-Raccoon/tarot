@@ -75,3 +75,54 @@ export const natalCharts = pgTable("natal_charts", {
   chartData: jsonb("chart_data").$type<NatalChartResult>().notNull(),
   calculatedAt: timestamp("calculated_at", { withTimezone: true }).notNull(),
 });
+
+
+export const aiConversations = pgTable(
+  "ai_conversations",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    title: varchar("title", { length: 72 }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index("ai_conversations_user_updated_idx").on(table.userId, table.updatedAt)],
+);
+
+export const aiMessages = pgTable(
+  "ai_messages",
+  {
+    id: serial("id").primaryKey(),
+    conversationId: integer("conversation_id")
+      .notNull()
+      .references(() => aiConversations.id, { onDelete: "cascade" }),
+    role: varchar("role", { length: 16 }).notNull(),
+    content: text("content").notNull(),
+    provider: varchar("provider", { length: 40 }),
+    model: varchar("model", { length: 100 }),
+    inputTokens: integer("input_tokens").notNull().default(0),
+    outputTokens: integer("output_tokens").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index("ai_messages_conversation_created_idx").on(table.conversationId, table.createdAt)],
+);
+
+export const aiDailyUsage = pgTable(
+  "ai_daily_usage",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    usageDate: date("usage_date", { mode: "string" }).notNull(),
+    messagesUsed: integer("messages_used").notNull().default(0),
+    inputTokens: integer("input_tokens").notNull().default(0),
+    outputTokens: integer("output_tokens").notNull().default(0),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("ai_daily_usage_user_date_unique").on(table.userId, table.usageDate),
+  ],
+);
