@@ -66,22 +66,23 @@ export async function generateDailyHoroscope(
   telegramId: string,
   timeZone: string,
   provider: AIChatProvider | null,
-  localDate = getLocalDate(new Date(), timeZone),
+  requestedLocalDate?: string,
 ): Promise<DailyHoroscope> {
   if (!isValidTimeZone(timeZone)) {
     throw new HoroscopeServiceError("invalid_time_zone", "Укажи корректный часовой пояс IANA.", 400);
   }
+  const localDate = requestedLocalDate ?? getLocalDate(new Date(), timeZone);
   const existing = await getDailyHoroscope(telegramId, localDate, timeZone);
   if (existing) return existing;
   if (!provider) {
     throw new HoroscopeServiceError(
       "ai_provider_not_configured",
-      "Гороскоп уже рассчитывает транзиты, но для персональной трактовки нужно подключить AI-модель на сервере.",
+      "Чтобы подготовить персональную трактовку гороскопа, нужно подключить AI-модель на сервере.",
       503,
     );
   }
 
-  const key = `${telegramId}:${localDate}:${timeZone}`;
+  const key = `${telegramId}:${localDate}`;
   const pending = pendingGenerations.get(key);
   if (pending) return pending;
 
