@@ -221,8 +221,16 @@ export default function App() {
   }
 
   async function updateBirthProfile(input: BirthProfile) {
+    if (!profile) throw new Error("Профиль пользователя не найден");
     if (previewMode) {
-      const nextProfile = { ...profile, firstName: input.displayName, birthProfile: input };
+      const nextProfile: UserProfile = {
+        telegramId: profile.telegramId,
+        firstName: input.displayName,
+        lastName: profile.lastName,
+        username: profile.username,
+        plan: profile.plan,
+        birthProfile: input,
+      };
       localStorage.setItem(PREVIEW_PROFILE_KEY, JSON.stringify(nextProfile));
       setProfile(nextProfile);
       return;
