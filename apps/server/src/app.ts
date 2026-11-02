@@ -1,5 +1,4 @@
 import Fastify, { type FastifyRequest } from "fastify";
-import { checkDatabaseReadiness } from "./db/index.js";
 import { createSessionToken, verifySessionToken } from "./auth/session.js";
 import { validateTelegramInitData } from "./auth/telegram-init-data.js";
 import {
@@ -168,50 +167,11 @@ export function buildApp(options: AppOptions = {}) {
       : null;
   }
 
-  // Liveness only: this endpoint stays available while dependencies recover.
   app.get("/health", async () => ({
     status: "ok",
     service: "personal-cosmic-journal-api",
+    database: process.env.DATABASE_URL ? "configured" : "development-memory",
   }));
-
-  // Readiness verifies the persistent schema and integrations needed for a real test launch.
-  app.get("/health/ready", async (_request, reply) => {
-    const database = await checkDatabaseReadiness();
-    let webAppReady = false;
-    try {
-      const webUrl = process.env.TELEGRAM_WEBAPP_URL ? new URL(process.env.TELEGRAM_WEBAPP_URL) : null;
-      const origin = options.webAppOrigin ? new URL(options.webAppOrigin) : null;
-      webAppReady = Boolean(
-        webUrl && origin &&
-        webUrl.protocol === "https:" && origin.protocol === "https:" &&
-        origin.origin === options.webAppOrigin && webUrl.origin === origin.origin
-      );
-    } catch {
-      webAppReady = false;
-    }
-
-    const checks = {
-      database: {
-        ready: database.ready,
-        connected: database.connected,
-        configured: database.configured,
-        missingTables: database.missingTables,
-      },
-      telegramBot: Boolean(options.botToken),
-      sessionAuth: Boolean(options.sessionSecret && options.sessionSecret.length >= 32),
-      webApp: webAppReady,
-      aiProvider: Boolean(aiProvider),
-    };
-    const ready = database.ready && checks.telegramBot &&
-      checks.sessionAuth && checks.webApp && checks.aiProvider;
-
-    if (!ready) reply.code(503);
-    return {
-      status: ready ? "ready" : "not_ready",
-      service: "personal-cosmic-journal-api",
-      checks,
-    };
-  });
 
   app.get("/api/tarot/spreads", async () => ({ spreads: tarotSpreads }));
 

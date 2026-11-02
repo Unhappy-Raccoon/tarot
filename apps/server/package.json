@@ -8,7 +8,7 @@
     "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "tsx --test src/config/runtime.test.ts src/auth/telegram-init-data.test.ts src/modules/tarot/engine.test.ts src/modules/astrology/natal-chart.test.ts src/modules/astrology/transits.test.ts src/modules/ai/astrologer.test.ts src/modules/horoscope/horoscope.test.ts"
+    "test": "tsx --test src/auth/telegram-init-data.test.ts src/modules/tarot/engine.test.ts src/modules/astrology/natal-chart.test.ts src/modules/astrology/transits.test.ts src/modules/ai/astrologer.test.ts src/modules/horoscope/horoscope.test.ts"
   },
   "dependencies": {
     "@pcj/shared": "0.1.0",

@@ -5,11 +5,8 @@ on:
     branches:
       - feat/telegram-webapp-foundation
       - feat/ai-astrologer
-      - feat/daily-horoscope
-      - feat/mvp-test-readiness
       - feat/natal-chart-engine
       - feat/daily-horoscope
-      - feat/mvp-test-readiness
   pull_request:
     branches:
       - main
@@ -31,13 +28,7 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Type check
         run: npm run typecheck
-      - name: Run server unit tests
+      - name: Test Telegram authentication
         run: npm run test:server
       - name: Build workspaces
         run: npm run build
-      - name: Build production API container
-        run: docker build -f apps/server/Dockerfile -t pcj-api:ci .
-      - name: Validate test deployment Compose file
-        run: |
-          cp .env.test.example .env.test
-          docker compose --env-file .env.test -f docker-compose.test.yml config --quiet

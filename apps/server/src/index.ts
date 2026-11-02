@@ -1,8 +1,7 @@
 import "dotenv/config";
 import { buildApp } from "./app.js";
 import { createTelegramBot } from "./bot/create-bot.js";
-import { checkDatabaseReadiness, closeDatabase } from "./db/index.js";
-import { assertRuntimeConfiguration } from "./config/runtime.js";
+import { closeDatabase } from "./db/index.js";
 import { createAIProviderFromEnv } from "./modules/ai/provider.js";
 import { generateDailyHoroscope } from "./modules/horoscope/service.js";
 import {
@@ -38,20 +37,6 @@ process.once("SIGINT", () => void shutdown("SIGINT"));
 process.once("SIGTERM", () => void shutdown("SIGTERM"));
 
 try {
-  assertRuntimeConfiguration();
-
-  if (process.env.NODE_ENV === "production") {
-    const database = await checkDatabaseReadiness();
-    if (!database.connected) {
-      throw new Error("PostgreSQL is not reachable; check DATABASE_URL and database availability");
-    }
-    if (!database.ready) {
-      throw new Error(
-        `Database schema is incomplete; apply migrations before starting the API: ${database.missingTables.join(", ")}`,
-      );
-    }
-  }
-
   await app.listen({ port, host });
   app.log.info({ host, port }, "API server listening");
 

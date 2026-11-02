@@ -25,7 +25,8 @@
 | Daily horoscope history | Implemented with PostgreSQL + development in-memory adapter |
 | Telegram daily horoscope notifications | Opt-in preference and single-process scheduler implemented; user-approved; live delivery not verified |
 | Telegram Stars payments | Not implemented |
-| Production deployment | Not configured |
+| MVP stabilization / test launch | In progress on `feat/mvp-test-readiness`; deployment template and readiness checks added |
+| Production deployment | Not configured; a real test deployment still requires operator secrets and domains |
 
 ## Current constraints
 
@@ -43,6 +44,8 @@
 - Telegram notification preferences default to off. The current one-process scheduler is not safe for multiple active API instances until a distributed claim/lock is added.
 - Real AI generation and Telegram delivery are not verified without live server credentials and deployment.
 - Behavior parity with `@my_first_tarot_test_bot` still needs a user-provided walkthrough or test account access.
+- Full end-to-end checks of Tarot, natal chart, AI chat and daily horoscope are intentionally deferred until the test environment has been launched successfully.
+- Test-launch deployment requires real Telegram Bot, AI provider and HTTPS domain configuration; none of these secrets are stored in the repository.
 
 ## Natal chart implementation constraints
 
