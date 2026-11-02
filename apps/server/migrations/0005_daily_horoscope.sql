@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS daily_horoscopes (
   content text NOT NULL,
   transit_data jsonb NOT NULL,
   created_at timestamptz NOT NULL DEFAULT now(),
-  CONSTRAINT daily_horoscopes_user_date_zone_unique UNIQUE (user_id, local_date, time_zone)
+  CONSTRAINT daily_horoscopes_user_date_unique UNIQUE (user_id, local_date)
 );
 
 CREATE INDEX IF NOT EXISTS daily_horoscopes_user_created_idx
