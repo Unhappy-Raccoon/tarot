@@ -91,7 +91,7 @@ try {
               "",
               "Это символическая подсказка для саморефлексии, а не прогноз неизбежных событий.",
               created.webAppUrl ? `Открыть журнал: ${created.webAppUrl}` : "",
-            ].filter(Boolean).join("\\n").slice(0, 3900);
+            ].filter(Boolean).join("\n").slice(0, 3900);
             await bot!.api.sendMessage(item.telegramId, message, {
               link_preview_options: { is_disabled: true },
             });
