@@ -30,7 +30,7 @@ function browserTimeZone(): string {
 
 function formatLocalDate(value: string, timeZone: string): string {
   return new Intl.DateTimeFormat("ru-RU", {
-    weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone,
+    weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC",
   }).format(new Date(`${value}T12:00:00.000Z`));
 }
 
@@ -278,6 +278,18 @@ export function DailyHoroscopeScreen({ onBack, accessToken, previewMode }: Props
               }}
             />
           </label>
+          <button
+            className="primary-button horoscope-preferences-save"
+            type="button"
+            disabled={saving || previewMode}
+            onClick={() => void updatePreferences({
+              ...preferences,
+              timeZone: timeZoneDraft.trim(),
+              notificationTime: notificationTimeDraft,
+            })}
+          >
+            {saving ? "Сохраняем…" : "Сохранить настройки"}
+          </button>
           <p className="horoscope-data-caption">Пример формата: Europe/Tallinn. Используется для даты гороскопа и доставки в местное время.</p>
           {notice && <p className="horoscope-preference-notice" role="status">{notice}</p>}
         </section>
@@ -296,11 +308,7 @@ export function DailyHoroscopeScreen({ onBack, accessToken, previewMode }: Props
               <span aria-hidden="true">→</span>
             </button>
           ))}
-          {current && current.localDate !== getLocalDateForDevice() && (
-            <button className="text-link-button" type="button" onClick={() => setHoroscope(history[0] ?? current)}>
-              Открыть последнюю запись
-            </button>
-          )}
+
         </section>
       )}
       <p className="demo-disclaimer">Транзиты рассчитаны Astronomy Engine. Символическая трактовка не является научным или детерминированным прогнозом.</p>
@@ -308,10 +316,3 @@ export function DailyHoroscopeScreen({ onBack, accessToken, previewMode }: Props
   );
 }
 
-function getLocalDateForDevice(): string {
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: browserTimeZone(), year: "numeric", month: "2-digit", day: "2-digit",
-  }).formatToParts(new Date());
-  const values = Object.fromEntries(parts.filter((part) => part.type !== "literal").map((part) => [part.type, part.value]));
-  return `${values.year}-${values.month}-${values.day}`;
-}
