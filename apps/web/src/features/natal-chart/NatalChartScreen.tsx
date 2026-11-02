@@ -12,8 +12,9 @@ const API_URL = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
 const SIGNS = ["♈","♉","♊","♋","♌","♍","♎","♏","♐","♑","♒","♓"];
 
 function formatDegree(value: number): string {
-  const degrees = Math.floor(value);
-  const minutes = Math.round((value - degrees) * 60);
+  const totalMinutes = Math.round(value * 60);
+  const degrees = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
   return `${degrees}°${String(minutes).padStart(2, "0")}′`;
 }
 

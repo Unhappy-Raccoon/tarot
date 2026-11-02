@@ -34,3 +34,11 @@
 - Telegram bot live test requires secrets and a public HTTPS Mini App URL.
 - AI provider/model and Premium prices are not selected.
 - Behavior parity with `@my_first_tarot_test_bot` still needs a user-provided walkthrough or test account access.
+
+
+## Natal chart implementation constraints
+
+- Apply migration `0003_natal_charts.sql` after `0001_core.sql` and `0002_tarot_readings.sql`.
+- Date-only charts show only zodiac signs stable across the possible time window; no exact degree or Ascendant is invented.
+- Automatic city geocoding is not connected. Coordinates are optional fields in the birth profile.
+- Whole Sign is the initial house-system default; additional systems require separate review and validation.
