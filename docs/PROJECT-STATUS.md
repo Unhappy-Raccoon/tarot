@@ -25,7 +25,7 @@
 | Daily horoscope history | Implemented with PostgreSQL + development in-memory adapter |
 | Telegram daily horoscope notifications | Opt-in preference and single-process scheduler implemented; user-approved; live delivery not verified |
 | Telegram Stars payments | Not implemented |
-| MVP stabilization / test launch | Test-launch artifacts prepared and CI passing; live deployment pending external secrets, domains and hosting |
+| MVP stabilization / test launch | Technical preparation user-approved (2026-11-02); live deployment pending external secrets, domains and hosting |
 | Production deployment | Not configured; a real test deployment still requires operator secrets and domains |
 
 ## Current constraints
@@ -45,6 +45,7 @@
 - Real AI generation and Telegram delivery are not verified without live server credentials and deployment.
 - Behavior parity with `@my_first_tarot_test_bot` still needs a user-provided walkthrough or test account access.
 - Full end-to-end checks of Tarot, natal chart, AI chat and daily horoscope are intentionally deferred until the test environment has been launched successfully.
+- Technical test-launch preparation was explicitly approved by the user on 2026-11-02. No live deployment or end-to-end user scenario verification has yet been performed.
 - Test-launch deployment requires real Telegram Bot, AI provider and HTTPS domain configuration; none of these secrets are stored in the repository.
 - Final test-launch preparation commit `4b1d643dc992835a33d05ea79b834d9b9a29e35c` passed push and pull-request CI: TypeScript checks, server unit tests, workspace builds, API Docker image build and Docker Compose config validation. This does not mean the live environment has been deployed.
 
