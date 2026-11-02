@@ -37,6 +37,8 @@ jobs:
         run: npm run test:server
       - name: Build workspaces
         run: npm run build
+      - name: Stage server modules for Edge bundling
+        run: node scripts/prepare-supabase-functions.mjs
       - name: Setup Deno
         uses: denoland/setup-deno@v2
       - name: Type-check Supabase Edge Functions
