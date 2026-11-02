@@ -3,6 +3,7 @@ export type Screen =
   | "tarot"
   | "tarot-result"
   | "natal"
+  | "daily-horoscope"
   | "astrologer"
   | "journal"
   | "profile"
@@ -81,4 +82,49 @@ export interface UserProfile {
   username: string | null;
   plan: "free" | "premium";
   birthProfile: BirthProfile | null;
+}
+
+
+export interface TransitPosition {
+  id: string;
+  name: string;
+  glyph: string;
+  longitudeDegrees: number;
+  sign: string;
+  degreeInSign: number;
+  retrograde: boolean;
+}
+
+export interface TransitNatalAspect {
+  transitPlanetId: string;
+  transitPlanetName: string;
+  natalPlanetId: string;
+  natalPlanetName: string;
+  aspect: "соединение" | "секстиль" | "квадрат" | "трин" | "оппозиция";
+  exactAngle: number;
+  orbDegrees: number;
+}
+
+export interface DailyHoroscope {
+  id: string;
+  localDate: string;
+  timeZone: string;
+  title: string;
+  content: string;
+  transits: {
+    localDate: string;
+    timeZone: string;
+    calculatedForUtc: string;
+    zodiac: "tropical";
+    positions: TransitPosition[];
+  };
+  aspects: TransitNatalAspect[];
+  natalPrecision: string;
+  createdAt: string;
+}
+
+export interface HoroscopePreferences {
+  timeZone: string;
+  notificationsEnabled: boolean;
+  notificationTime: string;
 }
