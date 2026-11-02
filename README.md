@@ -20,7 +20,7 @@ Telegram Bot + Telegram WebApp: персональный астрологиче�
 1. Установить Node.js версии из `.nvmrc`.
 2. Выполнить `npm install` в корне.
 3. Скопировать корневой `.env.example` в `.env`, а `apps/web/.env.example` — в `.env.local` внутри `apps/web`.
-4. Заполнить `TELEGRAM_BOT_TOKEN`, `SESSION_SECRET`, `DATABASE_URL`, `TELEGRAM_WEBAPP_URL`, `WEBAPP_ORIGIN` и `VITE_API_URL`.
+4. Заполнить `TELEGRAM_BOT_TOKEN`, `SESSION_SECRET`, `DATABASE_URL`, `TELEGRAM_WEBAPP_URL`, `WEBAPP_ORIGIN` и `VITE_API_URL`. Для персонального гороскопа также настроить серверные `AI_API_KEY`, `AI_MODEL` и при необходимости `HOROSCOPE_DEFAULT_TIME_ZONE`.
 5. Применить миграции в указанном порядке:
 
 ```bash
@@ -28,6 +28,7 @@ psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f apps/server/migrations/0001_core.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f apps/server/migrations/0002_tarot_readings.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f apps/server/migrations/0003_natal_charts.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f apps/server/migrations/0004_ai_astrologer.sql
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f apps/server/migrations/0005_daily_horoscope.sql
 ```
 
 6. API + Bot: `npm run dev:server`.
@@ -50,6 +51,19 @@ psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f apps/server/migrations/0004_ai_astrol
 - Поддерживаются тропические геоцентрические положения Солнца и планет до Плутона.
 - Без точного времени и timezone неизвестные положения не подменяются догадками.
 - Асцендент и Whole Sign houses доступны при точном времени, IANA timezone и координатах рождения.
+
+## Ежедневный персональный гороскоп
+
+- `GET /api/horoscope/today?timeZone=Europe%2FTallinn` — создать или получить сегодняшнюю запись.
+- `GET /api/horoscope/history` — последние сохранённые гороскопы пользователя.
+- `GET /api/horoscope/preferences` — часовой пояс и настройки уведомлений.
+- `PUT /api/horoscope/preferences` — сохранить IANA timezone, local notification time и явное согласие на Telegram-уведомления.
+
+На каждую локальную календарную дату создаётся не более одной записи на пользователя. Транзиты рассчитываются Astronomy Engine на 12:00 местного времени (тропический геоцентрический зодиак); мажорные аспекты к натальной карте выводятся только при наличии точных натальных долгот. AI интерпретирует рассчитанные данные, но не вычисляет планетарные положения.
+
+Telegram-уведомления по умолчанию выключены. После включения пользователь может выбрать время и IANA timezone. Процесс API проверяет очередь каждую минуту и отправляет одно сообщение на местную дату. Для доставки нужны PostgreSQL, настроенный Telegram bot token, активный AI provider/model и пользователь, начавший диалог с ботом. Текущий scheduler рассчитан на один активный экземпляр API; для горизонтального масштабирования нужен распределённый lock/очередь.
+
+`HOROSCOPE_DEFAULT_TIME_ZONE` — fallback timezone сервера (по умолчанию `Europe/Tallinn`). В WebApp предпочтение часового пояса берётся из настроек пользователя или из timezone устройства при первом открытии.
 
 ## AI-астролог
 
@@ -91,6 +105,7 @@ GitHub Actions выполняет typecheck, unit tests и production build.
 - [Архитектура](docs/ARCHITECTURE.md)
 - [Расчёты астрологии](docs/ASTROLOGY-CALCULATIONS.md)
 - [AI-астролог](docs/AI-ASTROLOGER.md)
+- [Ежедневный гороскоп](docs/DAILY-HOROSCOPE.md)
 - [UI Guidelines](docs/UI-GUIDELINES.md)
 - [Референсы](docs/REFERENCE-ASSETS.md)
 - [Changelog](docs/CHANGELOG.md)
