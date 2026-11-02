@@ -82,12 +82,16 @@ Deno.serve(async (request) => {
   try {
     const app = await getApp();
     const url = new URL(request.url);
+    const functionPrefix = "/functions/v1/api";
+    const routePath = url.pathname.startsWith(functionPrefix)
+      ? (url.pathname.slice(functionPrefix.length) || "/")
+      : url.pathname;
     const payload = request.method === "GET" || request.method === "HEAD"
       ? undefined
       : await request.text();
     const injected = await app.inject({
       method: request.method,
-      url: `${url.pathname}${url.search}`,
+      url: `${routePath}${url.search}`,
       headers: Object.fromEntries(request.headers.entries()),
       ...(payload !== undefined ? { payload } : {}),
     });
