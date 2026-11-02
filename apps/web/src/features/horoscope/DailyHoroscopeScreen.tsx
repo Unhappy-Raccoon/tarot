@@ -75,6 +75,7 @@ export function DailyHoroscopeScreen({ onBack, accessToken, previewMode }: Props
   const [preferences, setPreferences] = useState<HoroscopePreferences | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [notificationTimeDraft, setNotificationTimeDraft] = useState("09:00");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
@@ -109,7 +110,10 @@ export function DailyHoroscopeScreen({ onBack, accessToken, previewMode }: Props
         if (today.status === "fulfilled") setHoroscope(today.value.horoscope);
         else setError(today.reason instanceof Error ? today.reason.message : "Не удалось подготовить гороскоп.");
         if (older.status === "fulfilled") setHistory(older.value.history);
-        if (prefs.status === "fulfilled") setPreferences(prefs.value.preferences);
+        if (prefs.status === "fulfilled") {
+          setPreferences(prefs.value.preferences);
+          setNotificationTimeDraft(prefs.value.preferences.notificationTime);
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -237,6 +241,7 @@ export function DailyHoroscopeScreen({ onBack, accessToken, previewMode }: Props
               disabled={saving || previewMode}
               onChange={(event) => void updatePreferences({
                 ...preferences,
+                notificationTime: notificationTimeDraft,
                 notificationsEnabled: event.target.checked,
               })}
             />
@@ -245,13 +250,14 @@ export function DailyHoroscopeScreen({ onBack, accessToken, previewMode }: Props
             <span>Время отправки</span>
             <input
               type="time"
-              value={preferences.notificationTime}
+              value={notificationTimeDraft}
               disabled={saving || previewMode}
-              onChange={(event) => void updatePreferences({
-                ...preferences,
-                notificationTime: event.target.value,
-              })}
-              onBlur={() => undefined}
+              onChange={(event) => setNotificationTimeDraft(event.target.value)}
+              onBlur={() => {
+                if (/^(?:[01]\\d|2[0-3]):[0-5]\\d$/.test(notificationTimeDraft) && notificationTimeDraft !== preferences.notificationTime) {
+                  void updatePreferences({ ...preferences, notificationTime: notificationTimeDraft });
+                }
+              }}
             />
           </label>
           <p className="horoscope-data-caption">Часовой пояс устройства: {preferences.timeZone}</p>
