@@ -17,7 +17,7 @@ Telegram Bot + Telegram WebApp: персональный астрологиче�
 
 ## Целевое тестовое размещение
 
-Для пробного запуска выбран Supabase: управляемый PostgreSQL, Edge Functions для API и Telegram webhook, Supabase Cron для фоновых уведомлений. Статический WebApp публикуется отдельно через Cloudflare Pages. Подготовлены Supabase CLI config и SQL migrations; перенос текущего Fastify/long-polling runtime на Edge Functions/Webhook/Cron ещё требуется выполнить до реального запуска. Подробности и текущий список блокеров: [Supabase test launch](docs/SUPABASE-TEST-LAUNCH.md).
+Для пробного запуска выбран Supabase: управляемый PostgreSQL, Edge Functions для API и Telegram webhook, Supabase Cron для фоновых уведомлений. Статический WebApp публикуется отдельно через GitHub Pages. Подготовлены Supabase CLI config и SQL migrations; перенос текущего Fastify/long-polling runtime на Edge Functions/Webhook/Cron ещё требуется выполнить до реального запуска. Подробности и текущий список блокеров: [Supabase test launch](docs/SUPABASE-TEST-LAUNCH.md).
 
 ## Локальный запуск
 
@@ -118,7 +118,7 @@ GitHub Actions выполняет typecheck, unit tests и production build.
 
 ## Подготовка тестового запуска
 
-Пошаговый runbook для тестового окружения, Docker API, PostgreSQL, миграций, HTTPS и Cloudflare Pages находится в [руководстве тестового запуска](docs/TEST-LAUNCH.md). Production-режим требует PostgreSQL со всеми миграциями, Telegram Bot, HTTPS WebApp, длинный SESSION_SECRET и активную конфигурацию AI-провайдера. Для проверки готовности API используй `/health/ready`; `/health` проверяет только liveness.
+Пошаговый runbook для тестового окружения, Docker API, PostgreSQL, миграций, HTTPS и GitHub Pages находится в [руководстве тестового запуска](docs/TEST-LAUNCH.md). Production-режим требует PostgreSQL со всеми миграциями, Telegram Bot, HTTPS WebApp, длинный SESSION_SECRET и активную конфигурацию AI-провайдера. Для проверки готовности API используй `/health/ready`; `/health` проверяет только liveness.
 
 Монетизация и Telegram Stars в этот этап не входят. Сквозные пользовательские сценарии намеренно оставлены для отдельной проверки после успешного запуска тестового окружения.
 
