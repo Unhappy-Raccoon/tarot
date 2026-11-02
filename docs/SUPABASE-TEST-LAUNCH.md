@@ -35,12 +35,14 @@ VPS не нужен. Supabase предоставляет управляемую 
 3. Выбрать регион в ЕС, подходящий пользователям и доступный в списке регионов Supabase.
 4. Задать надёжный пароль базы данных и сохранить его в менеджере паролей.
 5. Дождаться готовности проекта.
-6. В Dashboard открыть **Connect** и скопировать **Transaction pooler** connection string. В нём заменить placeholder паролем БД и URL-encode специальные символы пароля.
+6. В Dashboard открыть **Connect** и скопировать **Session pooler** connection string. В нём заменить placeholder паролем БД и URL-encode специальные символы пароля.
 
 Пример формата (не использовать буквально):
 ```text
-postgresql://postgres.<project-ref>:[PASSWORD]@[POOLER-HOST]:6543/postgres?sslmode=require
+postgresql://postgres.<project-ref>:[PASSWORD]@[SESSION-POOLER-HOST]:5432/postgres?sslmode=require
 ```
+
+**Почему Session Pooler:** сервер использует `postgres.js` через Drizzle. `postgres.js` выполняет pipelining запросов; Supabase предупреждает, что shared Transaction Pooler может зависать или возвращать ответы не тем запросам. `prepare: false` отключает prepared statements, но не pipelining; вариант `max_pipeline: 0` ломает `sql.begin()`, используемый текущим `db.transaction()` при сохранении AI-диалогов. Session mode сохраняет семантику соединения, необходимую этому коду. Для Edge isolate оставлен `DATABASE_POOL_MAX=1`, чтобы ограничить число занятых серверных соединений. Это компромисс для малонагруженной тестовой среды, а не масштабируемая настройка для большого трафика. См. [официальную документацию Supabase по Postgres.js](https://supabase.com/docs/guides/database/postgres-js).
 
 Не публиковать строку подключения, пароль БД или service-role/secret key в репозитории, WebApp, тикетах или чате.
 
@@ -149,7 +151,7 @@ Supabase рекомендует ограничивать параллельно�
 
 ## 8. Что требуется от владельца проекта
 
-1. Создать Supabase project и сохранить Project Ref, Database password и Transaction pooler connection string у себя.
+1. Создать Supabase project и сохранить Project Ref, Database password и Session pooler connection string у себя.
 2. Создать/подтвердить токен для `@my_first_tarot_test_bot`.
 3. Создать OpenAI API key и выбрать модель.
 4. Иметь права администратора/maintainer репозитория, чтобы включить GitHub Pages в Settings → Pages и добавить Actions variable `VITE_API_URL`.
