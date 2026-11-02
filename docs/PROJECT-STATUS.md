@@ -9,7 +9,7 @@
 | Этап 4 — repository foundation | Approved |
 | Этап 5.1 — Bot, auth, onboarding foundation | Implemented and approved |
 | Этап 5.2 — WebApp screen implementation | Implemented and approved |
-| Этап 5.3 — Tarot reading engine and journal persistence | Implemented in feature branch, pending review |
+| Этап 5.3 — Tarot reading engine and journal persistence | Implemented and user-approved |
 | Tarot catalog | 78 cards (22 Major + 56 Minor Arcana) |
 | Tarot spreads | Daily, Past–Present–Future, Love & Relationships |
 | Tarot draw | Server-side cryptographic random selection, no duplicates within a spread |
