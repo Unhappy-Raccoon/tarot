@@ -26,8 +26,8 @@
 | Telegram daily horoscope notifications | Opt-in preference and single-process scheduler implemented; user-approved; live delivery not verified |
 | Telegram Stars payments | Not implemented |
 | MVP stabilization / test launch | Technical preparation user-approved (2026-11-02); VPS plan superseded by Supabase target |
-| Supabase test deployment adaptation | Supabase CLI config + DB migrations + RLS + runbook added; Edge API/Webhook/Cron port still required |
-| WebApp hosting target | GitHub Pages selected and user-approved (2026-11-02); deployment workflow not yet added |
+| Supabase test deployment adaptation | Implemented on `feat/supabase-edge-runtime`: Edge API adapter, Telegram webhook, Cron worker, atomic notification claim, Deno security tests; hosted runtime verification and credentials pending |
+| WebApp hosting target | GitHub Pages selected and workflow added; manual publish is guarded to `main` after integration and explicit dispatch |
 | Production deployment | Not configured; a real test deployment still requires operator secrets and domains |
 
 ## Current constraints
@@ -48,11 +48,14 @@
 - Behavior parity with `@my_first_tarot_test_bot` still needs a user-provided walkthrough or test account access.
 - Full end-to-end checks of Tarot, natal chart, AI chat and daily horoscope are intentionally deferred until the test environment has been launched successfully.
 - Technical test-launch preparation was explicitly approved by the user on 2026-11-02. No live deployment or end-to-end user scenario verification has yet been performed.
-- Supabase test deployment requires a Supabase project, database password/transaction-pooler URL, Telegram Bot Token, webhook secret, session secret, OpenAI API key/model, and GitHub Pages HTTPS URL. No production secrets are stored in the repository.
-- Supabase DB migrations are copied to `supabase/migrations/`; a final migration enables RLS on all application tables. Edge Function runtime conversion remains outstanding: Fastify listener, grammY long polling and in-process scheduler must be replaced by Edge Functions, Telegram Webhook and Supabase Cron.
-- User approved GitHub Pages as the static WebApp host alongside Supabase as the only server-side platform on 2026-11-02. The Pages deployment workflow and Vite base-path configuration have not yet been implemented; they require a separate user command.
+- Supabase test deployment requires a Supabase project, database password/transaction-pooler URL, Telegram Bot Token, webhook secret, session secret, Cron secret, OpenAI API key/model, and GitHub Pages Actions variable `VITE_API_URL`. No test or production secrets are stored in the repository.
+- Supabase DB migrations are copied to `supabase/migrations/`; a final migration enables RLS on all application tables and a later migration adds atomic horoscope-notification claims.
+- `supabase/functions/api` reuses existing Fastify routes using in-memory `app.inject()` without starting a listener; it imports compiled `apps/server/dist` after Edge secrets have been bridged into Node-compatible `process.env`.
+- `supabase/functions/telegram-webhook` validates Telegram's webhook secret header and dispatches updates to grammY. One-time bot command/menu/webhook setup is in `scripts/configure-supabase-telegram.mjs`.
+- `supabase/functions/process-horoscope-notifications` is the Cron worker. It processes a bounded batch and uses atomic database claim fields to prevent concurrent Cron invocations from sending the same local-date notification twice. Unknown Telegram send outcomes retain the claim until lease expiry; exact-once delivery to an external Telegram API cannot be guaranteed if a network response is lost.
+- User approved GitHub Pages as the static WebApp host alongside Supabase as the only server-side platform on 2026-11-02. Workflow `.github/workflows/pages.yml` builds artifacts on feature pushes and only publishes after a manual `workflow_dispatch` from `main` with explicit `publish=yes`. Vite base path is configurable via `VITE_BASE_PATH`; deploy build uses `/tarot/`.
 - A custom domain and VPS are not required for the initial Supabase test environment; Supabase provides the API project URL and GitHub Pages provides the project's `github.io` URL.
-- Final test-launch preparation commit `4b1d643dc992835a33d05ea79b834d9b9a29e35c` passed push and pull-request CI: TypeScript checks, server unit tests, workspace builds, API Docker image build and Docker Compose config validation. This does not mean the live environment has been deployed.
+- The Supabase Edge Functions compile from the built Node workspace; `npm run check:supabase` and `npm run test:supabase` are also wired into CI using Deno. Hosted Supabase deployment and integration smoke tests have not yet been performed.
 
 ## Natal chart implementation constraints
 
