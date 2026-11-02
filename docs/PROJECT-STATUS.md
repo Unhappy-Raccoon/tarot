@@ -20,10 +20,10 @@
 | AI astrologer API + UI | Implemented and user-approved; PR #3 ready for review |
 | AI conversation history / deletion | Implemented and user-approved |
 | AI provider live connection | Adapter implemented; server key and model configuration required |
-| Daily transit calculation | Implemented in `feat/daily-horoscope`; tests added, CI pending |
-| Personal daily horoscope API + WebApp | Implemented in `feat/daily-horoscope`; awaiting CI and user review |
+| Daily transit calculation | Implemented and user-approved; CI passing |
+| Personal daily horoscope API + WebApp | Implemented and user-approved; PR #4 ready for review |
 | Daily horoscope history | Implemented with PostgreSQL + development in-memory adapter |
-| Telegram daily horoscope notifications | Opt-in preference and single-process scheduler implemented; live delivery not verified |
+| Telegram daily horoscope notifications | Opt-in preference and single-process scheduler implemented; user-approved; live delivery not verified |
 | Telegram Stars payments | Not implemented |
 | Production deployment | Not configured |
 
@@ -62,6 +62,9 @@
 - A live provider call was not performed because no API key/model has been configured in the server environment.
 
 ## Daily horoscope iteration constraints
+
+- Functional iteration approved by the user on 2026-11-02; PR #4 marked Ready for review and remains unmerged.
+
 
 - New migration: `0005_daily_horoscope.sql`.
 - Transit snapshot: 10 tropical geocentric bodies at 12:00 local time, with a ±24-hour finite-difference motion flag for Mercury–Pluto.
