@@ -6,11 +6,13 @@ on:
       - feat/telegram-webapp-foundation
       - feat/ai-astrologer
       - feat/natal-chart-engine
+      - feat/daily-horoscope
   pull_request:
     branches:
       - main
       - feat/telegram-webapp-foundation
       - feat/natal-chart-engine
+      - feat/ai-astrologer
 
 jobs:
   verify:
