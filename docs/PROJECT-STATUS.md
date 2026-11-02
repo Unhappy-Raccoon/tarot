@@ -23,16 +23,16 @@
 | Daily transit calculation | Implemented and user-approved; CI passing |
 | Personal daily horoscope API + WebApp | Implemented and user-approved; PR #4 ready for review |
 | Daily horoscope history | Implemented with PostgreSQL + development in-memory adapter |
-| Telegram daily horoscope notifications | Opt-in preference and single-process scheduler implemented; user-approved; live delivery not verified |
+| Telegram daily horoscope notifications | Opt-in preferences + Supabase Cron worker with atomic per-user/date claims implemented in PR #7; hosted delivery not verified |
 | Telegram Stars payments | Not implemented |
 | MVP stabilization / test launch | Technical preparation user-approved (2026-11-02); VPS plan superseded by Supabase target |
-| Supabase test deployment adaptation | Code implementation on `feat/supabase-edge-runtime`; CI passed Node + Deno checks, API Docker and Compose; hosted runtime verification and credentials pending |
+| Supabase test deployment adaptation | Implemented on `feat/supabase-edge-runtime`; CI passed Node + Deno checks, API Docker and Compose; hosted runtime verification and credentials pending |
 | WebApp hosting target | GitHub Pages selected and workflow added; manual publish is guarded to `main` after integration and explicit dispatch |
 | Production deployment | Not configured; a real test deployment still requires operator secrets and domains |
 
 ## Current constraints
 
-- Apply migrations in order: `0001_core.sql`, `0002_tarot_readings.sql`, `0003_natal_charts.sql`, `0004_ai_astrologer.sql`, then `0005_daily_horoscope.sql`.
+- Apply Supabase migrations `20261102000100_core.sql` through `20261102000700_horoscope_notification_claims.sql` in order (including RLS and notification-claim migrations).
 - Development without DATABASE_URL uses in-memory data; it is lost when the server restarts. Notification scheduling requires PostgreSQL.
 - Automatic geocoding is not enabled; birth coordinates may be entered manually.
 - Natal chart without birth time is date-range based: no ASC, houses, or exact degrees are invented.
@@ -43,7 +43,7 @@
 - Daily horoscope generates one saved entry per user and local date, using a 12:00 local transit snapshot.
 - Transit-to-natal aspects require exact natal longitudes; date-only or ambiguous-time charts do not produce degree aspects.
 - Transit calculations have regression tests but still require validation against an independent ephemeris reference before production.
-- Telegram notification preferences default to off. The current one-process scheduler is not safe for multiple active API instances until a distributed claim/lock is added.
+- Telegram notification preferences default to off. The Supabase Cron worker uses atomic per-user/local-date database claims to prevent concurrent workers from sending the same notification; hosted concurrency and delivery semantics still require smoke testing.
 - Real AI generation and Telegram delivery are not verified without live server credentials and deployment.
 - Behavior parity with `@my_first_tarot_test_bot` still needs a user-provided walkthrough or test account access.
 - Full end-to-end checks of Tarot, natal chart, AI chat and daily horoscope are intentionally deferred until the test environment has been launched successfully.
