@@ -10,8 +10,9 @@ const poolMax = Number.isInteger(configuredPoolMax) && configuredPoolMax >= 1 &&
 
 const sqlClient = connectionString
   ? postgres(connectionString, {
-      // Supabase Transaction pooler uses transaction pooling. Disabling prepared
-      // statements also works with a direct PostgreSQL connection.
+      // Supabase test deployment uses Session Pooler: postgres.js query pipelining
+      // and Drizzle transactions are not safe with the shared transaction-mode pooler.
+      // Keep DATABASE_POOL_MAX=1 per Edge isolate to limit held server connections.
       prepare: false,
       max: poolMax,
       connect_timeout: 5,
