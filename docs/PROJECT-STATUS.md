@@ -17,7 +17,10 @@
 | Daily card | One stored daily reading per user per UTC date |
 | Journal | Connected to actual Tarot reading history |
 | CI (typecheck, tests, workspace build) | Passing on Tarot iteration |
-| Natal calculations / real horoscope / AI | Not implemented |
+| Natal planetary calculations | Implemented in `feat/natal-chart-engine`, pending review |
+| Ascendant / Whole Sign houses | Implemented only with exact time, IANA timezone and coordinates |
+| Birth profile editor | Implemented for date, time, timezone, place and manual coordinates |
+| Real horoscope / AI | Not implemented |
 | Telegram Stars payments | Not implemented |
 | Production deployment | Not configured |
 
