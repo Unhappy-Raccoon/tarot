@@ -28,7 +28,7 @@ function browserTimeZone(): string {
   }
 }
 
-function formatLocalDate(value: string, timeZone: string): string {
+function formatLocalDate(value: string, _timeZone: string): string {
   return new Intl.DateTimeFormat("ru-RU", {
     weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC",
   }).format(new Date(`${value}T12:00:00.000Z`));
@@ -241,9 +241,8 @@ export function DailyHoroscopeScreen({ onBack, accessToken, previewMode }: Props
               type="checkbox"
               checked={preferences.notificationsEnabled}
               disabled={saving || previewMode}
-              onChange={(event) => void updatePreferences({
+              onChange={(event) => setPreferences({
                 ...preferences,
-                notificationTime: notificationTimeDraft,
                 notificationsEnabled: event.target.checked,
               })}
             />
@@ -255,11 +254,7 @@ export function DailyHoroscopeScreen({ onBack, accessToken, previewMode }: Props
               value={notificationTimeDraft}
               disabled={saving || previewMode}
               onChange={(event) => setNotificationTimeDraft(event.target.value)}
-              onBlur={() => {
-                if (/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(notificationTimeDraft) && notificationTimeDraft !== preferences.notificationTime) {
-                  void updatePreferences({ ...preferences, notificationTime: notificationTimeDraft });
-                }
-              }}
+
             />
           </label>
           <label className="horoscope-time-row">
@@ -271,11 +266,7 @@ export function DailyHoroscopeScreen({ onBack, accessToken, previewMode }: Props
               placeholder="Europe/Tallinn"
               disabled={saving || previewMode}
               onChange={(event) => setTimeZoneDraft(event.target.value)}
-              onBlur={() => {
-                if (timeZoneDraft.trim() && timeZoneDraft.trim() !== preferences.timeZone) {
-                  void updatePreferences({ ...preferences, timeZone: timeZoneDraft.trim() });
-                }
-              }}
+
             />
           </label>
           <button
