@@ -93,11 +93,11 @@ supabase secrets set --env-file .env.supabase
 
 В репозитории открой Settings → Pages и выбери **GitHub Actions** как Build and deployment source. После отдельного утверждения реализации workflow будет собирать WebApp из `apps/web` и публиковать `apps/web/dist`. Для проекта `Unhappy-Raccoon/tarot` ожидаемый адрес — `https://unhappy-raccoon.github.io/tarot/`.
 
-Настройки сборки в будущем workflow:
+Настройки workflow:
 - Node.js: версия из `.nvmrc`.
-- Установить зависимости командой `npm install --no-audit --no-fund`.
-- Build variable: `VITE_API_URL=https://<PROJECT_REF>.supabase.co/functions/v1/api`.
-- Vite base path: `/tarot/` (обязателен для project site GitHub Pages).
+- Установка: `npm install --no-audit --no-fund`.
+- Repository Actions variable `VITE_API_URL=https://<PROJECT_REF>.supabase.co/functions/v1/api`.
+- Vite base path `VITE_BASE_PATH=/tarot/`.
 
 Ветка содержит `.github/workflows/pages.yml`: при push она собирает и сохраняет Pages artifact без публикации. Публикация защищена ручным запуском workflow_dispatch с `publish=yes` только из `main`, чтобы feature branch не выкладывала незавершённую версию. В Settings → Pages выбрать **GitHub Actions**. В Settings → Secrets and variables → Actions → Variables добавить `VITE_API_URL` со значением `https://<PROJECT_REF>.supabase.co/functions/v1/api`. После интеграции изменений в main ручной запуск workflow опубликует `apps/web/dist` по адресу `https://unhappy-raccoon.github.io/tarot/`. Передать этот URL как `TELEGRAM_WEBAPP_URL`, а origin без пути — `WEBAPP_ORIGIN=https://unhappy-raccoon.github.io` в Supabase secrets.
 
@@ -128,7 +128,7 @@ URL:
 
 1. В Supabase Dashboard включить расширения `pg_cron` и `pg_net`, если они ещё не включены.
 2. В SQL Editor выполнить инструкции из `supabase/cron/schedule-horoscope-notifications.sql.example`: положить `PROJECT_URL` и `HOROSCOPE_CRON_SECRET` в Supabase Vault и создать cron job раз в минуту.
-3. Worker использует атомарный UPDATE для claim пользователя/локальной даты, ограничивает пачку тремя уведомлениями и освобождает claim при ошибке. Повторный job не должен отправлять уже отмеченное уведомление.
+3. Worker использует атомарный UPDATE для claim пользователя/локальной даты и ограничивает пачку тремя уведомлениями. Ошибка до обращения к Telegram освобождает claim; если результат Telegram send неизвестен, claim сохраняется до истечения 10-минутной lease, чтобы немедленный retry не создал дубль. При сетевом сбое после фактической доставки exactly-once гарантия внешнего Telegram API невозможна.
 4. Проверить `cron.job`, `cron.job_run_details`, логи Edge Function и отсутствие повторной отправки одного уведомления за локальную дату пользователя.
 
 Supabase рекомендует ограничивать параллельность Cron jobs и длительность каждого задания; worker должен обрабатывать ограниченную порцию пользователей за вызов и корректно продолжать при следующем запуске. См. [Supabase Cron](https://supabase.com/docs/guides/cron).
@@ -152,7 +152,7 @@ Supabase рекомендует ограничивать параллельно�
 1. Создать Supabase project и сохранить Project Ref, Database password и Transaction pooler connection string у себя.
 2. Создать/подтвердить токен для `@my_first_tarot_test_bot`.
 3. Создать OpenAI API key и выбрать модель.
-4. Иметь аккаунт GitHub Pages (собственный домен не обязателен).
+4. Иметь права администратора/maintainer репозитория, чтобы включить GitHub Pages в Settings → Pages и добавить Actions variable `VITE_API_URL`.
 5. Выполнить вход в Supabase CLI на машине, где будет выполняться deploy, либо предоставить доступ через подходящий безопасный интеграционный механизм. Секреты в чат не передавать.
 
 ## Текущее ограничение объёма работ
