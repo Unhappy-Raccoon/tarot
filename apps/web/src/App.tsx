@@ -3,6 +3,7 @@ import { BottomNavigation } from "./components/BottomNavigation";
 import { HomeScreen } from "./features/home/HomeScreen";
 import { TarotResultScreen, TarotSelectionScreen } from "./features/tarot/TarotScreens";
 import { NatalChartScreen } from "./features/natal-chart/NatalChartScreen";
+import { DailyHoroscopeScreen } from "./features/horoscope/DailyHoroscopeScreen";
 import { AstrologerScreen } from "./features/ai-astrologer/AstrologerScreen";
 import { JournalScreen } from "./features/journal/JournalScreen";
 import { PremiumScreen } from "./features/profile/PremiumScreen";
@@ -285,6 +286,7 @@ export default function App() {
         {activeScreen === "home" && <HomeScreen profile={profile} displayName={displayName} onNavigate={navigate} onDailyCard={() => void startSpread("daily")} busy={busySpread === "daily"} />}
         {activeScreen === "tarot" && <TarotSelectionScreen onSelect={(spread) => void startSpread(spread)} onBack={() => navigate("home")} busySpread={busySpread} error={tarotError} />}
         {activeScreen === "tarot-result" && reading && <TarotResultScreen reading={reading} onBack={() => navigate("tarot")} />}
+        {activeScreen === "daily-horoscope" && <DailyHoroscopeScreen onBack={() => navigate("home")} accessToken={accessToken} previewMode={previewMode} />}
         {activeScreen === "natal" && <NatalChartScreen onBack={() => navigate("home")} accessToken={accessToken} previewMode={previewMode} />}
         {activeScreen === "astrologer" && <AstrologerScreen onBack={() => navigate("home")} />}
         {activeScreen === "journal" && <JournalScreen onBack={() => navigate("home")} readings={journalReadings} onOpenReading={openReading} loading={journalLoading} error={journalError} />}
