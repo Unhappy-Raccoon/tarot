@@ -281,7 +281,7 @@ export async function getAIConversation(
     .select()
     .from(aiMessages)
     .where(eq(aiMessages.conversationId, conversation.id))
-    .orderBy(aiMessages.createdAt, aiMessages.id)
+    .orderBy(desc(aiMessages.createdAt), desc(aiMessages.id))
     .limit(messageLimit);
 
   return {
@@ -289,7 +289,7 @@ export async function getAIConversation(
     title: conversation.title,
     updatedAt: conversation.updatedAt.toISOString(),
     messageCount: rows.length,
-    messages: rows.map((row) => ({
+    messages: rows.reverse().map((row) => ({
       id: String(row.id),
       role: row.role as AIMessageRole,
       content: row.content,
@@ -420,4 +420,32 @@ export async function saveAIExchange(
       },
     };
   });
+}
+
+
+export async function deleteAIConversation(
+  telegramId: string,
+  conversationId: string,
+): Promise<boolean> {
+  if (!/^[0-9]+$/.test(conversationId)) return false;
+
+  if (!db) {
+    if (process.env.NODE_ENV === "production") throw new Error("DATABASE_URL is required in production");
+    const conversations = memoryConversations.get(telegramId) ?? [];
+    const index = conversations.findIndex((item) => item.id === conversationId);
+    if (index < 0) return false;
+    conversations.splice(index, 1);
+    memoryConversations.set(telegramId, conversations);
+    return true;
+  }
+
+  const userId = await databaseUserId(telegramId);
+  const deleted = await db
+    .delete(aiConversations)
+    .where(and(
+      eq(aiConversations.id, Number(conversationId)),
+      eq(aiConversations.userId, userId),
+    ))
+    .returning({ id: aiConversations.id });
+  return deleted.length > 0;
 }

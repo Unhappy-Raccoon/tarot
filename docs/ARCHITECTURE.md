@@ -94,3 +94,17 @@ flowchart TD
 - The first house system is Whole Sign. House 1 begins at 0° of the zodiac sign containing the Ascendant.
 - Calculated chart JSON is cached in `natal_charts` against a SHA-256 fingerprint of the source birth profile and algorithm version.
 - Changing the source birth profile causes recalculation on the next chart request.
+
+
+## AI astrologer implementation
+
+- Server adapter: `apps/server/src/modules/ai/provider.ts`. First provider uses OpenAI Responses API; the provider interface allows future adapters without changing conversation routes.
+- Credentials and model are read from server-only `AI_API_KEY`, `AI_PROVIDER` and `AI_MODEL`. Do not expose them as Vite variables.
+- Each request sends bounded conversation history and concise calculated natal placements. Raw birth date, time, birthplace and coordinates from profile are not included in the generated context.
+- Responses API request sets `store: false`; PostgreSQL in our app stores user-visible conversation history. Users can delete individual conversations and messages.
+- Daily quota is reserved atomically in `ai_daily_usage`. Failed provider requests release the reservation. Token usage is tracked for cost control.
+- Configurable bounds: daily message limits, input characters, history messages, output tokens and request timeout.
+- Initial scenarios are server allowlisted: relationships, potential, weekly reflection and natal chart. Weekly reflection is not a transit computation.
+- Initial UI is non-streaming and restores the latest conversation.
+- Provisional defaults: Free 5 / Premium 50 messages per UTC day. These are configuration defaults, not approved commercial terms.
+- Before live launch, configure the provider/model, review provider data-retention terms and the project's privacy notice, then test live requests and cost monitoring.

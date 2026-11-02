@@ -10,7 +10,8 @@ import {
   reserveAIMessage,
   saveAIExchange,
 } from "./repository.js";
-import type { AIChatProvider, AIConversationSummary, AIUsageStatus } from "./types.js";
+import type { AIChatProvider, AIConversationSummary, AIProviderResponse, AIUsageStatus } from "./types.js";
+import type { NatalChartResult } from "../astrology/types.js";
 import { getAIServiceConfig } from "./config.js";
 
 export class AIServiceError extends Error {
@@ -101,7 +102,7 @@ export async function sendAstrologerMessage(
     );
   }
 
-  let chart = null;
+  let chart: NatalChartResult | null = null;
   try {
     chart = await getOrCreateNatalChart(telegramId);
   } catch {
