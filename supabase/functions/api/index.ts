@@ -43,7 +43,7 @@ async function getApp(): Promise<FastifyApp> {
     appPromise = (async () => {
       hydrateNodeEnvironment(process, ENV_KEYS);
       const [{ buildApp }] = await Promise.all([
-        import("../../../apps/server/dist/app.js"),
+        import("../_shared/server/app.js"),
       ]);
       const app = buildApp({
         botToken: Deno.env.get("TELEGRAM_BOT_TOKEN"),
