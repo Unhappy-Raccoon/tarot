@@ -23,7 +23,7 @@ const ENV_KEYS = [
 ] as const;
 
 type FastifyApp = {
-  ready(): Promise<void>;
+  ready(): PromiseLike<unknown>;
   inject(options: {
     method: string;
     url: string;
