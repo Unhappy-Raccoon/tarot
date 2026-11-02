@@ -76,6 +76,7 @@ export function DailyHoroscopeScreen({ onBack, accessToken, previewMode }: Props
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [notificationTimeDraft, setNotificationTimeDraft] = useState("09:00");
+  const [timeZoneDraft, setTimeZoneDraft] = useState("Europe/Tallinn");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
@@ -93,27 +94,28 @@ export function DailyHoroscopeScreen({ onBack, accessToken, previewMode }: Props
       setLoading(true);
       setError("");
       try {
-        const [today, older, prefs] = await Promise.allSettled([
+        const prefs = await request<{ preferences: HoroscopePreferences }>(
+          `/api/horoscope/preferences?timeZone=${encodeURIComponent(suggestedTimeZone)}`,
+          accessToken,
+          { signal: controller.signal },
+        );
+        if (cancelled) return;
+        const activePreferences = prefs.preferences;
+        setPreferences(activePreferences);
+        setNotificationTimeDraft(activePreferences.notificationTime);
+        setTimeZoneDraft(activePreferences.timeZone);
+        const [today, older] = await Promise.allSettled([
           request<{ horoscope: DailyHoroscope }>(
-            `/api/horoscope/today?timeZone=${encodeURIComponent(suggestedTimeZone)}`,
+            `/api/horoscope/today?timeZone=${encodeURIComponent(activePreferences.timeZone)}`,
             accessToken,
             { signal: controller.signal },
           ),
           request<{ history: DailyHoroscope[] }>("/api/horoscope/history", accessToken, { signal: controller.signal }),
-          request<{ preferences: HoroscopePreferences }>(
-            `/api/horoscope/preferences?timeZone=${encodeURIComponent(suggestedTimeZone)}`,
-            accessToken,
-            { signal: controller.signal },
-          ),
         ]);
         if (cancelled) return;
         if (today.status === "fulfilled") setHoroscope(today.value.horoscope);
         else setError(today.reason instanceof Error ? today.reason.message : "Не удалось подготовить гороскоп.");
         if (older.status === "fulfilled") setHistory(older.value.history);
-        if (prefs.status === "fulfilled") {
-          setPreferences(prefs.value.preferences);
-          setNotificationTimeDraft(prefs.value.preferences.notificationTime);
-        }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -260,7 +262,23 @@ export function DailyHoroscopeScreen({ onBack, accessToken, previewMode }: Props
               }}
             />
           </label>
-          <p className="horoscope-data-caption">Часовой пояс устройства: {preferences.timeZone}</p>
+          <label className="horoscope-time-row">
+            <span>Часовой пояс (IANA)</span>
+            <input
+              type="text"
+              value={timeZoneDraft}
+              maxLength={64}
+              placeholder="Europe/Tallinn"
+              disabled={saving || previewMode}
+              onChange={(event) => setTimeZoneDraft(event.target.value)}
+              onBlur={() => {
+                if (timeZoneDraft.trim() && timeZoneDraft.trim() !== preferences.timeZone) {
+                  void updatePreferences({ ...preferences, timeZone: timeZoneDraft.trim() });
+                }
+              }}
+            />
+          </label>
+          <p className="horoscope-data-caption">Пример формата: Europe/Tallinn. Используется для даты гороскопа и доставки в местное время.</p>
           {notice && <p className="horoscope-preference-notice" role="status">{notice}</p>}
         </section>
       )}
