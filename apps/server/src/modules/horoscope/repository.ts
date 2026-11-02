@@ -206,6 +206,8 @@ export async function listDueHoroscopeNotifications(
       timeZone: horoscopePreferences.timeZone,
       notificationTime: horoscopePreferences.notificationTime,
       lastSentLocalDate: horoscopePreferences.lastSentLocalDate,
+      notificationClaimDate: horoscopePreferences.notificationClaimDate,
+      notificationClaimedAt: horoscopePreferences.notificationClaimedAt,
     })
     .from(horoscopePreferences)
     .innerJoin(users, eq(horoscopePreferences.userId, users.id))
@@ -217,6 +219,10 @@ export async function listDueHoroscopeNotifications(
       const localDate = getLocalDate(now, row.timeZone);
       const currentTime = localClock(now, row.timeZone);
       if (currentTime < row.notificationTime || row.lastSentLocalDate === localDate) return [];
+      const activeClaim = row.notificationClaimDate === localDate &&
+        row.notificationClaimedAt !== null &&
+        row.notificationClaimedAt.getTime() >= now.getTime() - 10 * 60_000;
+      if (activeClaim) return [];
       return [{ telegramId: row.telegramId, timeZone: row.timeZone, localDate }];
     } catch {
       return [];
