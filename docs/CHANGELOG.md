@@ -13,7 +13,7 @@
 - Добавлен `.env.supabase.example`, настройка Postgres.js для Supabase Transaction pooler (`prepare: false`, управляемый размер пула), новая инструкция `docs/SUPABASE-TEST-LAUNCH.md`.
 - Старый VPS/Docker runbook помечен как нецелевой; Docker Compose и Dockerfile оставлены для альтернативной локальной/Node.js среды.
 - Важно: Edge API, grammY webhook и Cron worker ещё не перенесены. Живое развёртывание пока невозможно до завершения этого runtime port и получения внешних ключей/URL.
-- VPS и собственный домен не являются обязательными: Supabase предоставляет project API URL, Cloudflare Pages — HTTPS `pages.dev` адрес.
+- VPS, Cloudflare и собственный домен не обязательны: Supabase предоставляет project API URL, GitHub Pages — HTTPS `github.io` адрес.
 
 ## 2026-11-02 — Стабилизация и подготовка тестового запуска: утверждено пользователем
 
