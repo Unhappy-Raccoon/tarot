@@ -254,7 +254,7 @@ export function DailyHoroscopeScreen({ onBack, accessToken, previewMode }: Props
               disabled={saving || previewMode}
               onChange={(event) => setNotificationTimeDraft(event.target.value)}
               onBlur={() => {
-                if (/^(?:[01]\\d|2[0-3]):[0-5]\\d$/.test(notificationTimeDraft) && notificationTimeDraft !== preferences.notificationTime) {
+                if (/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(notificationTimeDraft) && notificationTimeDraft !== preferences.notificationTime) {
                   void updatePreferences({ ...preferences, notificationTime: notificationTimeDraft });
                 }
               }}
