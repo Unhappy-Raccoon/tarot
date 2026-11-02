@@ -15,6 +15,10 @@ Telegram Bot + Telegram WebApp: персональный астрологиче�
 - AI: provider adapter; первая интеграция — OpenAI Responses API
 - Payments: Telegram Stars для цифровых товаров и услуг внутри Telegram
 
+## Целевое тестовое размещение
+
+Для пробного запуска выбран Supabase: управляемый PostgreSQL, Edge Functions для API и Telegram webhook, Supabase Cron для фоновых уведомлений. Статический WebApp публикуется отдельно через Cloudflare Pages. Подготовлены Supabase CLI config и SQL migrations; перенос текущего Fastify/long-polling runtime на Edge Functions/Webhook/Cron ещё требуется выполнить до реального запуска. Подробности и текущий список блокеров: [Supabase test launch](docs/SUPABASE-TEST-LAUNCH.md).
+
 ## Локальный запуск
 
 1. Установить Node.js версии из `.nvmrc`.
