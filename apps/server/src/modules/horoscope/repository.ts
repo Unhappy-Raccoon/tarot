@@ -107,8 +107,9 @@ export async function listDailyHoroscopes(
   limit = 14,
 ): Promise<DailyHoroscope[]> {
   if (!db) {
-    return [...memoryHoroscopes.values()]
-      .filter((item) => [...memoryHoroscopes.keys()].some((key) => key.startsWith(`${telegramId}:`) && memoryHoroscopes.get(key)?.id === item.id))
+    return [...memoryHoroscopes.entries()]
+      .filter(([key]) => key.startsWith(`${telegramId}:`))
+      .map(([, item]) => item)
       .sort((left, right) => right.localDate.localeCompare(left.localDate))
       .slice(0, limit);
   }
