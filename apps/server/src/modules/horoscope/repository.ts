@@ -8,8 +8,8 @@ const memoryHoroscopes = new Map<string, DailyHoroscope>();
 const memoryPreferences = new Map<string, HoroscopePreferences & { lastSentLocalDate: string | null }>();
 let memoryId = 0;
 
-function horoscopeKey(telegramId: string, localDate: string, timeZone: string): string {
-  return `${telegramId}:${localDate}:${timeZone}`;
+function horoscopeKey(telegramId: string, localDate: string): string {
+  return `${telegramId}:${localDate}`;
 }
 
 function mapRow(row: typeof dailyHoroscopes.$inferSelect): DailyHoroscope {
@@ -35,9 +35,9 @@ function localClock(now: Date, timeZone: string): string {
 export async function getDailyHoroscope(
   telegramId: string,
   localDate: string,
-  timeZone: string,
+  _timeZone: string,
 ): Promise<DailyHoroscope | null> {
-  if (!db) return memoryHoroscopes.get(horoscopeKey(telegramId, localDate, timeZone)) ?? null;
+  if (!db) return memoryHoroscopes.get(horoscopeKey(telegramId, localDate)) ?? null;
   const [row] = await db
     .select({ horoscope: dailyHoroscopes })
     .from(dailyHoroscopes)
@@ -45,7 +45,6 @@ export async function getDailyHoroscope(
     .where(and(
       eq(users.telegramId, telegramId),
       eq(dailyHoroscopes.localDate, localDate),
-      eq(dailyHoroscopes.timeZone, timeZone),
     ))
     .limit(1);
   return row ? mapRow(row.horoscope) : null;
@@ -56,7 +55,7 @@ export async function saveDailyHoroscope(
   input: Omit<DailyHoroscope, "id" | "createdAt">,
 ): Promise<DailyHoroscope> {
   if (!db) {
-    const key = horoscopeKey(telegramId, input.localDate, input.timeZone);
+    const key = horoscopeKey(telegramId, input.localDate);
     const existing = memoryHoroscopes.get(key);
     const saved: DailyHoroscope = {
       ...input,
@@ -90,7 +89,7 @@ export async function saveDailyHoroscope(
     .insert(dailyHoroscopes)
     .values(values)
     .onConflictDoUpdate({
-      target: [dailyHoroscopes.userId, dailyHoroscopes.localDate, dailyHoroscopes.timeZone],
+      target: [dailyHoroscopes.userId, dailyHoroscopes.localDate],
       set: {
         title: input.title,
         content: input.content,
