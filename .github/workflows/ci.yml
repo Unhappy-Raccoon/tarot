@@ -4,10 +4,8 @@ on:
   push:
     branches:
       - feat/telegram-webapp-foundation
-      - feat/ai-astrologer
-      - feat/daily-horoscope
-      - feat/mvp-test-readiness
       - feat/natal-chart-engine
+      - feat/ai-astrologer
       - feat/daily-horoscope
       - feat/mvp-test-readiness
   pull_request:
@@ -16,6 +14,8 @@ on:
       - feat/telegram-webapp-foundation
       - feat/natal-chart-engine
       - feat/ai-astrologer
+      - feat/daily-horoscope
+      - feat/mvp-test-readiness
 
 jobs:
   verify:
