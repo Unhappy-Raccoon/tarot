@@ -110,6 +110,13 @@ GitHub Actions выполняет typecheck, unit tests и production build.
 - [Референсы](docs/REFERENCE-ASSETS.md)
 - [Changelog](docs/CHANGELOG.md)
 - [Статус проекта](docs/PROJECT-STATUS.md)
+- [Подготовка тестового запуска](docs/TEST-LAUNCH.md)
+
+## Подготовка тестового запуска
+
+Пошаговый runbook для тестового окружения, Docker API, PostgreSQL, миграций, HTTPS и Cloudflare Pages находится в [руководстве тестового запуска](docs/TEST-LAUNCH.md). Production-режим требует PostgreSQL со всеми миграциями, Telegram Bot, HTTPS WebApp, длинный SESSION_SECRET и активную конфигурацию AI-провайдера. Для проверки готовности API используй `/health/ready`; `/health` проверяет только liveness.
+
+Монетизация и Telegram Stars в этот этап не входят. Сквозные пользовательские сценарии намеренно оставлены для отдельной проверки после успешного запуска тестового окружения.
 
 ## Безопасность
 
