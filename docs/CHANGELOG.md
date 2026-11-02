@@ -1,3 +1,10 @@
+## 2026-11-02 — Hosting architecture approved: GitHub Pages + Supabase
+
+- Пользователь утвердил GitHub Pages для статического Telegram WebApp и Supabase для PostgreSQL, Edge Functions и Cron.
+- VPS, Cloudflare и собственный домен не требуются для первой тестовой версии.
+- Утверждение архитектуры не является разрешением начать реализацию следующей итерации. GitHub Pages workflow, Vite base path и Edge API/Webhook/Cron port ожидают отдельной команды.
+- PR #6 отмечен Ready for review; слияние не выполнялось. Ветка и PR #5/main не изменялись.
+
 ## 2026-11-02 — Подготовка целевого размещения на Supabase
 
 - Создана отдельная ветка `feat/supabase-test-environment` от утверждённой технической подготовки; предыдущие PR и `main` не изменяются.
