@@ -7,7 +7,7 @@
 - **Supabase Database (PostgreSQL)** — профили, натальные карты, расклады, история Таро, диалоги AI и ежедневные гороскопы.
 - **Supabase Edge Functions** — HTTP API приложения и приём Telegram updates через webhook.
 - **Supabase Cron** — запуск обработки ежедневных уведомлений по расписанию.
-- **GitHub Pages** — статическая сборка Telegram WebApp. Собственный домен не обязателен: на первом тесте можно использовать адрес `*.pages.dev`.
+- **GitHub Pages** — статическая сборка Telegram WebApp по адресу `https://unhappy-raccoon.github.io/tarot/`.
 - **Telegram** — тестовый бот `@my_first_tarot_test_bot`.
 - **OpenAI API** — генерация ответов астролога и интерпретации гороскопа.
 
@@ -15,21 +15,18 @@ VPS не нужен. Supabase предоставляет управляемую 
 
 ## Важный текущий статус
 
-Подготовлены Supabase CLI config, перенос существующих SQL-миграций и шаблон переменных окружения. **Сам серверный runtime ещё не перенесён на Edge Functions.** Текущий backend в `apps/server` использует Fastify, процесс `listen()`, grammY long polling и `setInterval()` для уведомлений. Эти механизмы нельзя просто запустить внутри Supabase Edge Functions.
+В ветке `feat/supabase-edge-runtime` подготовлены Supabase CLI config, PostgreSQL migrations, GitHub Pages workflow, Fastify-inject адаптер для API, Telegram webhook, Cron worker, claim-колонки и тесты security helper. Сборка Node workspace перед deploy создаёт `apps/server/dist`, откуда Edge Functions импортируют текущие серверные модули. Полный live deploy ещё не выполнен; Deno check и проверка работы Fastify/Postgres.js/grammY/Astronomy Engine в hosted Edge Runtime обязательны.
 
-Перед реальным запуском необходимо завершить кодовую адаптацию:
+Перед реальным запуском остаются внешняя настройка Supabase/Pages и проверки в hosted runtime:
 
-1. Перенести HTTP-маршруты из `apps/server/src/app.ts` в Fetch-совместимую Edge Function (сохранить существующие URL, payloads, коды ответов и проверку пользовательской сессии).
-2. Убрать запуск Fastify listener из `apps/server/src/index.ts`; API должен экспортировать обработчик запросов Supabase Edge Runtime.
-3. Перевести Telegram-бота с long polling на webhook. Edge Function должна принимать Telegram POST updates, проверять заголовок `X-Telegram-Bot-Api-Secret-Token` и передавать update в grammY.
-4. Вынести `setMyCommands` и настройку WebApp menu button в однократную операцию настройки webhook, а не выполнять их при каждом update.
-5. Перенести текущий минутный scheduler из `setInterval()` в Supabase Cron. Cron должен вызывать защищённую Edge Function, которая обрабатывает только наступившие уведомления. Обязательны атомарное резервирование/claim записей и идемпотентность, чтобы повторный вызов не отправлял дубликаты.
-6. Проверить совместимость `astronomy-engine`, grammY, OpenAI adapter, Drizzle и Postgres.js с Supabase Edge Runtime (Deno). Заменить Node-only crypto/Buffer участки на Web Crypto или подтвердить их совместимость в runtime tests.
-7. Для подключения к PostgreSQL из Edge Runtime использовать **Transaction pooler** Supabase (обычно port 6543), SSL и `prepare: false` для Postgres.js. Брать hostname и username только из Connect dialog проекта; не собирать connection string вручную.
-8. Переключить WebApp `VITE_API_URL` на URL API Edge Function и проверить CORS/preflight для GitHub Pages origin.
-9. Проверить вычисления Astronomy Engine в Edge Runtime: активное CPU-время Edge Function ограничено 2 секундами на запрос. При превышении потребуется оптимизация или перенос тяжёлых вычислений в иной runtime. У Edge Functions также есть лимиты wall-clock duration и памяти; ориентироваться нужно на актуальный план проекта. См. [Edge Functions limits](https://supabase.com/docs/guides/functions/limits).
+1. Установить Node.js по `.nvmrc`, выполнить `npm install`, затем `npm run build`. Edge Functions импортируют собранный `apps/server/dist`, поэтому сборка обязательна перед каждым deploy.
+2. Выполнить `deno check --config supabase/functions/deno.json ...` и `deno test --config supabase/functions/deno.json supabase/functions/_shared/security.test.ts`. CI запускает эти проверки на ветке.
+3. Подключить тестовый Supabase project и применить семь миграций.
+4. Настроить secrets, деплой Edge Functions, Telegram Webhook и Cron по разделам ниже.
+5. В Supabase Edge Runtime проверить реальную работу Fastify `app.inject()`, PostgreSQL pooler, grammY, OpenAI и Astronomy Engine. Активное CPU-время Edge Function ограничено 2 секундами на запрос; полный лимит и wall-clock timeout зависят от плана. См. [Edge Functions limits](https://supabase.com/docs/guides/functions/limits).
+6. Для публичного GitHub Pages deployment задать repository Actions variable `VITE_API_URL` со значением `https://<PROJECT_REF>.supabase.co/functions/v1/api`.
 
-Это обязательная часть миграции, а не уже выполненная функция. Не отмечать окружение как deployed до успешной публикации и проверки этих Edge Functions.
+Не считать окружение deployed до реальной публикации и проверки /health/ready, Telegram webhook и Pages.
 
 ## 1. Создать Supabase project
 
@@ -57,14 +54,15 @@ supabase link --project-ref <PROJECT_REF>
 supabase db push
 ```
 
-CLI применит миграции из `supabase/migrations/` в порядке timestamp:
+CLI применит семь миграций из `supabase/migrations/` в порядке timestamp:
 
 - core tables и профили;
 - расклады Таро;
 - натальные карты;
 - AI диалоги и дневные лимиты;
 - ежедневные гороскопы и настройки уведомлений;
-- включение Row Level Security на всех прикладных таблицах.
+- включение Row Level Security на всех прикладных таблицах;
+- атомарный claim уведомлений для Supabase Cron.
 
 Проверить в Supabase Dashboard → Table Editor, что созданы таблицы: `users`, `birth_profiles`, `tarot_readings`, `natal_charts`, `ai_conversations`, `ai_messages`, `ai_daily_usage`, `daily_horoscopes`, `horoscope_preferences`.
 
@@ -77,7 +75,9 @@ RLS включён без публичных политик: пользоват�
 - секрет webhook (случайная строка из безопасного генератора; Telegram передаёт её в специальном заголовке);
 - `SESSION_SECRET` не короче 32 случайных символов;
 - OpenAI API key и выбранная доступная модель;
-- WebApp HTTPS URL и его origin.
+- URL проекта Supabase;
+- GitHub Pages HTTPS URL `https://unhappy-raccoon.github.io/tarot/` и origin `https://unhappy-raccoon.github.io`;
+- отдельный `HOROSCOPE_CRON_SECRET` для планировщика.
 
 Секреты Edge Functions задаются через Supabase CLI или Dashboard Secrets, не через файл в Git:
 
@@ -99,17 +99,21 @@ supabase secrets set --env-file .env.supabase
 - Build variable: `VITE_API_URL=https://<PROJECT_REF>.supabase.co/functions/v1/api`.
 - Vite base path: `/tarot/` (обязателен для project site GitHub Pages).
 
-После публикации GitHub Pages URL установить как `TELEGRAM_WEBAPP_URL`, а origin без пути — как `WEBAPP_ORIGIN=https://unhappy-raccoon.github.io` в Supabase secrets. Собственный домен не нужен. На текущем этапе Pages workflow ещё не добавлен: это отдельная реализация после пользовательской команды.
+Ветка содержит `.github/workflows/pages.yml`: при push она собирает и сохраняет Pages artifact без публикации. Публикация защищена ручным запуском workflow_dispatch с `publish=yes` только из `main`, чтобы feature branch не выкладывала незавершённую версию. В Settings → Pages выбрать **GitHub Actions**. В Settings → Secrets and variables → Actions → Variables добавить `VITE_API_URL` со значением `https://<PROJECT_REF>.supabase.co/functions/v1/api`. После интеграции изменений в main ручной запуск workflow опубликует `apps/web/dist` по адресу `https://unhappy-raccoon.github.io/tarot/`. Передать этот URL как `TELEGRAM_WEBAPP_URL`, а origin без пути — `WEBAPP_ORIGIN=https://unhappy-raccoon.github.io` в Supabase secrets.
 
 ## 5. Развернуть Edge Functions
 
-После реализации и тестирования функций:
+Из корня репозитория:
 
 ```bash
-supabase functions deploy api --no-verify-jwt
-supabase functions deploy telegram-webhook --no-verify-jwt
-supabase functions deploy process-horoscope-notifications --no-verify-jwt
+npm install
+npm run build
+npm run check:supabase
+npm run test:supabase
+npm run deploy:supabase:functions
 ```
+
+Команда deploy ещё раз собирает Node workspace и публикует три функции. Требуется установленный и авторизованный Supabase CLI (`supabase login`, `supabase link --project-ref <PROJECT_REF>`).
 
 Для этих функций отключение встроенной JWT-проверки допустимо только потому, что приложение использует собственную Telegram initData validation/session auth, а webhook/cron endpoint защищены отдельными секретами. Нельзя оставлять публичный API без собственной проверки сессии.
 
@@ -118,20 +122,20 @@ URL:
 - Telegram webhook: `https://<PROJECT_REF>.supabase.co/functions/v1/telegram-webhook`
 - Scheduler worker: `https://<PROJECT_REF>.supabase.co/functions/v1/process-horoscope-notifications`
 
-Настроить Telegram `setWebhook` на URL webhook-функции, передав `secret_token`, совпадающий с `TELEGRAM_WEBHOOK_SECRET`. После этого убедиться через Telegram Bot API `getWebhookInfo`, что webhook установлен и нет ошибок доставки.
+После деплоя Edge Functions выполнить локально `npm run configure:supabase:telegram`. Скрипт читает `.env.supabase`, вызывает Telegram `setWebhook`, `setMyCommands` и `setChatMenuButton`; он не выводит token и secret в лог. Затем проверить `getWebhookInfo` через Telegram Bot API и убедиться, что webhook установлен без ошибок доставки.
 
 ## 6. Включить расписание уведомлений
 
 1. В Supabase Dashboard включить расширения `pg_cron` и `pg_net`, если они ещё не включены.
-2. Создать Supabase Cron job с интервалом 1 минута, вызывающий `process-horoscope-notifications`.
-3. Для HTTP вызова использовать секрет из Supabase Vault или другой защищённый серверный механизм; не хранить service-role key открытым текстом в SQL-файле или репозитории.
-4. Проверить `cron.job` и `cron.job_run_details`, логи Edge Function и отсутствие повторной отправки одного уведомления за локальную дату пользователя.
+2. В SQL Editor выполнить инструкции из `supabase/cron/schedule-horoscope-notifications.sql.example`: положить `PROJECT_URL` и `HOROSCOPE_CRON_SECRET` в Supabase Vault и создать cron job раз в минуту.
+3. Worker использует атомарный UPDATE для claim пользователя/локальной даты, ограничивает пачку тремя уведомлениями и освобождает claim при ошибке. Повторный job не должен отправлять уже отмеченное уведомление.
+4. Проверить `cron.job`, `cron.job_run_details`, логи Edge Function и отсутствие повторной отправки одного уведомления за локальную дату пользователя.
 
 Supabase рекомендует ограничивать параллельность Cron jobs и длительность каждого задания; worker должен обрабатывать ограниченную порцию пользователей за вызов и корректно продолжать при следующем запуске. См. [Supabase Cron](https://supabase.com/docs/guides/cron).
 
 ## 7. Критерии успешного пробного запуска
 
-- Все шесть Supabase migrations применены.
+- Все семь Supabase migrations применены.
 - RLS включён на всех пользовательских таблицах; anon frontend не может читать персональные данные напрямую.
 - Edge API опубликован, CORS разрешает только актуальный WebApp origin, Telegram session auth работает.
 - Telegram webhook получает updates и не принимает запросы без верного secret token.
@@ -153,4 +157,4 @@ Supabase рекомендует ограничивать параллельно�
 
 ## Текущее ограничение объёма работ
 
-Эта инструкция и SQL миграции подготавливают Supabase database target. Полный перенос Fastify API, grammY long polling и локального scheduler в Edge Functions/Webhook/Cron остаётся обязательной разработкой до фактического пробного запуска. Ветка не содержит production secrets и не создаёт Supabase project от имени пользователя.
+Кодовые адаптеры Fastify API, Telegram Webhook и Cron worker добавлены в `supabase/functions/`; существующие серверные маршруты переиспользуются после сборки в `apps/server/dist`. GitHub Pages workflow и настройки Vite также добавлены. Реальный deploy, проверка runtime совместимости и работа с настоящими секретами не выполнялись: для них требуется отдельный Supabase project, локальная авторизация CLI и заполнение `.env.supabase` владельцем проекта. Ветка не содержит production/test secrets и не создаёт Supabase project от имени пользователя.
