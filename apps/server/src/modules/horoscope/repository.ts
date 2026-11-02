@@ -308,6 +308,6 @@ export async function markHoroscopeNotificationSent(
     })
     .where(and(
       eq(horoscopePreferences.userId, user.id),
-      eq(horoscopePreferences.notificationsEnabled, true),
+      eq(horoscopePreferences.notificationClaimDate, localDate),
     ));
 }
