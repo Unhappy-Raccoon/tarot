@@ -12,7 +12,6 @@ import { NatalCalculationError } from "./modules/astrology/calculator.js";
 import {
   HoroscopeServiceError,
   generateDailyHoroscope,
-  getTodayLocalDate,
 } from "./modules/horoscope/service.js";
 import {
   getHoroscopePreferences,
@@ -473,7 +472,7 @@ export function buildApp(options: AppOptions = {}) {
         !isValidTimeZone(timeZone) ||
         typeof notificationsEnabled !== "boolean" ||
         typeof notificationTime !== "string" ||
-        !/^(?:[01]\\d|2[0-3]):[0-5]\\d$/.test(notificationTime)
+        !/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(notificationTime)
       ) {
         return reply.code(400).send({
           error: "invalid_horoscope_preferences",
