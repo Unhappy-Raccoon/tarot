@@ -26,12 +26,12 @@ const ENV_KEYS = [
 
 let workerPromise: Promise<{
   bot: Bot;
-  provider: import("../../../apps/server/dist/modules/ai/types.js").AIChatProvider | null;
-  generateDailyHoroscope: typeof import("../../../apps/server/dist/modules/horoscope/service.js").generateDailyHoroscope;
-  listDueHoroscopeNotifications: typeof import("../../../apps/server/dist/modules/horoscope/repository.js").listDueHoroscopeNotifications;
-  claimHoroscopeNotification: typeof import("../../../apps/server/dist/modules/horoscope/repository.js").claimHoroscopeNotification;
-  markHoroscopeNotificationSent: typeof import("../../../apps/server/dist/modules/horoscope/repository.js").markHoroscopeNotificationSent;
-  releaseHoroscopeNotification: typeof import("../../../apps/server/dist/modules/horoscope/repository.js").releaseHoroscopeNotification;
+  provider: import("../_shared/server/modules/ai/types.js").AIChatProvider | null;
+  generateDailyHoroscope: typeof import("../_shared/server/modules/horoscope/service.js").generateDailyHoroscope;
+  listDueHoroscopeNotifications: typeof import("../_shared/server/modules/horoscope/repository.js").listDueHoroscopeNotifications;
+  claimHoroscopeNotification: typeof import("../_shared/server/modules/horoscope/repository.js").claimHoroscopeNotification;
+  markHoroscopeNotificationSent: typeof import("../_shared/server/modules/horoscope/repository.js").markHoroscopeNotificationSent;
+  releaseHoroscopeNotification: typeof import("../_shared/server/modules/horoscope/repository.js").releaseHoroscopeNotification;
 }> | null = null;
 
 async function getWorker() {
@@ -44,9 +44,9 @@ async function getWorker() {
         horoscope,
         repository,
       ] = await Promise.all([
-        import("../../../apps/server/dist/modules/ai/provider.js"),
-        import("../../../apps/server/dist/modules/horoscope/service.js"),
-        import("../../../apps/server/dist/modules/horoscope/repository.js"),
+        import("../_shared/server/modules/ai/provider.js"),
+        import("../_shared/server/modules/horoscope/service.js"),
+        import("../_shared/server/modules/horoscope/repository.js"),
       ]);
       const token = Deno.env.get("TELEGRAM_BOT_TOKEN");
       if (!token) throw new Error("telegram_bot_not_configured");
