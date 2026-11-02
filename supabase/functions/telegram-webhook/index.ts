@@ -15,7 +15,9 @@ async function getBot(): Promise<Bot> {
       const webAppUrl = Deno.env.get("TELEGRAM_WEBAPP_URL");
       if (!token) throw new Error("telegram_bot_not_configured");
       const { createTelegramBot } = await import("../_shared/server/bot/create-bot.js");
-      return createTelegramBot(token, webAppUrl).bot;
+      const bot = createTelegramBot(token, webAppUrl).bot;
+      await bot.init();
+      return bot;
     })().catch((error) => {
       botPromise = null;
       throw error;
