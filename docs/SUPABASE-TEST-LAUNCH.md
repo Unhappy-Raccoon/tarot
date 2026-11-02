@@ -82,10 +82,12 @@ RLS включён без публичных политик: пользоват�
 Секреты Edge Functions задаются через Supabase CLI или Dashboard Secrets, не через файл в Git:
 
 ```bash
-supabase secrets set TELEGRAM_BOT_TOKEN=... TELEGRAM_WEBHOOK_SECRET=... SESSION_SECRET=... AI_PROVIDER=openai AI_API_KEY=... AI_MODEL=... AI_BASE_URL=https://api.openai.com/v1 TELEGRAM_WEBAPP_URL=https://<pages-project>.pages.dev WEBAPP_ORIGIN=https://<pages-project>.pages.dev HOROSCOPE_DEFAULT_TIME_ZONE=Europe/Tallinn
+cp .env.supabase.example .env.supabase
+# Заполнить .env.supabase локально, не добавляя его в Git.
+supabase secrets set --env-file .env.supabase
 ```
 
-Команду выполняет владелец проекта локально в своём терминале, подставляя реальные значения. Не вставлять реальные секреты в историю публичного shell, CI logs или чат. При вводе секретов предпочтительно использовать защищённый prompt/secret manager.
+Файл `.env.supabase` исключён из Git правилом `.env.*`. Команду выполняет владелец проекта локально. Перед отправкой убедись, что в файл не попали публичные настройки вроде `VITE_API_URL`, а только серверные secrets. Не печатай содержимое файла в лог и не передавай его в чат. Официальная инструкция: [Supabase Function secrets](https://supabase.com/docs/guides/functions/secrets).
 
 ## 4. Опубликовать WebApp
 
