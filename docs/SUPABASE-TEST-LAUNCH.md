@@ -7,7 +7,7 @@
 - **Supabase Database (PostgreSQL)** — профили, натальные карты, расклады, история Таро, диалоги AI и ежедневные гороскопы.
 - **Supabase Edge Functions** — HTTP API приложения и приём Telegram updates через webhook.
 - **Supabase Cron** — запуск обработки ежедневных уведомлений по расписанию.
-- **Cloudflare Pages** — статическая сборка Telegram WebApp. Собственный домен не обязателен: на первом тесте можно использовать адрес `*.pages.dev`.
+- **GitHub Pages** — статическая сборка Telegram WebApp. Собственный домен не обязателен: на первом тесте можно использовать адрес `*.pages.dev`.
 - **Telegram** — тестовый бот `@my_first_tarot_test_bot`.
 - **OpenAI API** — генерация ответов астролога и интерпретации гороскопа.
 
@@ -26,7 +26,7 @@ VPS не нужен. Supabase предоставляет управляемую 
 5. Перенести текущий минутный scheduler из `setInterval()` в Supabase Cron. Cron должен вызывать защищённую Edge Function, которая обрабатывает только наступившие уведомления. Обязательны атомарное резервирование/claim записей и идемпотентность, чтобы повторный вызов не отправлял дубликаты.
 6. Проверить совместимость `astronomy-engine`, grammY, OpenAI adapter, Drizzle и Postgres.js с Supabase Edge Runtime (Deno). Заменить Node-only crypto/Buffer участки на Web Crypto или подтвердить их совместимость в runtime tests.
 7. Для подключения к PostgreSQL из Edge Runtime использовать **Transaction pooler** Supabase (обычно port 6543), SSL и `prepare: false` для Postgres.js. Брать hostname и username только из Connect dialog проекта; не собирать connection string вручную.
-8. Переключить WebApp `VITE_API_URL` на URL API Edge Function и проверить CORS/preflight для Cloudflare Pages origin.
+8. Переключить WebApp `VITE_API_URL` на URL API Edge Function и проверить CORS/preflight для GitHub Pages origin.
 9. Проверить вычисления Astronomy Engine в Edge Runtime: активное CPU-время Edge Function ограничено 2 секундами на запрос. При превышении потребуется оптимизация или перенос тяжёлых вычислений в иной runtime. У Edge Functions также есть лимиты wall-clock duration и памяти; ориентироваться нужно на актуальный план проекта. См. [Edge Functions limits](https://supabase.com/docs/guides/functions/limits).
 
 Это обязательная часть миграции, а не уже выполненная функция. Не отмечать окружение как deployed до успешной публикации и проверки этих Edge Functions.
@@ -89,18 +89,17 @@ supabase secrets set --env-file .env.supabase
 
 Файл `.env.supabase` исключён из Git правилом `.env.*`. Команду выполняет владелец проекта локально. Перед отправкой убедись, что в файл не попали публичные настройки вроде `VITE_API_URL`, а только серверные secrets. Не печатай содержимое файла в лог и не передавай его в чат. Официальная инструкция: [Supabase Function secrets](https://supabase.com/docs/guides/functions/secrets).
 
-## 4. Опубликовать WebApp
+## 4. Опубликовать WebApp через GitHub Pages
 
-Создать Cloudflare Pages project из GitHub-репозитория. До первого live запуска использовать подготовленную ветку миграции/её итоговую ветку после завершения Edge API port; не выбирать `main`, пока цепочка PR не интегрирована.
+В репозитории открой Settings → Pages и выбери **GitHub Actions** как Build and deployment source. После отдельного утверждения реализации workflow будет собирать WebApp из `apps/web` и публиковать `apps/web/dist`. Для проекта `Unhappy-Raccoon/tarot` ожидаемый адрес — `https://unhappy-raccoon.github.io/tarot/`.
 
-Настройки сборки:
-- Root directory: `/`
-- Build command: `npm install --no-audit --no-fund && npm run build --workspace=@pcj/web`
-- Build output directory: `apps/web/dist`
-- Node version: `26.13.0`
-- Build environment variable: `VITE_API_URL=https://<PROJECT_REF>.supabase.co/functions/v1/api`
+Настройки сборки в будущем workflow:
+- Node.js: версия из `.nvmrc`.
+- Установить зависимости командой `npm install --no-audit --no-fund`.
+- Build variable: `VITE_API_URL=https://<PROJECT_REF>.supabase.co/functions/v1/api`.
+- Vite base path: `/tarot/` (обязателен для project site GitHub Pages).
 
-После публикации Cloudflare Pages выдаст HTTPS URL вида `https://<project>.pages.dev`. Его необходимо установить как `TELEGRAM_WEBAPP_URL` и соответствующий origin — как `WEBAPP_ORIGIN` в Supabase secrets. Собственный домен необязателен для первого теста.
+После публикации GitHub Pages URL установить как `TELEGRAM_WEBAPP_URL`, а origin без пути — как `WEBAPP_ORIGIN=https://unhappy-raccoon.github.io` в Supabase secrets. Собственный домен не нужен. На текущем этапе Pages workflow ещё не добавлен: это отдельная реализация после пользовательской команды.
 
 ## 5. Развернуть Edge Functions
 
@@ -149,7 +148,7 @@ Supabase рекомендует ограничивать параллельно�
 1. Создать Supabase project и сохранить Project Ref, Database password и Transaction pooler connection string у себя.
 2. Создать/подтвердить токен для `@my_first_tarot_test_bot`.
 3. Создать OpenAI API key и выбрать модель.
-4. Иметь аккаунт Cloudflare Pages (собственный домен не обязателен).
+4. Иметь аккаунт GitHub Pages (собственный домен не обязателен).
 5. Выполнить вход в Supabase CLI на машине, где будет выполняться deploy, либо предоставить доступ через подходящий безопасный интеграционный механизм. Секреты в чат не передавать.
 
 ## Текущее ограничение объёма работ
