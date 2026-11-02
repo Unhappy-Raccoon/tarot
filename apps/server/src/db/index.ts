@@ -3,9 +3,17 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import * as schema from "./schema.js";
 
 const connectionString = process.env.DATABASE_URL;
+const configuredPoolMax = Number(process.env.DATABASE_POOL_MAX ?? 5);
+const poolMax = Number.isInteger(configuredPoolMax) && configuredPoolMax >= 1 && configuredPoolMax <= 10
+  ? configuredPoolMax
+  : 5;
+
 const sqlClient = connectionString
   ? postgres(connectionString, {
-      max: 10,
+      // Supabase Transaction pooler uses transaction pooling. Disabling prepared
+      // statements also works with a direct PostgreSQL connection.
+      prepare: false,
+      max: poolMax,
       connect_timeout: 5,
       idle_timeout: 20,
       max_lifetime: 60 * 30,

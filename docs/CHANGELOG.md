@@ -1,3 +1,20 @@
+## 2026-11-02 — Hosting architecture approved: GitHub Pages + Supabase
+
+- Пользователь утвердил GitHub Pages для статического Telegram WebApp и Supabase для PostgreSQL, Edge Functions и Cron.
+- VPS, Cloudflare и собственный домен не требуются для первой тестовой версии.
+- Утверждение архитектуры не является разрешением начать реализацию следующей итерации. GitHub Pages workflow, Vite base path и Edge API/Webhook/Cron port ожидают отдельной команды.
+- PR #6 отмечен Ready for review; слияние не выполнялось. Ветка и PR #5/main не изменялись.
+
+## 2026-11-02 — Подготовка целевого размещения на Supabase
+
+- Создана отдельная ветка `feat/supabase-test-environment` от утверждённой технической подготовки; предыдущие PR и `main` не изменяются.
+- Добавлены Supabase CLI config и перенос PostgreSQL migrations 0001–0005 в `supabase/migrations/`.
+- Добавлена отдельная migration для включения RLS на прикладных таблицах; публичный frontend не должен иметь прямого доступа к пользовательским данным.
+- Добавлен `.env.supabase.example`, настройка Postgres.js для Supabase Transaction pooler (`prepare: false`, управляемый размер пула), новая инструкция `docs/SUPABASE-TEST-LAUNCH.md`.
+- Старый VPS/Docker runbook помечен как нецелевой; Docker Compose и Dockerfile оставлены для альтернативной локальной/Node.js среды.
+- Важно: Edge API, grammY webhook и Cron worker ещё не перенесены. Живое развёртывание пока невозможно до завершения этого runtime port и получения внешних ключей/URL.
+- VPS, Cloudflare и собственный домен не обязательны: Supabase предоставляет project API URL, GitHub Pages — HTTPS `github.io` адрес.
+
 ## 2026-11-02 — Стабилизация и подготовка тестового запуска: утверждено пользователем
 
 - Пользователь утвердил техническую подготовку MVP к тестовому запуску.
