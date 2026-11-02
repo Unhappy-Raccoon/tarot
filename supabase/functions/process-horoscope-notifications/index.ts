@@ -94,6 +94,7 @@ Deno.serve(async (request) => {
         skipped += 1;
         continue;
       }
+      let telegramDeliveryStarted = false;
       try {
         const horoscope = await worker.generateDailyHoroscope(
           item.telegramId,
@@ -110,13 +111,19 @@ Deno.serve(async (request) => {
           "Это символическая подсказка для саморефлексии, а не прогноз неизбежных событий.",
           webAppUrl ? `Открыть журнал: ${webAppUrl}` : "",
         ].filter(Boolean).join("\n").slice(0, 3900);
+        telegramDeliveryStarted = true;
         await worker.bot.api.sendMessage(item.telegramId, message, {
           link_preview_options: { is_disabled: true },
         });
         await worker.markHoroscopeNotificationSent(item.telegramId, item.localDate);
         sent += 1;
       } catch (error) {
-        await worker.releaseHoroscopeNotification(item.telegramId, item.localDate).catch(() => undefined);
+        // A failure before Telegram send is safe to release. Once the send starts,
+        // keep the lease until expiry: Telegram may have accepted the message even
+        // if the HTTP response was lost, and immediate retry could duplicate it.
+        if (!telegramDeliveryStarted) {
+          await worker.releaseHoroscopeNotification(item.telegramId, item.localDate).catch(() => undefined);
+        }
         failed += 1;
         console.warn("Horoscope notification failed", error instanceof Error ? error.name : "unknown");
       }
