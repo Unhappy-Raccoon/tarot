@@ -26,7 +26,7 @@ const ENV_KEYS = [
 
 let workerPromise: Promise<{
   bot: Bot;
-  provider: import("../_shared/server/modules/ai/types.js").AIChatProvider | null;
+  provider: import("../../../apps/server/src/modules/ai/types.ts").AIChatProvider | null;
   generateDailyHoroscope: typeof import("../_shared/server/modules/horoscope/service.js").generateDailyHoroscope;
   listDueHoroscopeNotifications: typeof import("../_shared/server/modules/horoscope/repository.js").listDueHoroscopeNotifications;
   claimHoroscopeNotification: typeof import("../_shared/server/modules/horoscope/repository.js").claimHoroscopeNotification;
