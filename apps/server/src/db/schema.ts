@@ -149,7 +149,7 @@ export const dailyHoroscopes = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
-    uniqueIndex("daily_horoscopes_user_date_zone_unique").on(table.userId, table.localDate, table.timeZone),
+    uniqueIndex("daily_horoscopes_user_date_unique").on(table.userId, table.localDate),
     index("daily_horoscopes_user_created_idx").on(table.userId, table.createdAt),
   ],
 );
