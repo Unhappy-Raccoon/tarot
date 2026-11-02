@@ -8,6 +8,7 @@ on:
       - feat/ai-astrologer
       - feat/daily-horoscope
       - feat/mvp-test-readiness
+      - feat/supabase-edge-runtime
   pull_request:
     branches:
       - main
@@ -16,6 +17,7 @@ on:
       - feat/ai-astrologer
       - feat/daily-horoscope
       - feat/mvp-test-readiness
+      - feat/supabase-edge-runtime
 
 jobs:
   verify:
