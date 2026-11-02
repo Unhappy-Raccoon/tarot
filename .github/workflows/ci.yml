@@ -37,6 +37,12 @@ jobs:
         run: npm run test:server
       - name: Build workspaces
         run: npm run build
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+      - name: Type-check Supabase Edge Functions
+        run: deno check --config supabase/functions/deno.json supabase/functions/api/index.ts supabase/functions/telegram-webhook/index.ts supabase/functions/process-horoscope-notifications/index.ts
+      - name: Test Supabase Edge security helpers
+        run: deno test --config supabase/functions/deno.json supabase/functions/_shared/security.test.ts
       - name: Build production API container
         run: docker build -f apps/server/Dockerfile -t pcj-api:ci .
       - name: Validate test deployment Compose file
