@@ -26,7 +26,7 @@
 | Telegram daily horoscope notifications | Opt-in preference and single-process scheduler implemented; user-approved; live delivery not verified |
 | Telegram Stars payments | Not implemented |
 | MVP stabilization / test launch | Technical preparation user-approved (2026-11-02); VPS plan superseded by Supabase target |
-| Supabase test deployment adaptation | Implemented on `feat/supabase-edge-runtime`: Edge API adapter, Telegram webhook, Cron worker, atomic notification claim, Deno security tests; hosted runtime verification and credentials pending |
+| Supabase test deployment adaptation | Code implementation on `feat/supabase-edge-runtime`; CI passed Node + Deno checks, API Docker and Compose; hosted runtime verification and credentials pending |
 | WebApp hosting target | GitHub Pages selected and workflow added; manual publish is guarded to `main` after integration and explicit dispatch |
 | Production deployment | Not configured; a real test deployment still requires operator secrets and domains |
 
@@ -55,7 +55,8 @@
 - `supabase/functions/process-horoscope-notifications` is the Cron worker. It processes a bounded batch and uses atomic database claim fields to prevent concurrent Cron invocations from sending the same local-date notification twice. Unknown Telegram send outcomes retain the claim until lease expiry; exact-once delivery to an external Telegram API cannot be guaranteed if a network response is lost.
 - User approved GitHub Pages as the static WebApp host alongside Supabase as the only server-side platform on 2026-11-02. Workflow `.github/workflows/pages.yml` builds artifacts on feature pushes and only publishes after a manual `workflow_dispatch` from `main` with explicit `publish=yes`. Vite base path is configurable via `VITE_BASE_PATH`; deploy build uses `/tarot/`.
 - A custom domain and VPS are not required for the initial Supabase test environment; Supabase provides the API project URL and GitHub Pages provides the project's `github.io` URL.
-- The Supabase Edge Functions compile from the built Node workspace; `npm run check:supabase` and `npm run test:supabase` are also wired into CI using Deno. Hosted Supabase deployment and integration smoke tests have not yet been performed.
+- The Supabase Edge Functions compile from the staged Node workspace; `npm run check:supabase` and `npm run test:supabase` passed in CI. Pages build artifact also passed CI; live publish has not happened. Hosted Supabase deployment and integration smoke tests have not yet been performed.
+- Main-branch audit note: two helper files were accidentally created on `main` then immediately deleted by two follow-up commits. Current `main` tree contains neither file; the add/delete commits remain in history. No feature PR was merged.
 
 ## Natal chart implementation constraints
 
