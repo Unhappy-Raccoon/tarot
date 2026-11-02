@@ -3,7 +3,7 @@
 - Runtime review found that the earlier runbook recommended Supabase shared Transaction Pooler for `postgres.js`. Supabase documents that its pipelining can hang or mismatch responses in transaction mode; disabling prepared statements does not disable pipelining, while `max_pipeline: 0` breaks `sql.begin()` used by the AI conversation transaction.
 - Updated the test deployment to use Session Pooler (port 5432) and kept `DATABASE_POOL_MAX=1` per Edge isolate. This is a constrained test-environment tradeoff; hosted smoke tests remain required before launch or increased traffic.
 
-## 2026-11-02 — Supabase Edge runtime и GitHub Pages (реализация в процессе)
+## 2026-11-02 — Supabase Edge runtime и GitHub Pages (код готов к review; hosted smoke test ожидает окружения)
 
 - Создана отдельная ветка `feat/supabase-edge-runtime` поверх утверждённой ветки Supabase; предыдущие PR и `main` не являются базой изменений этой итерации.
 - В Vite добавлен configurable base path; workflow GitHub Pages собирает артефакт из `apps/web/dist`, но публикация защищена ручным dispatch с `publish=yes` только из `main`.
