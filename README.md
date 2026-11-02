@@ -39,7 +39,8 @@ docs/        PRD, решения, архитектура и дизайн-сис�
 4. Заполнить `TELEGRAM_BOT_TOKEN`, `SESSION_SECRET`, `DATABASE_URL`, `TELEGRAM_WEBAPP_URL`, `WEBAPP_ORIGIN` и `VITE_API_URL` подходящими локальными/публичными значениями.
 5. Применить SQL-миграции по порядку:
    `psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f apps/server/migrations/0001_core.sql`
-   `psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f apps/server/migrations/0002_tarot_readings.sql`
+   `psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f apps/server/migrations/0002_tarot_readings.sql
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f apps/server/migrations/0003_natal_charts.sql`
 6. API + Bot: `npm run dev:server`.
 7. WebApp: `npm run dev:web`.
 

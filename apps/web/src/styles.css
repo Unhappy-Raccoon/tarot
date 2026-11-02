@@ -38,3 +38,25 @@
 @media (prefers-reduced-motion: reduce) {
   .tarot-flip-card__inner { transition-duration: .01ms; }
 }
+
+
+/* Natal chart calculation states */
+.coordinate-fields { display: grid; gap: .55rem; }
+.coordinate-fields > p { margin: 0; color: var(--color-milk); font-size: .84rem; }
+.coordinate-fields > div { display: grid; grid-template-columns: 1fr 1fr; gap: .55rem; }
+.coordinate-fields small { color: rgb(241 220 203 / 48%); font-size: .66rem; line-height: 1.45; }
+.natal-precision-panel, .natal-status-panel {
+  display: grid; gap: .45rem; padding: .95rem 1rem;
+  border: 1px solid var(--line); border-radius: 1rem;
+  background: linear-gradient(145deg, rgb(42 31 39 / 36%), transparent 60%), rgb(17 14 22 / 94%);
+}
+.natal-precision-panel strong { color: var(--color-milk); font-family: "Playfair Display", Georgia, serif; font-size: 1.08rem; font-weight: 400; }
+.natal-precision-panel p, .natal-status-panel p {
+  margin: 0; color: var(--muted); font-size: .7rem; line-height: 1.5;
+}
+.natal-status-panel { justify-items: center; text-align: center; padding: 1.35rem 1rem; }
+.natal-status-panel h2 { margin: 0; font-family: "Playfair Display", Georgia, serif; font-size: 1.25rem; font-weight: 400; }
+.natal-status-panel > p { max-width: 25rem; }
+.natal-status-panel .card-eyebrow { justify-self: start; }
+.placement-row h3 { line-height: 1.3; }
+.natal-core-facts strong { font-size: .8rem; }

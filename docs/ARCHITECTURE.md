@@ -82,3 +82,15 @@ flowchart TD
 - API/Bot/PostgreSQL/jobs: EU VPS.
 - Backups: независимое внешнее хранилище; тест восстановления до production.
 - Secrets: environment variables; не коммитить в Git.
+
+
+## Natal chart calculation pipeline
+
+- Birth date and optional local time are stored separately from the IANA time zone.
+- Local wall-clock time is resolved to UTC using IANA timezone rules. DST gaps are rejected; repeated local times are treated as ambiguous and do not produce a single Ascendant.
+- Astronomy Engine calculates tropical geocentric ecliptic positions for Sun, Moon and the eight planets from Mercury through Pluto.
+- If birth time is unavailable, the engine evaluates the possible local-day interval. It reports a sign only when that sign is stable across the full interval; exact degree, Ascendant and houses remain unavailable.
+- Ascendant requires exact UTC instant plus birth latitude/longitude. No city geocoding provider is configured yet; coordinates can be supplied directly.
+- The first house system is Whole Sign. House 1 begins at 0° of the zodiac sign containing the Ascendant.
+- Calculated chart JSON is cached in `natal_charts` against a SHA-256 fingerprint of the source birth profile and algorithm version.
+- Changing the source birth profile causes recalculation on the next chart request.

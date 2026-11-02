@@ -39,6 +39,39 @@ export interface BirthProfile {
   birthTime?: string;
   birthPlace?: string;
   birthTimeZone?: string;
+  birthLatitude?: number;
+  birthLongitude?: number;
+}
+
+export interface NatalPlanetPlacement {
+  id: string;
+  name: string;
+  glyph: string;
+  sign: string | null;
+  possibleSigns: string[];
+  longitudeDegrees: number | null;
+  degreeInSign: number | null;
+  houseNumber: number | null;
+}
+
+export interface NatalHouse {
+  number: number;
+  sign: string;
+  startLongitude: number;
+}
+
+export interface NatalChartResult {
+  algorithmVersion: string;
+  zodiac: "tropical";
+  houseSystem: "whole-sign" | null;
+  precision: "exact-time" | "date-only" | "unknown-timezone" | "ambiguous-local-time";
+  precisionLabel: string;
+  precisionNotes: string[];
+  calculationWindow: { startUtc: string; endUtc: string };
+  ascendant: { sign: string; longitudeDegrees: number; degreeInSign: number } | null;
+  houses: NatalHouse[] | null;
+  placements: NatalPlanetPlacement[];
+  calculatedAt: string;
 }
 
 export interface UserProfile {

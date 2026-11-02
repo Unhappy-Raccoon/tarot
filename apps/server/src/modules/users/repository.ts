@@ -16,6 +16,8 @@ export interface BirthProfileInput {
   birthTime?: string;
   birthPlace?: string;
   birthTimeZone?: string;
+  birthLatitude?: number;
+  birthLongitude?: number;
 }
 
 export interface UserProfile {
@@ -100,6 +102,8 @@ export async function getUserProfile(
       birthTime: birthProfiles.birthTime,
       birthPlace: birthProfiles.birthPlace,
       birthTimeZone: birthProfiles.birthTimeZone,
+      birthLatitude: birthProfiles.birthLatitude,
+      birthLongitude: birthProfiles.birthLongitude,
     })
     .from(users)
     .leftJoin(birthProfiles, eq(users.id, birthProfiles.userId))
@@ -115,6 +119,8 @@ export async function getUserProfile(
           ...(row.birthTime ? { birthTime: row.birthTime } : {}),
           ...(row.birthPlace ? { birthPlace: row.birthPlace } : {}),
           ...(row.birthTimeZone ? { birthTimeZone: row.birthTimeZone } : {}),
+          ...(row.birthLatitude !== null ? { birthLatitude: row.birthLatitude } : {}),
+          ...(row.birthLongitude !== null ? { birthLongitude: row.birthLongitude } : {}),
         }
       : null;
 
@@ -161,6 +167,8 @@ export async function saveBirthProfile(
       birthTime: input.birthTime ?? null,
       birthPlace: input.birthPlace ?? null,
       birthTimeZone: input.birthTimeZone ?? null,
+      birthLatitude: input.birthLatitude ?? null,
+      birthLongitude: input.birthLongitude ?? null,
       updatedAt: new Date(),
     })
     .onConflictDoUpdate({
@@ -171,6 +179,8 @@ export async function saveBirthProfile(
         birthTime: input.birthTime ?? null,
         birthPlace: input.birthPlace ?? null,
         birthTimeZone: input.birthTimeZone ?? null,
+        birthLatitude: input.birthLatitude ?? null,
+        birthLongitude: input.birthLongitude ?? null,
         updatedAt: new Date(),
       },
     });

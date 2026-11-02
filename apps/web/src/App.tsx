@@ -263,7 +263,7 @@ export default function App() {
         {activeScreen === "home" && <HomeScreen profile={profile} displayName={displayName} onNavigate={navigate} onDailyCard={() => void startSpread("daily")} busy={busySpread === "daily"} />}
         {activeScreen === "tarot" && <TarotSelectionScreen onSelect={(spread) => void startSpread(spread)} onBack={() => navigate("home")} busySpread={busySpread} error={tarotError} />}
         {activeScreen === "tarot-result" && reading && <TarotResultScreen reading={reading} onBack={() => navigate("tarot")} />}
-        {activeScreen === "natal" && <NatalChartScreen onBack={() => navigate("home")} />}
+        {activeScreen === "natal" && <NatalChartScreen onBack={() => navigate("home")} accessToken={accessToken} previewMode={previewMode} />}
         {activeScreen === "astrologer" && <AstrologerScreen onBack={() => navigate("home")} />}
         {activeScreen === "journal" && <JournalScreen onBack={() => navigate("home")} readings={journalReadings} onOpenReading={openReading} loading={journalLoading} error={journalError} />}
         {activeScreen === "profile" && <ProfileScreen profile={profile} displayName={displayName} onPremium={() => navigate("premium")} />}
@@ -297,6 +297,8 @@ function OnboardingScreen({
   const [birthTime, setBirthTime] = useState("");
   const [birthPlace, setBirthPlace] = useState("");
   const [birthTimeZone, setBirthTimeZone] = useState("");
+  const [birthLatitude, setBirthLatitude] = useState("");
+  const [birthLongitude, setBirthLongitude] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -315,6 +317,8 @@ function OnboardingScreen({
         ...(birthTime ? { birthTime } : {}),
         ...(birthPlace.trim() ? { birthPlace: birthPlace.trim() } : {}),
         ...(birthTimeZone.trim() ? { birthTimeZone: birthTimeZone.trim() } : {}),
+        ...(birthLatitude.trim() ? { birthLatitude: Number(birthLatitude) } : {}),
+        ...(birthLongitude.trim() ? { birthLongitude: Number(birthLongitude) } : {}),
       });
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Не удалось сохранить данные.");
@@ -349,6 +353,18 @@ function OnboardingScreen({
         <label>Часовой пояс места рождения <span className="optional">необязательно</span>
           <input maxLength={64} placeholder="Например, Europe/Tallinn" value={birthTimeZone} onChange={(event) => setBirthTimeZone(event.target.value)} />
         </label>
+        <div className="coordinate-fields">
+          <p>Координаты места рождения <span className="optional">для Асцендента и домов</span></p>
+          <div>
+            <label>Широта
+              <input type="number" inputMode="decimal" min="-90" max="90" step="any" placeholder="59.4370" value={birthLatitude} onChange={(event) => setBirthLatitude(event.target.value)} />
+            </label>
+            <label>Долгота
+              <input type="number" inputMode="decimal" min="-180" max="180" step="any" placeholder="24.7536" value={birthLongitude} onChange={(event) => setBirthLongitude(event.target.value)} />
+            </label>
+          </div>
+          <small>Обе координаты нужно указать вместе. Автоматический поиск города пока не подключён.</small>
+        </div>
         {error && <p className="form-error" role="alert">{error}</p>}
         <button className="primary-button" type="submit" disabled={saving}>{saving ? "Сохраняем…" : "Продолжить"} <span>→</span></button>
         <p className="privacy-hint">Время и место рождения можно добавить позже. Неизвестное время не будет подменяться.</p>
