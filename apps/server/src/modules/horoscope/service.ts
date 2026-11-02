@@ -92,7 +92,7 @@ export async function generateDailyHoroscope(
       throw new HoroscopeServiceError("birth_profile_required", "Сначала заполни дату рождения в профиле.", 409);
     }
 
-    let chart;
+    let chart: Awaited<ReturnType<typeof getOrCreateNatalChart>>;
     try {
       chart = await getOrCreateNatalChart(telegramId);
     } catch {
