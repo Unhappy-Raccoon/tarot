@@ -23,6 +23,9 @@
 | AI astrologer API + UI | Implemented in `feat/ai-astrologer`, pending review |
 | AI conversation history / deletion | Implemented with PostgreSQL + development in-memory adapter |
 | AI provider live connection | Not activated; server key and model configuration required |
+| AI astrologer API + UI | Implemented and user-approved; PR #3 ready for review |
+| AI conversation history / deletion | Implemented and user-approved |
+| AI provider live connection | Adapter implemented; server key and model configuration required |
 | Real horoscope / transits | Not implemented |
 | Telegram Stars payments | Not implemented |
 | Production deployment | Not configured |
