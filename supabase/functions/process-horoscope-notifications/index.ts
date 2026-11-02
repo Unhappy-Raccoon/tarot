@@ -26,12 +26,12 @@ const ENV_KEYS = [
 
 let workerPromise: Promise<{
   bot: Bot;
-  provider: Awaited<ReturnType<typeof import("../../../apps/server/dist/modules/ai/provider.js")["createAIProviderFromEnv"]>>;
-  generateDailyHoroscope: typeof import("../../../apps/server/dist/modules/horoscope/service.js")["generateDailyHoroscope"];
-  listDueHoroscopeNotifications: typeof import("../../../apps/server/dist/modules/horoscope/repository.js")["listDueHoroscopeNotifications"];
-  claimHoroscopeNotification: typeof import("../../../apps/server/dist/modules/horoscope/repository.js")["claimHoroscopeNotification"];
-  markHoroscopeNotificationSent: typeof import("../../../apps/server/dist/modules/horoscope/repository.js")["markHoroscopeNotificationSent"];
-  releaseHoroscopeNotification: typeof import("../../../apps/server/dist/modules/horoscope/repository.js")["releaseHoroscopeNotification"];
+  provider: import("../../../apps/server/dist/modules/ai/types.js").AIChatProvider | null;
+  generateDailyHoroscope: typeof import("../../../apps/server/dist/modules/horoscope/service.js").generateDailyHoroscope;
+  listDueHoroscopeNotifications: typeof import("../../../apps/server/dist/modules/horoscope/repository.js").listDueHoroscopeNotifications;
+  claimHoroscopeNotification: typeof import("../../../apps/server/dist/modules/horoscope/repository.js").claimHoroscopeNotification;
+  markHoroscopeNotificationSent: typeof import("../../../apps/server/dist/modules/horoscope/repository.js").markHoroscopeNotificationSent;
+  releaseHoroscopeNotification: typeof import("../../../apps/server/dist/modules/horoscope/repository.js").releaseHoroscopeNotification;
 }> | null = null;
 
 async function getWorker() {
