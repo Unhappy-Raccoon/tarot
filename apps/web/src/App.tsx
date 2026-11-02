@@ -220,6 +220,20 @@ export default function App() {
     setTarotError("");
   }
 
+  async function updateBirthProfile(input: BirthProfile) {
+    if (previewMode) {
+      const nextProfile = { ...profile, firstName: input.displayName, birthProfile: input };
+      localStorage.setItem(PREVIEW_PROFILE_KEY, JSON.stringify(nextProfile));
+      setProfile(nextProfile);
+      return;
+    }
+    const result = await apiRequest<{ user: UserProfile }>("/api/me/onboarding", accessToken, {
+      method: "PUT",
+      body: JSON.stringify(input),
+    });
+    setProfile(result.user);
+  }
+
   async function startSpread(spreadId: SpreadId) {
     setBusySpread(spreadId);
     setTarotError("");
@@ -266,7 +280,7 @@ export default function App() {
         {activeScreen === "natal" && <NatalChartScreen onBack={() => navigate("home")} accessToken={accessToken} previewMode={previewMode} />}
         {activeScreen === "astrologer" && <AstrologerScreen onBack={() => navigate("home")} />}
         {activeScreen === "journal" && <JournalScreen onBack={() => navigate("home")} readings={journalReadings} onOpenReading={openReading} loading={journalLoading} error={journalError} />}
-        {activeScreen === "profile" && <ProfileScreen profile={profile} displayName={displayName} onPremium={() => navigate("premium")} />}
+        {activeScreen === "profile" && <ProfileScreen profile={profile} displayName={displayName} onPremium={() => navigate("premium")} onSaveBirthProfile={updateBirthProfile} />}
         {activeScreen === "premium" && <PremiumScreen onBack={() => navigate("profile")} />}
         {tarotError && activeScreen === "home" && <div className="toast-notice" role="alert">{tarotError}</div>}
       </main>
