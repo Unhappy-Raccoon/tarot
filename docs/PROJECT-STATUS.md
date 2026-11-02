@@ -25,7 +25,8 @@
 | Daily horoscope history | Implemented with PostgreSQL + development in-memory adapter |
 | Telegram daily horoscope notifications | Opt-in preference and single-process scheduler implemented; user-approved; live delivery not verified |
 | Telegram Stars payments | Not implemented |
-| MVP stabilization / test launch | Technical preparation user-approved (2026-11-02); live deployment pending external secrets, domains and hosting |
+| MVP stabilization / test launch | Technical preparation user-approved (2026-11-02); VPS plan superseded by Supabase target |
+| Supabase test deployment adaptation | Supabase CLI config + DB migrations + RLS + runbook added; Edge API/Webhook/Cron port still required |
 | Production deployment | Not configured; a real test deployment still requires operator secrets and domains |
 
 ## Current constraints
@@ -46,7 +47,9 @@
 - Behavior parity with `@my_first_tarot_test_bot` still needs a user-provided walkthrough or test account access.
 - Full end-to-end checks of Tarot, natal chart, AI chat and daily horoscope are intentionally deferred until the test environment has been launched successfully.
 - Technical test-launch preparation was explicitly approved by the user on 2026-11-02. No live deployment or end-to-end user scenario verification has yet been performed.
-- Test-launch deployment requires real Telegram Bot, AI provider and HTTPS domain configuration; none of these secrets are stored in the repository.
+- Supabase test deployment requires a Supabase project, database password/transaction-pooler URL, Telegram Bot Token, webhook secret, session secret, OpenAI API key/model, and Cloudflare Pages HTTPS URL. No production secrets are stored in the repository.
+- Supabase DB migrations are copied to `supabase/migrations/`; a final migration enables RLS on all application tables. Edge Function runtime conversion remains outstanding: Fastify listener, grammY long polling and in-process scheduler must be replaced by Edge Functions, Telegram Webhook and Supabase Cron.
+- A custom domain and VPS are not required for the initial Supabase test environment; Supabase provides the API project URL and Cloudflare Pages provides a `pages.dev` URL.
 - Final test-launch preparation commit `4b1d643dc992835a33d05ea79b834d9b9a29e35c` passed push and pull-request CI: TypeScript checks, server unit tests, workspace builds, API Docker image build and Docker Compose config validation. This does not mean the live environment has been deployed.
 
 ## Natal chart implementation constraints
