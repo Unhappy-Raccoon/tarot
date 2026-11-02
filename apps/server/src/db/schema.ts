@@ -1,7 +1,9 @@
 import type { TarotCardDraw, TarotSpreadId } from "../modules/tarot/types.js";
 import type { NatalChartResult } from "../modules/astrology/types.js";
+import type { DailyTransitSnapshot, TransitNatalAspect } from "../modules/astrology/transits.js";
 import {
   date,
+  boolean,
   doublePrecision,
   integer,
   jsonb,
@@ -126,3 +128,41 @@ export const aiDailyUsage = pgTable(
     uniqueIndex("ai_daily_usage_user_date_unique").on(table.userId, table.usageDate),
   ],
 );
+
+
+export const dailyHoroscopes = pgTable(
+  "daily_horoscopes",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    localDate: date("local_date", { mode: "string" }).notNull(),
+    timeZone: varchar("time_zone", { length: 64 }).notNull(),
+    title: varchar("title", { length: 120 }).notNull(),
+    content: text("content").notNull(),
+    transitData: jsonb("transit_data").$type<{
+      transits: DailyTransitSnapshot;
+      aspects: TransitNatalAspect[];
+      natalPrecision: string;
+    }>().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("daily_horoscopes_user_date_unique").on(table.userId, table.localDate),
+    index("daily_horoscopes_user_created_idx").on(table.userId, table.createdAt),
+  ],
+);
+
+export const horoscopePreferences = pgTable("horoscope_preferences", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .notNull()
+    .unique()
+    .references(() => users.id, { onDelete: "cascade" }),
+  timeZone: varchar("time_zone", { length: 64 }).notNull().default("Europe/Tallinn"),
+  notificationsEnabled: boolean("notifications_enabled").notNull().default(false),
+  notificationTime: varchar("notification_time", { length: 5 }).notNull().default("09:00"),
+  lastSentLocalDate: date("last_sent_local_date", { mode: "string" }),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});

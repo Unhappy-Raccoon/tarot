@@ -14,36 +14,35 @@
 | Tarot spreads | Daily, Past–Present–Future, Love & Relationships |
 | Tarot draw | Server-side cryptographic random selection, no duplicates within a spread |
 | Tarot persistence | PostgreSQL migration + development in-memory adapter |
-| Daily card | One stored daily reading per user per UTC date |
-| Journal | Connected to actual Tarot reading history |
-| CI (typecheck, tests, workspace build) | Passing on Tarot iteration |
 | Natal planetary calculations | Implemented and user-approved; PR #2 ready for review |
 | Ascendant / Whole Sign houses | Implemented and user-approved, conditional on exact time, IANA timezone and coordinates |
 | Birth profile editor | Implemented and user-approved for date, time, timezone, place and manual coordinates |
-| AI astrologer API + UI | Implemented in `feat/ai-astrologer`, pending review |
-| AI conversation history / deletion | Implemented with PostgreSQL + development in-memory adapter |
-| AI provider live connection | Not activated; server key and model configuration required |
 | AI astrologer API + UI | Implemented and user-approved; PR #3 ready for review |
 | AI conversation history / deletion | Implemented and user-approved |
 | AI provider live connection | Adapter implemented; server key and model configuration required |
-| Real horoscope / transits | Not implemented |
+| Daily transit calculation | Implemented and user-approved; CI passing |
+| Personal daily horoscope API + WebApp | Implemented and user-approved; PR #4 ready for review |
+| Daily horoscope history | Implemented with PostgreSQL + development in-memory adapter |
+| Telegram daily horoscope notifications | Opt-in preference and single-process scheduler implemented; user-approved; live delivery not verified |
 | Telegram Stars payments | Not implemented |
 | Production deployment | Not configured |
 
 ## Current constraints
 
-- Apply migrations in order: `0001_core.sql`, `0002_tarot_readings.sql`, `0003_natal_charts.sql`, then `0004_ai_astrologer.sql`.
-- Development without DATABASE_URL uses in-memory user profiles and readings; data is lost when server restarts.
-- Daily Tarot date boundary currently uses UTC; user-local timezone scheduling is a separate follow-up.
-- Tarot interpretations are static editorial texts, not AI-generated.
+- Apply migrations in order: `0001_core.sql`, `0002_tarot_readings.sql`, `0003_natal_charts.sql`, `0004_ai_astrologer.sql`, then `0005_daily_horoscope.sql`.
+- Development without DATABASE_URL uses in-memory data; it is lost when the server restarts. Notification scheduling requires PostgreSQL.
 - Automatic geocoding is not enabled; birth coordinates may be entered manually.
 - Natal chart without birth time is date-range based: no ASC, houses, or exact degrees are invented.
-- Current natal house system is Whole Sign and requires separate review before changing.
-- Reversed-card orientation and per-plan spread limits are not implemented; exact Free/Premium limits are not approved.
+- Current natal house system is Whole Sign.
+- Exact Free/Premium commercial limits and Premium entitlements are not approved or connected to payment.
 - Telegram bot live test requires secrets and a public HTTPS Mini App URL.
-- AI provider/model and Premium prices are not selected.
+- AI provider/model has not been selected/configured in the live server environment.
+- Daily horoscope generates one saved entry per user and local date, using a 12:00 local transit snapshot.
+- Transit-to-natal aspects require exact natal longitudes; date-only or ambiguous-time charts do not produce degree aspects.
+- Transit calculations have regression tests but still require validation against an independent ephemeris reference before production.
+- Telegram notification preferences default to off. The current one-process scheduler is not safe for multiple active API instances until a distributed claim/lock is added.
+- Real AI generation and Telegram delivery are not verified without live server credentials and deployment.
 - Behavior parity with `@my_first_tarot_test_bot` still needs a user-provided walkthrough or test account access.
-
 
 ## Natal chart implementation constraints
 
@@ -51,7 +50,6 @@
 - Date-only charts show only zodiac signs stable across the possible time window; no exact degree or Ascendant is invented.
 - Automatic city geocoding is not connected. Coordinates are optional fields in the birth profile.
 - Whole Sign is the initial house-system default; additional systems require separate review and validation.
-
 
 ## AI astrologer iteration constraints
 
@@ -62,3 +60,16 @@
 - AI inputs include conversation text and summarized calculated planet signs; raw birth date, time, birthplace and coordinates from the profile are not sent in the generated context.
 - AI output is not streamed in this iteration; requests use timeout, input length, history length and output token caps.
 - A live provider call was not performed because no API key/model has been configured in the server environment.
+
+## Daily horoscope iteration constraints
+
+- Functional iteration approved by the user on 2026-11-02; PR #4 marked Ready for review and remains unmerged.
+
+
+- New migration: `0005_daily_horoscope.sql`.
+- Transit snapshot: 10 tropical geocentric bodies at 12:00 local time, with a ±24-hour finite-difference motion flag for Mercury–Pluto.
+- Supported major aspects and orb limits are documented in `docs/ASTROLOGY-CALCULATIONS.md`; only precise natal longitudes are used.
+- Daily reading is cached per user/local calendar date; history is stored independently of the AI conversation history.
+- Notification timezone and local delivery time are editable in WebApp; notifications are opt-in and disabled by default.
+- Notification scheduler currently runs inside the Telegram Bot/API process, polls every 60 seconds and assumes a single active instance.
+- Live generation and delivery have not been tested because the server AI model/key and Telegram production environment are not configured.

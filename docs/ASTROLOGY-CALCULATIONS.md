@@ -37,3 +37,18 @@
 - Retrograde flags, aspects, nodes, Chiron and Lilith.
 - AI-generated chart interpretation.
 - Automatic geocoding / timezone inference from place name.
+
+
+## Daily transits and personal aspects
+
+- Daily transit snapshot uses the tropical geocentric ecliptic longitudes of Sun, Moon, Mercury, Venus, Mars, Jupiter, Saturn, Uranus, Neptune and Pluto.
+- Transit instant is 12:00 local time resolved with the supplied IANA timezone; the exact UTC instant is stored with the snapshot.
+- Mercury through Pluto receive a direct/retrograde motion flag based on the signed longitude difference between one day before and one day after the snapshot instant. Sun and Moon are not labeled retrograde.
+- Transit-to-natal aspects use only natal placements with exact longitude degrees. Supported major aspects: conjunction (0°, 6° orb), sextile (60°, 3°), square (90°, 4°), trine (120°, 4°), opposition (180°, 6°). The eight closest aspect matches are retained.
+- If birth-time precision is date-only or timezone-ambiguous, natal degree aspects are omitted. The transit snapshot remains available.
+- AI only interprets the calculated snapshot; it is explicitly instructed not to invent transits, aspects, houses, eclipses or exact events.
+- A daily result is stored once per user/local date. The saved record includes timezone and calculation snapshot so history remains reproducible.
+
+## Validation still required before production
+
+The transit implementation has unit tests for timezone boundary handling, local noon, input validation and aspect gating on natal precision. Before production, compare representative dates and retrograde stations against an independent ephemeris reference; the current test suite is an implementation regression suite, not an independent astronomy certification. The astrological text is symbolic self-reflection, not scientifically validated prediction.

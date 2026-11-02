@@ -9,6 +9,16 @@ import {
 } from "./modules/users/repository.js";
 import { getTarotSpread, isTarotSpreadId, tarotSpreads } from "./modules/tarot/spreads.js";
 import { NatalCalculationError } from "./modules/astrology/calculator.js";
+import {
+  HoroscopeServiceError,
+  generateDailyHoroscope,
+} from "./modules/horoscope/service.js";
+import {
+  getHoroscopePreferences,
+  listDailyHoroscopes,
+  saveHoroscopePreferences,
+} from "./modules/horoscope/repository.js";
+import { isValidTimeZone } from "./modules/astrology/transits.js";
 import { getOrCreateNatalChart } from "./modules/astrology/repository.js";
 import {
   AIServiceError,
@@ -386,6 +396,102 @@ export function buildApp(options: AppOptions = {}) {
     }
   });
 
+
+  app.get("/api/horoscope/today", async (request, reply) => {
+    const telegramId = getTelegramId(request);
+    if (!telegramId) return reply.code(401).send({ error: "unauthorized" });
+    const query = request.query as { timeZone?: unknown };
+    const timeZone = typeof query.timeZone === "string"
+      ? query.timeZone
+      : process.env.HOROSCOPE_DEFAULT_TIME_ZONE ?? "Europe/Tallinn";
+
+    try {
+      const horoscope = await generateDailyHoroscope(telegramId, timeZone, aiProvider);
+      return { horoscope };
+    } catch (error) {
+      if (error instanceof HoroscopeServiceError) {
+        return reply.code(error.statusCode).send({ error: error.code, message: error.message });
+      }
+      if (error instanceof AIProviderError) {
+        request.log.warn({
+          aiErrorCode: error.code,
+          providerRequestId: error.requestId,
+        }, "Daily horoscope provider request failed");
+        return reply.code(503).send({
+          error: "horoscope_provider_unavailable",
+          message: "Сейчас не удалось подготовить гороскоп. Попробуй немного позже.",
+        });
+      }
+      request.log.error({ errorCode: "daily_horoscope_unavailable" }, "Unable to generate daily horoscope");
+      return reply.code(503).send({
+        error: "daily_horoscope_unavailable",
+        message: "Не удалось подготовить гороскоп. Попробуй ещё раз.",
+      });
+    }
+  });
+
+  app.get("/api/horoscope/history", async (request, reply) => {
+    const telegramId = getTelegramId(request);
+    if (!telegramId) return reply.code(401).send({ error: "unauthorized" });
+    try {
+      const history = await listDailyHoroscopes(telegramId, 30);
+      return { history };
+    } catch {
+      request.log.error({ errorCode: "horoscope_history_unavailable" }, "Unable to load horoscope history");
+      return reply.code(503).send({ error: "horoscope_history_unavailable" });
+    }
+  });
+
+  app.get("/api/horoscope/preferences", async (request, reply) => {
+    const telegramId = getTelegramId(request);
+    if (!telegramId) return reply.code(401).send({ error: "unauthorized" });
+    const query = request.query as { timeZone?: unknown };
+    const suggestedTimeZone = typeof query.timeZone === "string" &&
+      isValidTimeZone(query.timeZone)
+      ? query.timeZone
+      : process.env.HOROSCOPE_DEFAULT_TIME_ZONE ?? "Europe/Tallinn";
+    try {
+      const preferences = await getHoroscopePreferences(telegramId, suggestedTimeZone);
+      return { preferences };
+    } catch {
+      request.log.error({ errorCode: "horoscope_preferences_unavailable" }, "Unable to load horoscope preferences");
+      return reply.code(503).send({ error: "horoscope_preferences_unavailable" });
+    }
+  });
+
+  app.put<{ Body: { timeZone?: unknown; notificationsEnabled?: unknown; notificationTime?: unknown } }>(
+    "/api/horoscope/preferences",
+    async (request, reply) => {
+      const telegramId = getTelegramId(request);
+      if (!telegramId) return reply.code(401).send({ error: "unauthorized" });
+      const timeZone = request.body?.timeZone;
+      const notificationsEnabled = request.body?.notificationsEnabled;
+      const notificationTime = request.body?.notificationTime ?? "09:00";
+      if (
+        typeof timeZone !== "string" ||
+        !isValidTimeZone(timeZone) ||
+        typeof notificationsEnabled !== "boolean" ||
+        typeof notificationTime !== "string" ||
+        !/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(notificationTime)
+      ) {
+        return reply.code(400).send({
+          error: "invalid_horoscope_preferences",
+          message: "Проверь часовой пояс, время и настройку уведомлений.",
+        });
+      }
+      try {
+        const preferences = await saveHoroscopePreferences(telegramId, {
+          timeZone,
+          notificationsEnabled,
+          notificationTime,
+        });
+        return { preferences };
+      } catch {
+        request.log.error({ errorCode: "horoscope_preferences_save_failed" }, "Unable to save horoscope preferences");
+        return reply.code(503).send({ error: "horoscope_preferences_save_failed" });
+      }
+    },
+  );
 
   app.get("/api/ai/status", async (request, reply) => {
     const telegramId = getTelegramId(request);

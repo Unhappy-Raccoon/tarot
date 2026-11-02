@@ -108,3 +108,25 @@ flowchart TD
 - Initial UI is non-streaming and restores the latest conversation.
 - Provisional defaults: Free 5 / Premium 50 messages per UTC day. These are configuration defaults, not approved commercial terms.
 - Before live launch, configure the provider/model, review provider data-retention terms and the project's privacy notice, then test live requests and cost monitoring.
+
+
+## Daily horoscope pipeline
+
+1. Resolve the requested local calendar date using the user's IANA timezone.
+2. Calculate geocentric tropical ecliptic longitudes for Sun, Moon and Mercury–Pluto at local noon with Astronomy Engine.
+3. Estimate direct/retrograde motion for Mercury–Pluto by comparing longitude before and after the calculation instant.
+4. Compare daily transits against exact natal ecliptic longitudes. Major aspects are conjunction, sextile, square, trine and opposition with explicit orb thresholds; date-only natal charts do not produce degree aspects.
+5. Send only calculated placements, available aspects and natal precision to the AI provider for symbolic editorial interpretation.
+6. Save one horoscope per user and local date, along with the transit snapshot, aspect list, timezone and generated text. Reopening the daily page returns the saved record rather than generating another AI response.
+7. The WebApp displays the text, transit placements, supported aspects, recent history and notification preferences.
+
+The calculation instant is 12:00 local time to provide one reproducible daily snapshot. It is not a claim that the planets remain at those degrees all day. Transit-to-natal aspect calculation requires exact natal longitudes; the model is instructed not to invent aspects or missing chart details.
+
+## Daily Telegram notifications
+
+- Preferences are stored in `horoscope_preferences`; notifications are opt-in and default to disabled.
+- Users choose a valid IANA timezone and local delivery time.
+- The API process scans due preferences every 60 seconds, generates or reuses that day's saved horoscope, sends it through grammY and records the local date only after Telegram confirms delivery.
+- Failed sends are retried on a later scan.
+- The first implementation is a single-process scheduler. Run one API/Bot instance until a distributed claim/lock or queue is implemented; multiple active instances could race to send duplicate messages.
+- Delivery requires the user to have started the Telegram bot and the server to have a valid AI provider configuration.

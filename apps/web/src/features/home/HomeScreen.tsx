@@ -43,7 +43,7 @@ export function HomeScreen({ profile, displayName, onNavigate, onDailyCard, busy
         </button>
       </section>
 
-      <button className="horoscope-card" type="button" onClick={() => onNavigate("natal")}>
+      <button className="horoscope-card" type="button" onClick={() => onNavigate("daily-horoscope")}>
         <span className="horoscope-art" aria-hidden="true"><span>☾</span></span>
         <span className="horoscope-copy">
           <span className="card-eyebrow">АСТРОЛОГИЯ</span>
