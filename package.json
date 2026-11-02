@@ -18,11 +18,11 @@
     "typecheck": "npm run typecheck --workspace=@pcj/shared && npm run typecheck --workspace=@pcj/server && npm run typecheck --workspace=@pcj/web",
     "test:server": "npm run test --workspace=@pcj/server",
     "build:supabase": "npm run build",
-    "check:supabase": "npm run build && deno check --config supabase/functions/deno.json supabase/functions/api/index.ts supabase/functions/telegram-webhook/index.ts supabase/functions/process-horoscope-notifications/index.ts",
+    "check:supabase": "npm run build && node scripts/prepare-supabase-functions.mjs && deno check --config supabase/functions/deno.json supabase/functions/api/index.ts supabase/functions/telegram-webhook/index.ts supabase/functions/process-horoscope-notifications/index.ts",
     "test:supabase": "deno test --config supabase/functions/deno.json supabase/functions/_shared/security.test.ts",
     "secrets:supabase": "supabase secrets set --env-file .env.supabase",
     "configure:supabase:telegram": "node scripts/configure-supabase-telegram.mjs",
-    "deploy:supabase:functions": "npm run build && supabase functions deploy api --no-verify-jwt && supabase functions deploy telegram-webhook --no-verify-jwt && supabase functions deploy process-horoscope-notifications --no-verify-jwt"
+    "deploy:supabase:functions": "npm run build && node scripts/prepare-supabase-functions.mjs && supabase functions deploy api --no-verify-jwt && supabase functions deploy telegram-webhook --no-verify-jwt && supabase functions deploy process-horoscope-notifications --no-verify-jwt"
   },
   "devDependencies": {
     "@types/node": "^26.0.0",
