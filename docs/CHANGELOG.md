@@ -7,6 +7,8 @@
 - Добавлен Cron worker для opt-in уведомлений. Миграция `20261102000700_horoscope_notification_claims.sql` добавляет atomic claim fields; worker ограничивает batch тремя пользователями. Если исход Telegram send не определён, claim не освобождается немедленно.
 - Добавлены Deno config, CI type-check/security unit tests и скрипты build/check/deploy.
 - Live deploy не выполнялся: Supabase project, секреты, CLI auth и Pages Actions settings ещё не подключены. Совместимость Fastify/Postgres.js/grammY/Astronomy Engine на hosted Edge Runtime требует smoke-проверки; лимит CPU Edge Function — 2 секунды на запрос.
+- CI на HEAD `30a98eddce6fcde9e8c6ed06f9d2a20081d4be42` прошёл полностью, включая Node typecheck/unit tests/build, Deno check/security tests, API Docker image и Compose validation. Pages build artifact создан, но не опубликован.
+- Main branch audit: два helper-файла были случайно добавлены на `main` в ходе предыдущего GitHub write вызова и сразу удалены двумя последующими revert commits. Текущая файловая версия `main` этих файлов не содержит, однако add/delete commits остаются в истории. Feature implementation на `main` не сливалась.
 - Ветка и PR остаются отдельными от `main`; никакие PR не сливались.
 
 ## 2026-11-02 — Hosting architecture approved: GitHub Pages + Supabase
