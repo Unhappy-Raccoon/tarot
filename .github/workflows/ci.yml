@@ -4,11 +4,13 @@ on:
   push:
     branches:
       - feat/telegram-webapp-foundation
+      - feat/ai-astrologer
       - feat/natal-chart-engine
   pull_request:
     branches:
       - main
       - feat/telegram-webapp-foundation
+      - feat/natal-chart-engine
 
 jobs:
   verify:

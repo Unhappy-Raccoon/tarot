@@ -11,6 +11,20 @@ import { getTarotSpread, isTarotSpreadId, tarotSpreads } from "./modules/tarot/s
 import { NatalCalculationError } from "./modules/astrology/calculator.js";
 import { getOrCreateNatalChart } from "./modules/astrology/repository.js";
 import {
+  AIServiceError,
+  listAstrologerConversations,
+  sendAstrologerMessage,
+} from "./modules/ai/service.js";
+import { createAIProviderFromEnv } from "./modules/ai/provider.js";
+import { getAIServiceConfig } from "./modules/ai/config.js";
+import { astrologerScenarios } from "./modules/ai/scenarios.js";
+import { AIProviderError, type AIChatProvider } from "./modules/ai/types.js";
+import {
+  getAIConversation,
+  getAIUsage,
+  deleteAIConversation,
+} from "./modules/ai/repository.js";
+import {
   createTarotReading,
   getTarotReading,
   listTarotReadings,
@@ -20,6 +34,9 @@ interface AppOptions {
   botToken?: string;
   sessionSecret?: string;
   webAppOrigin?: string;
+  aiProvider?: AIChatProvider | null;
+  aiFreeDailyLimit?: number;
+  aiPremiumDailyLimit?: number;
 }
 
 interface AuthBody {
@@ -38,6 +55,12 @@ interface OnboardingBody {
 
 interface CreateTarotReadingBody {
   spreadId?: unknown;
+}
+
+interface AIChatBody {
+  message?: unknown;
+  conversationId?: unknown;
+  scenarioId?: unknown;
 }
 
 function getBearerToken(request: FastifyRequest): string | null {
@@ -91,9 +114,17 @@ export function buildApp(options: AppOptions = {}) {
         "req.headers.authorization",
         "req.headers.cookie",
         "req.body.initData",
+        "req.body.message",
       ],
     },
   });
+
+  const aiConfig = getAIServiceConfig();
+  const aiProvider = options.aiProvider === undefined
+    ? createAIProviderFromEnv()
+    : options.aiProvider;
+  const aiFreeDailyLimit = options.aiFreeDailyLimit ?? aiConfig.freeDailyLimit;
+  const aiPremiumDailyLimit = options.aiPremiumDailyLimit ?? aiConfig.premiumDailyLimit;
 
   const allowedOrigins = new Set(
     [
@@ -110,7 +141,7 @@ export function buildApp(options: AppOptions = {}) {
         .header("Access-Control-Allow-Origin", origin)
         .header("Vary", "Origin")
         .header("Access-Control-Allow-Headers", "Authorization, Content-Type")
-        .header("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
+        .header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
     }
 
     if (request.method === "OPTIONS") {
@@ -354,6 +385,138 @@ export function buildApp(options: AppOptions = {}) {
       return reply.code(503).send({ error: "tarot_storage_unavailable" });
     }
   });
+
+
+  app.get("/api/ai/status", async (request, reply) => {
+    const telegramId = getTelegramId(request);
+    if (!telegramId) return reply.code(401).send({ error: "unauthorized" });
+
+    try {
+      const profile = await getUserProfile(telegramId);
+      if (!profile) return reply.code(404).send({ error: "user_not_found" });
+      const limit = profile.plan === "premium" ? aiPremiumDailyLimit : aiFreeDailyLimit;
+      const usage = await getAIUsage(
+        telegramId,
+        profile.plan,
+        aiFreeDailyLimit,
+        aiPremiumDailyLimit,
+      );
+
+      return {
+        available: Boolean(aiProvider),
+        provider: aiProvider?.name ?? null,
+        plan: profile.plan,
+        usage,
+        maxInputChars: aiConfig.maxInputChars,
+        scenarios: astrologerScenarios.map(({ id, title, starter }) => ({ id, title, starter })),
+        quotaResetTimeZone: "UTC",
+        dailyLimitConfigured: limit,
+      };
+    } catch (error) {
+      request.log.error({ errorCode: "ai_status_unavailable" }, "Unable to load AI status");
+      return reply.code(503).send({ error: "ai_status_unavailable" });
+    }
+  });
+
+  app.get("/api/ai/conversations", async (request, reply) => {
+    const telegramId = getTelegramId(request);
+    if (!telegramId) return reply.code(401).send({ error: "unauthorized" });
+
+    try {
+      const conversations = await listAstrologerConversations(telegramId);
+      return { conversations };
+    } catch {
+      request.log.error({ errorCode: "ai_history_unavailable" }, "Unable to list AI conversations");
+      return reply.code(503).send({ error: "ai_history_unavailable" });
+    }
+  });
+
+  app.get<{ Params: { id: string } }>("/api/ai/conversations/:id", async (request, reply) => {
+    const telegramId = getTelegramId(request);
+    if (!telegramId) return reply.code(401).send({ error: "unauthorized" });
+
+    try {
+      const conversation = await getAIConversation(telegramId, request.params.id, 60);
+      if (!conversation) return reply.code(404).send({ error: "conversation_not_found" });
+      return { conversation };
+    } catch {
+      request.log.error({ errorCode: "ai_history_unavailable" }, "Unable to load AI conversation");
+      return reply.code(503).send({ error: "ai_history_unavailable" });
+    }
+  });
+
+  app.delete<{ Params: { id: string } }>("/api/ai/conversations/:id", async (request, reply) => {
+    const telegramId = getTelegramId(request);
+    if (!telegramId) return reply.code(401).send({ error: "unauthorized" });
+
+    try {
+      const deleted = await deleteAIConversation(telegramId, request.params.id);
+      if (!deleted) return reply.code(404).send({ error: "conversation_not_found" });
+      return { deleted: true };
+    } catch {
+      request.log.error({ errorCode: "ai_delete_failed" }, "Unable to delete AI conversation");
+      return reply.code(503).send({ error: "ai_delete_failed" });
+    }
+  });
+
+  app.post<{ Body: AIChatBody }>("/api/ai/chat", async (request, reply) => {
+    const telegramId = getTelegramId(request);
+    if (!telegramId) return reply.code(401).send({ error: "unauthorized" });
+
+    const message = request.body?.message;
+    const conversationId = request.body?.conversationId;
+    const scenarioId = request.body?.scenarioId;
+
+    if (
+      typeof message !== "string" ||
+      (conversationId !== undefined && typeof conversationId !== "string") ||
+      (scenarioId !== undefined && typeof scenarioId !== "string")
+    ) {
+      return reply.code(400).send({ error: "invalid_chat_payload" });
+    }
+
+    try {
+      const profile = await getUserProfile(telegramId);
+      if (!profile) return reply.code(404).send({ error: "user_not_found" });
+
+      const result = await sendAstrologerMessage(
+        telegramId,
+        profile.plan,
+        {
+          message,
+          ...(typeof conversationId === "string" ? { conversationId } : {}),
+          ...(typeof scenarioId === "string" ? { scenarioId } : {}),
+        },
+        aiProvider,
+        { freeDailyLimit: aiFreeDailyLimit, premiumDailyLimit: aiPremiumDailyLimit },
+      );
+      return result;
+    } catch (error) {
+      if (error instanceof AIServiceError) {
+        return reply.code(error.statusCode).send({
+          error: error.code,
+          message: error.message,
+          ...(error.usage ? { usage: error.usage } : {}),
+        });
+      }
+      if (error instanceof AIProviderError) {
+        request.log.warn({
+          aiErrorCode: error.code,
+          providerRequestId: error.requestId,
+        }, "AI provider request failed");
+        return reply.code(503).send({
+          error: "ai_provider_unavailable",
+          message: "Астролог сейчас не может ответить. Попробуй ещё раз немного позже.",
+        });
+      }
+      request.log.error({ errorCode: "ai_chat_unavailable" }, "Unable to complete AI chat request");
+      return reply.code(503).send({
+        error: "ai_chat_unavailable",
+        message: "Не удалось сохранить диалог. Попробуй ещё раз.",
+      });
+    }
+  });
+
 
   return app;
 }
