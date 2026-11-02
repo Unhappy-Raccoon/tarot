@@ -1,3 +1,14 @@
+## 2026-11-02 — Supabase Edge runtime и GitHub Pages (реализация в процессе)
+
+- Создана отдельная ветка `feat/supabase-edge-runtime` поверх утверждённой ветки Supabase; предыдущие PR и `main` не являются базой изменений этой итерации.
+- В Vite добавлен configurable base path; workflow GitHub Pages собирает артефакт из `apps/web/dist`, но публикация защищена ручным dispatch с `publish=yes` только из `main`.
+- Добавлен Supabase Edge API adapter: существующий Fastify app запускается без listener и обслуживает запросы через `app.inject()`; серверные модули подготавливаются сборкой и копируются внутрь `supabase/functions/_shared/server`.
+- Добавлены Telegram webhook с проверкой `X-Telegram-Bot-Api-Secret-Token` и скрипт однократной настройки webhook/команд/кнопки Mini App.
+- Добавлен Cron worker для opt-in уведомлений. Миграция `20261102000700_horoscope_notification_claims.sql` добавляет atomic claim fields; worker ограничивает batch тремя пользователями. Если исход Telegram send не определён, claim не освобождается немедленно.
+- Добавлены Deno config, CI type-check/security unit tests и скрипты build/check/deploy.
+- Live deploy не выполнялся: Supabase project, секреты, CLI auth и Pages Actions settings ещё не подключены. Совместимость Fastify/Postgres.js/grammY/Astronomy Engine на hosted Edge Runtime требует smoke-проверки; лимит CPU Edge Function — 2 секунды на запрос.
+- Ветка и PR остаются отдельными от `main`; никакие PR не сливались.
+
 ## 2026-11-02 — Hosting architecture approved: GitHub Pages + Supabase
 
 - Пользователь утвердил GitHub Pages для статического Telegram WebApp и Supabase для PostgreSQL, Edge Functions и Cron.
