@@ -1,4 +1,4 @@
-import { and, desc, eq, isNull, lt, ne, or } from "drizzle-orm";
+import { and, asc, desc, eq, isNull, lt, ne, or } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import { dailyHoroscopes, horoscopePreferences, users } from "../../db/schema.js";
 import { getLocalDate } from "../astrology/transits.js";
@@ -210,7 +210,7 @@ export async function listDueHoroscopeNotifications(
     .from(horoscopePreferences)
     .innerJoin(users, eq(horoscopePreferences.userId, users.id))
     .where(eq(horoscopePreferences.notificationsEnabled, true))
-    .limit(Math.max(1, Math.min(limit, 25)));
+    .orderBy(asc(horoscopePreferences.lastSentLocalDate), asc(horoscopePreferences.notificationTime));
 
   return rows.flatMap((row) => {
     try {
@@ -221,7 +221,7 @@ export async function listDueHoroscopeNotifications(
     } catch {
       return [];
     }
-  });
+  }).slice(0, Math.max(1, Math.min(limit, 25)));
 }
 
 export async function claimHoroscopeNotification(
