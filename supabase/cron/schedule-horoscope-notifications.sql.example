@@ -1,0 +1,32 @@
+-- Enable pg_cron and pg_net in Supabase Dashboard -> Database -> Extensions first.
+-- Store the URL and exact same HOROSCOPE_CRON_SECRET value used by the Edge Function
+-- in Supabase Vault. Never commit real secret values to this file or Git.
+--
+-- Run once in Supabase SQL Editor after replacing the two placeholders:
+-- select vault.create_secret('https://<project-ref>.supabase.co', 'pcj_project_url');
+-- select vault.create_secret('<HOROSCOPE_CRON_SECRET>', 'pcj_horoscope_cron_secret');
+--
+-- Then create the once-per-minute job:
+select cron.schedule(
+  'pcj-horoscope-notifications',
+  '* * * * *',
+  $$
+  select net.http_post(
+    url := (
+      select decrypted_secret
+      from vault.decrypted_secrets
+      where name = 'pcj_project_url'
+    ) || '/functions/v1/process-horoscope-notifications',
+    headers := jsonb_build_object(
+      'Content-Type', 'application/json',
+      'x-cron-secret', (
+        select decrypted_secret
+        from vault.decrypted_secrets
+        where name = 'pcj_horoscope_cron_secret'
+      )
+    ),
+    body := '{}'::jsonb,
+    timeout_milliseconds := 10000
+  ) as request_id;
+  $$
+);
