@@ -1,0 +1,99 @@
+name: Deploy Supabase test environment
+
+on:
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: Select a deployment stage
+        required: true
+        type: choice
+        default: validate
+        options:
+          - validate
+          - apply-migrations
+          - deploy-functions
+      confirmation:
+        description: For apply-migrations or deploy-functions, type DEPLOY_TO_TEST
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supabase-test-deployment
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/feat/supabase-edge-runtime'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_PROJECT_ID: ${{ vars.SUPABASE_PROJECT_ID }}
+      DEPLOY_STAGE: ${{ inputs.stage }}
+      DEPLOY_CONFIRMATION: ${{ inputs.confirmation }}
+    steps:
+      - name: Checkout approved test branch
+        uses: actions/checkout@v4
+      - name: Validate target and credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$SUPABASE_PROJECT_ID" != "uayoqicecdtcxouwsprh" ]]; then
+            echo "SUPABASE_PROJECT_ID is missing or does not match the approved test project."
+            exit 1
+          fi
+          if [[ -z "$SUPABASE_ACCESS_TOKEN" || -z "$SUPABASE_DB_PASSWORD" ]]; then
+            echo "Add SUPABASE_ACCESS_TOKEN and SUPABASE_DB_PASSWORD under repository Actions Secrets."
+            exit 1
+          fi
+          if [[ "$DEPLOY_STAGE" != "validate" && "$DEPLOY_CONFIRMATION" != "DEPLOY_TO_TEST" ]]; then
+            echo "A mutating stage requires the exact confirmation: DEPLOY_TO_TEST"
+            exit 1
+          fi
+          echo "Target project ref: $SUPABASE_PROJECT_ID"
+          echo "Selected stage: $DEPLOY_STAGE"
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v3
+        with:
+          version: v2.stable
+      - name: Link the test project
+        run: supabase link --project-ref "$SUPABASE_PROJECT_ID"
+      - name: Show pending migrations (dry run)
+        if: inputs.stage == 'validate' || inputs.stage == 'apply-migrations'
+        run: supabase db push --dry-run
+      - name: Apply database migrations
+        if: inputs.stage == 'apply-migrations'
+        run: supabase db push --yes
+      - name: Setup Node.js
+        if: inputs.stage == 'deploy-functions'
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Install workspace dependencies
+        if: inputs.stage == 'deploy-functions'
+        run: npm ci --no-audit --no-fund
+      - name: Build application workspaces
+        if: inputs.stage == 'deploy-functions'
+        run: npm run build
+      - name: Stage server modules for Edge Functions
+        if: inputs.stage == 'deploy-functions'
+        run: node scripts/prepare-supabase-functions.mjs
+      - name: Type-check Edge Functions
+        if: inputs.stage == 'deploy-functions'
+        uses: denoland/setup-deno@v2
+      - name: Run Deno type checks
+        if: inputs.stage == 'deploy-functions'
+        run: deno check --config supabase/functions/deno.json supabase/functions/api/index.ts supabase/functions/telegram-webhook/index.ts supabase/functions/process-horoscope-notifications/index.ts
+      - name: Deploy API Edge Function
+        if: inputs.stage == 'deploy-functions'
+        run: supabase functions deploy api --project-ref "$SUPABASE_PROJECT_ID" --no-verify-jwt
+      - name: Deploy Telegram Webhook Edge Function
+        if: inputs.stage == 'deploy-functions'
+        run: supabase functions deploy telegram-webhook --project-ref "$SUPABASE_PROJECT_ID" --no-verify-jwt
+      - name: Deploy horoscope Cron worker Edge Function
+        if: inputs.stage == 'deploy-functions'
+        run: supabase functions deploy process-horoscope-notifications --project-ref "$SUPABASE_PROJECT_ID" --no-verify-jwt
