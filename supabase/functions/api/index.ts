@@ -36,6 +36,15 @@ type FastifyApp = {
   }>;
 };
 
+function safeDiagnostic(value: string): string {
+  return value
+    .replace(/postgres(?:ql)?:\/\/[^\s"'\x60]+/gi, "[redacted database URL]")
+    .replace(/Bearer\s+[^\s"'\x60]+/gi, "Bearer [redacted]")
+    .replace(/\b(?:sk|rk|sbp|eyJ)[A-Za-z0-9._-]{12,}\b/g, "[redacted credential]")
+    .replace(/(token|secret|password|api[_-]?key)\s*[:=]\s*[^,\s]+/gi, "$1=[redacted]")
+    .slice(0, 1200);
+}
+
 let appPromise: Promise<FastifyApp> | null = null;
 
 async function getApp(): Promise<FastifyApp> {
@@ -108,7 +117,14 @@ Deno.serve(async (request) => {
       headers,
     });
   } catch (error) {
-    console.error("Supabase API invocation failed", error instanceof Error ? error.name : "unknown");
+    const errorName = error instanceof Error ? error.name : "unknown";
+    const errorMessage = error instanceof Error
+      ? safeDiagnostic(error.message)
+      : safeDiagnostic(String(error));
+    const errorStack = error instanceof Error && error.stack
+      ? safeDiagnostic(error.stack.split("\n").slice(0, 5).join("\n"))
+      : "no stack";
+    console.error("Supabase API invocation failed", errorName, errorMessage, errorStack);
     return Response.json({ error: "service_unavailable" }, { status: 503 });
   }
 });
