@@ -1,28 +1,5 @@
-import process from "node:process";
 import { Bot } from "grammy";
-import { hydrateNodeEnvironment } from "../_shared/runtime-env.ts";
 import { hasValidSecretHeader } from "../_shared/security.ts";
-
-const ENV_KEYS = [
-  "DATABASE_URL",
-  "TELEGRAM_BOT_TOKEN",
-  "SESSION_SECRET",
-  "TELEGRAM_WEBAPP_URL",
-  "WEBAPP_ORIGIN",
-  "AI_PROVIDER",
-  "AI_API_KEY",
-  "AI_MODEL",
-  "AI_BASE_URL",
-  "HOROSCOPE_DEFAULT_TIME_ZONE",
-  "AI_FREE_DAILY_LIMIT",
-  "AI_PREMIUM_DAILY_LIMIT",
-  "AI_MAX_INPUT_CHARS",
-  "AI_MAX_HISTORY_MESSAGES",
-  "AI_MAX_OUTPUT_TOKENS",
-  "AI_REQUEST_TIMEOUT_MS",
-  "LOG_LEVEL",
-  "DATABASE_POOL_MAX",
-] as const;
 
 let workerPromise: Promise<{
   bot: Bot;
@@ -38,7 +15,6 @@ async function getWorker() {
   if (!workerPromise) {
     workerPromise = (async () => {
       // The database module reads DATABASE_URL at import time, so bridge secrets first.
-      hydrateNodeEnvironment(process, ENV_KEYS);
       const [
         ai,
         horoscope,
