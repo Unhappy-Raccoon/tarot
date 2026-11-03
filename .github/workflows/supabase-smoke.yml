@@ -232,7 +232,8 @@ jobs:
           webhook_url="https://${SUPABASE_PROJECT_ID}.supabase.co/functions/v1/telegram-webhook"
           worker_url="https://${SUPABASE_PROJECT_ID}.supabase.co/functions/v1/process-horoscope-notifications"
           body_file="$(mktemp)"
-          trap 'rm -f "$body_file"' EXIT
+          header_file="$(mktemp)"
+          trap 'rm -f "$body_file" "$header_file"' EXIT
 
           assert_status() {
             local expected="$1"
@@ -254,15 +255,15 @@ jobs:
           assert_status 401 --request POST --header 'content-type: application/json' --data '{"update_id":1}' "$webhook_url"
           assert_status 401 --request POST --header 'content-type: application/json' --data '{}' "$worker_url"
 
-          cors_status="$(curl --silent --show-error --max-time 20 --output "$body_file" --write-out '%{http_code}' \
+          cors_status="$(curl --silent --show-error --max-time 20 --dump-header "$header_file" --output "$body_file" --write-out '%{http_code}' \
             --request OPTIONS --header 'Origin: https://unhappy-raccoon.github.io' \
             --header 'Access-Control-Request-Method: GET' "$api_url/health")"
-          if [[ "$cors_status" != "204" ]] || ! grep -qi '^access-control-allow-origin: https://unhappy-raccoon.github.io' "$body_file"; then
+          if [[ "$cors_status" != "204" ]] || ! grep -qi '^access-control-allow-origin: https://unhappy-raccoon.github.io' "$header_file"; then
             echo "Allowed WebApp CORS preflight failed (HTTP $cors_status)."
             exit 1
           fi
 
-          cors_status="$(curl --silent --show-error --max-time 20 --output "$body_file" --write-out '%{http_code}' \
+          cors_status="$(curl --silent --show-error --max-time 20 --dump-header "$header_file" --output "$body_file" --write-out '%{http_code}' \
             --request OPTIONS --header 'Origin: https://example.invalid' \
             --header 'Access-Control-Request-Method: GET' "$api_url/health")"
           if [[ "$cors_status" != "403" ]]; then
