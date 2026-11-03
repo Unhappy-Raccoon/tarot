@@ -92,7 +92,7 @@ async function configureTelegramWebhook(): Promise<Response> {
 }
 
 Deno.serve(async (request) => {
-  const requestPath = new URL(request.url).pathname.replace(/\\/+$/, "");
+  const requestPath = new URL(request.url).pathname.replace(/\/+$/, "");
   if (requestPath.endsWith("/configure")) {
     if (request.method !== "POST") {
       return Response.json({ error: "method_not_allowed" }, { status: 405 });
