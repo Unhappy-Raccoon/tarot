@@ -193,7 +193,7 @@ jobs:
               timeout_milliseconds := 15000
             ) INTO request_id;
 
-            FOR attempt IN 1..80 LOOP
+            FOR attempt IN 1..240 LOOP
               SELECT * INTO response_row
               FROM net._http_response
               WHERE id = request_id;
