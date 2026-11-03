@@ -1,5 +1,10 @@
-import { assertEquals } from "jsr:@std/assert@1";
 import { normalizeApiPath } from "./path.ts";
+
+function assertEquals(actual: string, expected: string): void {
+  if (actual !== expected) {
+    throw new Error(`Expected ${JSON.stringify(expected)}, received ${JSON.stringify(actual)}`);
+  }
+}
 
 Deno.test("strips the Supabase internal function-name prefix", () => {
   assertEquals(normalizeApiPath("/api/health"), "/health");
