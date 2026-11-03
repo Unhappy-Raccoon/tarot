@@ -1,5 +1,5 @@
 name: Supabase hosted smoke test
-# This push-triggered run verifies the API after the diagnostics redeployment.
+# This push-triggered run verifies the API after the runtime environment fix redeployment.
 
 on:
   push:
