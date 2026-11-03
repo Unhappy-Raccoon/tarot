@@ -190,8 +190,16 @@ jobs:
             --tuples-only \
             --no-align <<'SQL'
           CREATE SCHEMA IF NOT EXISTS extensions;
-          CREATE EXTENSION IF NOT EXISTS pg_cron WITH SCHEMA pg_catalog;
-          CREATE EXTENSION IF NOT EXISTS pg_net WITH SCHEMA extensions;
+          DO $extensions$
+          BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron') THEN
+              EXECUTE 'CREATE EXTENSION pg_cron WITH SCHEMA pg_catalog';
+            END IF;
+            IF NOT EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_net') THEN
+              EXECUTE 'CREATE EXTENSION pg_net WITH SCHEMA extensions';
+            END IF;
+          END
+          $extensions$;
 
           SELECT vault.create_secret(:'project_url', 'pcj_project_url', 'Supabase project URL for scheduled horoscope worker')
           WHERE NOT EXISTS (
