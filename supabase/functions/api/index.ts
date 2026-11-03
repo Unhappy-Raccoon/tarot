@@ -1,26 +1,3 @@
-import process from "node:process";
-import { hydrateNodeEnvironment } from "../_shared/runtime-env.ts";
-
-const ENV_KEYS = [
-  "DATABASE_URL",
-  "TELEGRAM_BOT_TOKEN",
-  "SESSION_SECRET",
-  "TELEGRAM_WEBAPP_URL",
-  "WEBAPP_ORIGIN",
-  "AI_PROVIDER",
-  "AI_API_KEY",
-  "AI_MODEL",
-  "AI_BASE_URL",
-  "AI_FREE_DAILY_LIMIT",
-  "AI_PREMIUM_DAILY_LIMIT",
-  "AI_MAX_INPUT_CHARS",
-  "AI_MAX_HISTORY_MESSAGES",
-  "AI_MAX_OUTPUT_TOKENS",
-  "AI_REQUEST_TIMEOUT_MS",
-  "HOROSCOPE_DEFAULT_TIME_ZONE",
-  "LOG_LEVEL",
-  "DATABASE_POOL_MAX",
-] as const;
 
 type FastifyApp = {
   ready(): PromiseLike<unknown>;
@@ -50,7 +27,6 @@ let appPromise: Promise<FastifyApp> | null = null;
 async function getApp(): Promise<FastifyApp> {
   if (!appPromise) {
     appPromise = (async () => {
-      hydrateNodeEnvironment(process, ENV_KEYS);
       const [{ buildApp }] = await Promise.all([
         import("../_shared/server/app.js"),
       ]);
