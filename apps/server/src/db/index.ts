@@ -78,9 +78,9 @@ export async function checkDatabaseReadiness(): Promise<DatabaseReadiness> {
     const errorName = error instanceof Error ? error.name : "unknown";
     const errorMessage = error instanceof Error ? error.message : String(error);
     const safeMessage = errorMessage
-      .replace(/postgres(?:ql)?:\\/\\/[^\\s"'\\x60]+/gi, "[redacted database URL]")
-      .replace(/Bearer\\s+[^\\s"'\\x60]+/gi, "Bearer [redacted]")
-      .replace(/(password|token|secret|api[_-]?key)\\s*[:=]\\s*[^,\\s]+/gi, "$1=[redacted]")
+      .replace(/postgres(?:ql)?:\/\/[^\s"']+/gi, "[redacted database URL]")
+      .replace(/Bearer\s+[^\s"']+/gi, "Bearer [redacted]")
+      .replace(/(password|token|secret|api[_-]?key)\s*[:=]\s*[^,\s]+/gi, "$1=[redacted]")
       .slice(0, 500);
     console.error("Database readiness check failed", errorName, safeMessage);
     return { configured: true, connected: false, ready: false, missingTables: [] };
