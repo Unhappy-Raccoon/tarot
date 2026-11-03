@@ -14,7 +14,7 @@ let workerPromise: Promise<{
 async function getWorker() {
   if (!workerPromise) {
     workerPromise = (async () => {
-      // The database module reads DATABASE_URL at import time, so bridge secrets first.
+      // Database and AI modules read secrets directly from Deno.env before import.
       const [
         ai,
         horoscope,
