@@ -9,6 +9,8 @@ on:
       - feat/supabase-edge-runtime
     paths:
       - ".github/workflows/deploy-supabase.yml"
+      - ".github/deploy-requests/apply-migrations.txt"
+      - ".github/deploy-requests/deploy-functions.txt"
   workflow_dispatch:
     inputs:
       stage:
@@ -41,13 +43,46 @@ jobs:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
       SUPABASE_PROJECT_ID: ${{ vars.SUPABASE_PROJECT_ID }}
-      DEPLOY_STAGE: ${{ inputs.stage || 'validate' }}
-      DEPLOY_CONFIRMATION: ${{ inputs.confirmation }}
     steps:
       - name: Checkout approved test branch
         uses: actions/checkout@v4
+      - name: Select deployment stage
+        id: stage
+        shell: bash
+        env:
+          INPUT_STAGE: ${{ inputs.stage }}
+          INPUT_CONFIRMATION: ${{ inputs.confirmation }}
+        run: |
+          set -euo pipefail
+          stage="${INPUT_STAGE:-validate}"
+          confirmation="${INPUT_CONFIRMATION:-}"
+          if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
+            changed_files="$(jq -r '[.head_commit.added[]?, .head_commit.modified[]?, .head_commit.removed[]?] | .[]' "$GITHUB_EVENT_PATH")"
+            request_file=""
+            if grep -Fxq ".github/deploy-requests/apply-migrations.txt" <<< "$changed_files"; then
+              stage="apply-migrations"
+              request_file=".github/deploy-requests/apply-migrations.txt"
+            elif grep -Fxq ".github/deploy-requests/deploy-functions.txt" <<< "$changed_files"; then
+              stage="deploy-functions"
+              request_file=".github/deploy-requests/deploy-functions.txt"
+            else
+              stage="validate"
+            fi
+            if [[ -n "$request_file" ]]; then
+              if [[ ! -f "$request_file" ]] || [[ "$(cat "$request_file")" != "DEPLOY_TO_TEST" ]]; then
+                echo "Deployment request file must contain exactly DEPLOY_TO_TEST."
+                exit 1
+              fi
+              confirmation="DEPLOY_TO_TEST"
+            fi
+          fi
+          echo "stage=$stage" >> "$GITHUB_OUTPUT"
+          echo "confirmation=$confirmation" >> "$GITHUB_OUTPUT"
       - name: Validate target and credentials
         shell: bash
+        env:
+          DEPLOY_STAGE: ${{ steps.stage.outputs.stage }}
+          DEPLOY_CONFIRMATION: ${{ steps.stage.outputs.confirmation }}
         run: |
           set -euo pipefail
           if [[ "$SUPABASE_PROJECT_ID" != "uayoqicecdtcxouwsprh" ]]; then
@@ -71,37 +106,37 @@ jobs:
       - name: Link the test project
         run: supabase link --project-ref "$SUPABASE_PROJECT_ID"
       - name: Show pending migrations (dry run)
-        if: env.DEPLOY_STAGE == 'validate' || env.DEPLOY_STAGE == 'apply-migrations'
+        if: steps.stage.outputs.stage == 'validate' || steps.stage.outputs.stage == 'apply-migrations'
         run: supabase db push --dry-run --linked
       - name: Apply database migrations
-        if: env.DEPLOY_STAGE == 'apply-migrations'
+        if: steps.stage.outputs.stage == 'apply-migrations'
         run: supabase db push --yes --linked
       - name: Setup Node.js
-        if: env.DEPLOY_STAGE == 'deploy-functions'
+        if: steps.stage.outputs.stage == 'deploy-functions'
         uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
       - name: Install workspace dependencies
-        if: inputs.stage == 'deploy-functions'
+        if: steps.stage.outputs.stage == 'deploy-functions'
         run: npm ci --no-audit --no-fund
       - name: Build application workspaces
-        if: inputs.stage == 'deploy-functions'
+        if: steps.stage.outputs.stage == 'deploy-functions'
         run: npm run build
       - name: Stage server modules for Edge Functions
-        if: inputs.stage == 'deploy-functions'
+        if: steps.stage.outputs.stage == 'deploy-functions'
         run: node scripts/prepare-supabase-functions.mjs
       - name: Type-check Edge Functions
-        if: inputs.stage == 'deploy-functions'
+        if: steps.stage.outputs.stage == 'deploy-functions'
         uses: denoland/setup-deno@v2
       - name: Run Deno type checks
-        if: inputs.stage == 'deploy-functions'
+        if: steps.stage.outputs.stage == 'deploy-functions'
         run: deno check --config supabase/functions/deno.json supabase/functions/api/index.ts supabase/functions/telegram-webhook/index.ts supabase/functions/process-horoscope-notifications/index.ts
       - name: Deploy API Edge Function
-        if: inputs.stage == 'deploy-functions'
+        if: steps.stage.outputs.stage == 'deploy-functions'
         run: supabase functions deploy api --project-ref "$SUPABASE_PROJECT_ID" --no-verify-jwt
       - name: Deploy Telegram Webhook Edge Function
-        if: inputs.stage == 'deploy-functions'
+        if: steps.stage.outputs.stage == 'deploy-functions'
         run: supabase functions deploy telegram-webhook --project-ref "$SUPABASE_PROJECT_ID" --no-verify-jwt
       - name: Deploy horoscope Cron worker Edge Function
-        if: inputs.stage == 'deploy-functions'
+        if: steps.stage.outputs.stage == 'deploy-functions'
         run: supabase functions deploy process-horoscope-notifications --project-ref "$SUPABASE_PROJECT_ID" --no-verify-jwt
