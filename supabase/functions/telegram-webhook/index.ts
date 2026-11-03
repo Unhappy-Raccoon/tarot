@@ -21,7 +21,90 @@ async function getBot(): Promise<Bot> {
   return botPromise;
 }
 
+async function configureTelegramWebhook(): Promise<Response> {
+  const cronSecret = Deno.env.get("HOROSCOPE_CRON_SECRET") ?? "";
+  const token = Deno.env.get("TELEGRAM_BOT_TOKEN");
+  const webhookSecret = Deno.env.get("TELEGRAM_WEBHOOK_SECRET");
+  const webAppUrl = Deno.env.get("TELEGRAM_WEBAPP_URL");
+  const projectUrl = Deno.env.get("SUPABASE_URL");
+
+  if (!token || !webhookSecret || !webAppUrl || !projectUrl) {
+    return Response.json({ error: "telegram_configuration_incomplete" }, { status: 503 });
+  }
+
+  try {
+    const project = new URL(projectUrl);
+    const webApp = new URL(webAppUrl);
+    if (
+      project.protocol !== "https:" ||
+      webApp.protocol !== "https:" ||
+      !/^[A-Za-z0-9_-]{1,256}$/.test(webhookSecret)
+    ) {
+      return Response.json({ error: "telegram_configuration_invalid" }, { status: 503 });
+    }
+
+    const bot = new Bot(token);
+    const identity = await bot.api.getMe();
+    const webhookUrl = `${project.origin}/functions/v1/telegram-webhook`;
+
+    await bot.api.setWebhook(webhookUrl, {
+      secret_token: webhookSecret,
+      allowed_updates: ["message", "callback_query"],
+    });
+    await bot.api.setMyCommands([
+      { command: "start", description: "Открыть Personal Cosmic Journal" },
+      { command: "app", description: "Открыть WebApp" },
+      { command: "help", description: "Помощь" },
+    ]);
+    await bot.api.setChatMenuButton({
+      menu_button: {
+        type: "web_app",
+        text: "Открыть журнал",
+        web_app: { url: webApp.toString() },
+      },
+    });
+
+    const webhook = await bot.api.getWebhookInfo();
+    const configured = webhook.url === webhookUrl && !webhook.last_error_message;
+    if (!configured) {
+      console.error("Telegram webhook verification failed", {
+        urlMatches: webhook.url === webhookUrl,
+        hasLastError: Boolean(webhook.last_error_message),
+      });
+      return Response.json({ error: "telegram_webhook_verification_failed" }, { status: 502 });
+    }
+
+    return Response.json({
+      ok: true,
+      bot: { username: identity.username ?? null },
+      webhook: {
+        configured: true,
+        pendingUpdateCount: webhook.pending_update_count,
+      },
+      webAppMenuConfigured: true,
+    });
+  } catch (error) {
+    console.error(
+      "Telegram setup failed",
+      error instanceof Error ? error.name : "unknown",
+    );
+    return Response.json({ error: "telegram_setup_failed" }, { status: 502 });
+  }
+}
+
 Deno.serve(async (request) => {
+  const requestPath = new URL(request.url).pathname.replace(/\\/+$/, "");
+  if (requestPath.endsWith("/configure")) {
+    if (request.method !== "POST") {
+      return Response.json({ error: "method_not_allowed" }, { status: 405 });
+    }
+    const cronSecret = Deno.env.get("HOROSCOPE_CRON_SECRET") ?? "";
+    if (!hasValidSecretHeader(request, "x-cron-secret", cronSecret)) {
+      return Response.json({ error: "unauthorized" }, { status: 401 });
+    }
+    return configureTelegramWebhook();
+  }
+
   if (request.method !== "POST") {
     return Response.json({ error: "method_not_allowed" }, { status: 405 });
   }
