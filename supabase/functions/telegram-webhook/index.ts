@@ -1,16 +1,11 @@
-import process from "node:process";
 import { Bot } from "grammy";
 import { hasValidSecretHeader } from "../_shared/security.ts";
-import { hydrateNodeEnvironment } from "../_shared/runtime-env.ts";
-
-const ENV_KEYS = ["DATABASE_URL", "TELEGRAM_BOT_TOKEN", "SESSION_SECRET", "TELEGRAM_WEBAPP_URL", "WEBAPP_ORIGIN", "AI_PROVIDER", "AI_API_KEY", "AI_MODEL", "AI_BASE_URL", "LOG_LEVEL", "DATABASE_POOL_MAX"] as const;
 
 let botPromise: Promise<Bot> | null = null;
 
 async function getBot(): Promise<Bot> {
   if (!botPromise) {
     botPromise = (async () => {
-      hydrateNodeEnvironment(process, ENV_KEYS);
       const token = Deno.env.get("TELEGRAM_BOT_TOKEN");
       const webAppUrl = Deno.env.get("TELEGRAM_WEBAPP_URL");
       if (!token) throw new Error("telegram_bot_not_configured");
