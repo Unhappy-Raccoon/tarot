@@ -53,6 +53,8 @@ export class AIProviderError extends Error {
     public readonly code: "not_configured" | "timeout" | "rate_limited" | "upstream" | "invalid_response",
     message: string,
     public readonly requestId?: string,
+    public readonly httpStatus?: number,
+    public readonly providerCode?: string,
   ) {
     super(message);
     this.name = "AIProviderError";
