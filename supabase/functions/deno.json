@@ -5,11 +5,17 @@
     "grammy": "npm:grammy@1.46.0",
     "postgres": "npm:postgres@3.4.9",
     "drizzle-orm": "npm:drizzle-orm@0.45.4",
-    "drizzle-orm/": "npm:drizzle-orm@0.45.4/",
-    "astronomy-engine": "npm:astronomy-engine@2.1.19"
+    "astronomy-engine": "npm:astronomy-engine@2.1.19",
+    "drizzle-orm/postgres-js": "npm:drizzle-orm@0.45.4/postgres-js",
+    "drizzle-orm/pg-core": "npm:drizzle-orm@0.45.4/pg-core"
   },
   "compilerOptions": {
     "strict": true,
-    "lib": ["deno.window", "dom", "dom.iterable", "esnext"]
+    "lib": [
+      "deno.window",
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ]
   }
 }
