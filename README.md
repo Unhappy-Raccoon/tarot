@@ -17,7 +17,7 @@ Telegram Bot + Telegram WebApp: персональный астрологиче�
 
 ## Целевое тестовое размещение
 
-Для пробного запуска выбраны Supabase (PostgreSQL, Edge Functions API, Telegram webhook, Cron) и GitHub Pages для статического WebApp. Ветка `feat/supabase-edge-runtime` содержит Pages workflow, Vite base path, Edge Function adapters, Telegram webhook, Cron worker с атомарным claim, Supabase migrations и runbook. Перед deploy нужно собрать Node server (`npm run build`), затем выполнить `npm run check:supabase` и `npm run test:supabase`. Подробности: [Supabase test launch](docs/SUPABASE-TEST-LAUNCH.md).
+Для пробного запуска выбраны Supabase (PostgreSQL, Edge Functions API, Telegram webhook, Cron) и GitHub Pages для статического WebApp. Ветка `feat/supabase-edge-runtime` содержит Pages workflow, Vite base path, Edge Function adapters, Telegram webhook, Cron worker с атомарным claim, Supabase migrations и staged GitHub Actions workflow для hosted deploy. Локальный Supabase CLI и Windows terminal не нужны: миграции можно сначала проверить dry run, затем применить отдельным ручным запуском Actions; Edge Functions разворачиваются отдельным этапом. Подробности и список обязательных GitHub Actions Secrets/Variables: [Supabase test launch](docs/SUPABASE-TEST-LAUNCH.md).
 
 ## Локальный запуск
 
