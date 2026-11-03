@@ -65,9 +65,12 @@ jobs:
         if: (github.event_name == 'workflow_dispatch' && inputs.publish == 'yes') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[publish-pages]'))
         env:
           VITE_API_URL: ${{ vars.VITE_API_URL || 'https://uayoqicecdtcxouwsprh.supabase.co/functions/v1/api' }}
+          SUPABASE_PROJECT_ID: ${{ vars.SUPABASE_PROJECT_ID }}
         run: |
-          if [[ ! "$VITE_API_URL" =~ ^https://[a-z0-9-]+\.supabase\\.co/functions/v1/api$ ]]; then
-            echo "VITE_API_URL must be a Supabase Edge Function API URL."
+          set -euo pipefail
+          expected_api_url="https://${SUPABASE_PROJECT_ID}.supabase.co/functions/v1/api"
+          if [[ "$SUPABASE_PROJECT_ID" != "uayoqicecdtcxouwsprh" || "$VITE_API_URL" != "$expected_api_url" ]]; then
+            echo "VITE_API_URL must match the approved Supabase test project's Edge Function API URL."
             exit 1
           fi
       - name: Upload Pages artifact
