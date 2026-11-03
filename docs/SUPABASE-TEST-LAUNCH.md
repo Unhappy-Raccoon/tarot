@@ -117,7 +117,7 @@ supabase secrets set --env-file .env.supabase
 - Repository Actions variable `VITE_API_URL=https://<PROJECT_REF>.supabase.co/functions/v1/api`.
 - Vite base path `VITE_BASE_PATH=/tarot/`.
 
-Текущий `.github/workflows/pages.yml` собирает WebApp из feature branch; тестовая публикация защищена одноразовым файлом `.github/deploy-requests/publish-pages.txt` со значением `PUBLISH_TO_TEST` и commit message с `[publish-pages]`. Push и PR используют разные concurrency groups, чтобы PR build не отменял публикацию. Workflow проверяет `VITE_API_URL` на соответствие тестовому Supabase project. После успешного deploy Pages workflow автоматически настраивает Telegram webhook и Mini App menu через защищённую Edge Function. Переменная `VITE_API_URL` по умолчанию указывает на API тестового проекта; менять её на другой URL нельзя без согласованного изменения project target.
+Текущий `.github/workflows/pages.yml` собирает WebApp из feature branch; тестовая публикация защищена одноразовым файлом `.github/deploy-requests/publish-pages.txt` со значением `PUBLISH_TO_TEST` и commit message с `[publish-pages]`. Push и PR используют разные concurrency groups, чтобы PR build не отменял публикацию. Workflow проверяет `VITE_API_URL` на соответствие тестовому Supabase project. Последняя попытка Pages deploy завершилась HTTP 404, потому что Pages ещё не включён; одноразовый publish marker после неудачной попытки удалён. После включения Pages marker нужно создать повторно. При успешном deploy Pages workflow автоматически настраивает Telegram webhook и Mini App menu через защищённую Edge Function. Переменная `VITE_API_URL` по умолчанию указывает на API тестового проекта; менять её на другой URL нельзя без согласованного изменения project target.
 
 ## 5. Развернуть Edge Functions
 
