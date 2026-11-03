@@ -1,3 +1,4 @@
+import { normalizeApiPath } from "./path.ts";
 
 type FastifyApp = {
   ready(): PromiseLike<unknown>;
@@ -67,10 +68,7 @@ Deno.serve(async (request) => {
   try {
     const app = await getApp();
     const url = new URL(request.url);
-    const functionPrefix = "/functions/v1/api";
-    const routePath = url.pathname.startsWith(functionPrefix)
-      ? (url.pathname.slice(functionPrefix.length) || "/")
-      : url.pathname;
+    const routePath = normalizeApiPath(url.pathname);
     const payload = request.method === "GET" || request.method === "HEAD"
       ? undefined
       : await request.text();
