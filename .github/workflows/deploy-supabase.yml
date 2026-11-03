@@ -58,7 +58,7 @@ jobs:
           confirmation="${INPUT_CONFIRMATION:-}"
           if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
             commit_message="$(jq -r '.head_commit.message // ""' "$GITHUB_EVENT_PATH")"
-            changed_files="$(jq -r '[.head_commit.added[]?, .head_commit.modified[]?, .head_commit.removed[]?] | .[]' "$GITHUB_EVENT_PATH")"
+            changed_files="$(jq -r '[.head_commit.added[]?, .head_commit.modified[]?] | .[]' "$GITHUB_EVENT_PATH")"
             request_file=""
             if [[ "$commit_message" == *"[apply-migrations]"* ]] || grep -Fxq ".github/deploy-requests/apply-migrations.txt" <<< "$changed_files"; then
               stage="apply-migrations"
