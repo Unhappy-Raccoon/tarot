@@ -1,5 +1,5 @@
 name: Supabase hosted smoke test
-# Verify Edge API, Session Pooler DB access and full runtime readiness.
+# Verify Edge API, PostgreSQL schema, RLS, Telegram guards, Cron schedule and readiness.
 
 on:
   push:
