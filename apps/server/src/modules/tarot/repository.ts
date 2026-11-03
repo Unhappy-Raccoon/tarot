@@ -1,3 +1,4 @@
+import { getRuntimeEnv } from "../../config/env.js";
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import { tarotReadings, users } from "../../db/schema.js";
@@ -55,7 +56,7 @@ export async function createTarotReading(
   const dailyDate = spreadId === "daily" ? todayUtc() : null;
 
   if (!db) {
-    if (process.env.NODE_ENV === "production") {
+    if (getRuntimeEnv("NODE_ENV") === "production") {
       throw new Error("DATABASE_URL is required in production");
     }
     const existing = memoryReadings.get(telegramId) ?? [];
@@ -162,7 +163,7 @@ export async function listTarotReadings(
   limit = 50,
 ): Promise<TarotReading[]> {
   if (!db) {
-    if (process.env.NODE_ENV === "production") throw new Error("DATABASE_URL is required in production");
+    if (getRuntimeEnv("NODE_ENV") === "production") throw new Error("DATABASE_URL is required in production");
     return (memoryReadings.get(telegramId) ?? []).slice(0, limit).map(toPublicReading);
   }
   const userId = await getDatabaseUserId(telegramId);
@@ -190,7 +191,7 @@ export async function getTarotReading(
 ): Promise<TarotReading | null> {
   if (!/^\d+$/.test(readingId)) return null;
   if (!db) {
-    if (process.env.NODE_ENV === "production") throw new Error("DATABASE_URL is required in production");
+    if (getRuntimeEnv("NODE_ENV") === "production") throw new Error("DATABASE_URL is required in production");
     const entry = (memoryReadings.get(telegramId) ?? []).find((item) => item.id === readingId);
     return entry ? toPublicReading(entry) : null;
   }
