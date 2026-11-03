@@ -107,6 +107,26 @@ supabase secrets set --env-file .env.supabase
 
 ## 5. Развернуть Edge Functions
 
+Для развёртывания через GitHub Actions локальный Supabase CLI не требуется. В GitHub → Settings → Secrets and variables → Actions добавь:
+
+**Repository Secrets**
+- `SUPABASE_ACCESS_TOKEN` — личный токен Supabase.
+- `SUPABASE_DB_PASSWORD` — пароль БД тестового проекта.
+
+**Repository Variable**
+- `SUPABASE_PROJECT_ID=uayoqicecdtcxouwsprh`.
+
+Workflow `.github/workflows/deploy-supabase.yml` запускается вручную из ветки `feat/supabase-edge-runtime` через Actions → Deploy Supabase test environment → Run workflow. Он поддерживает три раздельных режима:
+
+1. `validate` — связывает CLI с ожидаемым test project и показывает pending migrations через dry run; удалённую схему не изменяет.
+2. `apply-migrations` — сначала показывает dry run, затем применяет миграции. В поле Confirmation необходимо ввести `DEPLOY_TO_TEST`.
+3. `deploy-functions` — собирает приложение, выполняет Deno type check и развёртывает три Edge Functions. До запуска этого этапа сначала добавь Runtime Secrets в Supabase Dashboard. В поле Confirmation также требуется `DEPLOY_TO_TEST`.
+
+Workflow жёстко ограничен test project ref `uayoqicecdtcxouwsprh` и веткой `feat/supabase-edge-runtime`. Он не запускается из `main` и не сливает PR. Для CI используется Supabase CLI v2 stable через официальный `supabase/setup-cli` action; это избегает неявного перехода на CLI v3 с изменённым поведением hosted mutations. В CI все mutating commands выполняются с явным `--yes` после ручного выбора соответствующего stage. См. [Supabase CLI v3 migration guide](https://supabase.com/docs/guides/local-development/cli/migrating-to-v3).
+
+Runtime Secrets (DATABASE_URL, TELEGRAM_BOT_TOKEN, TELEGRAM_WEBHOOK_SECRET, SESSION_SECRET, HOROSCOPE_CRON_SECRET, AI_API_KEY и AI_MODEL) добавляются отдельно в Supabase Dashboard → Edge Functions → Secrets. Не нужно дублировать эти значения в GitHub Actions Secrets, за исключением Supabase Access Token и DB password, нужных workflow.
+
+
 Из корня репозитория:
 
 ```bash
