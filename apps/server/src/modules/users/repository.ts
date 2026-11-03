@@ -1,3 +1,4 @@
+import { getRuntimeEnv } from "../../config/env.js";
 import { eq } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import { birthProfiles, users } from "../../db/schema.js";
@@ -40,7 +41,7 @@ export async function upsertTelegramUser(
   input: TelegramUserInput,
 ): Promise<UserProfile> {
   if (!db) {
-    if (process.env.NODE_ENV === "production") {
+    if (getRuntimeEnv("NODE_ENV") === "production") {
       throw new Error("DATABASE_URL is required in production");
     }
 
@@ -140,7 +141,7 @@ export async function saveBirthProfile(
   input: BirthProfileInput,
 ): Promise<UserProfile> {
   if (!db) {
-    if (process.env.NODE_ENV === "production") {
+    if (getRuntimeEnv("NODE_ENV") === "production") {
       throw new Error("DATABASE_URL is required in production");
     }
     const user = memoryUsers.get(telegramId);
