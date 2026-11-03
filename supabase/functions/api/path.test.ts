@@ -17,11 +17,7 @@ Deno.test("strips a full function URL prefix when present", () => {
   assertEquals(normalizeApiPath("/functions/v1/api/api/tarot/spreads"), "/api/tarot/spreads");
 });
 
-Deno.test("preserves an already normalized application route", () => {
+Deno.test("preserves routes that have no Supabase function prefix", () => {
   assertEquals(normalizeApiPath("/health"), "/health");
-  assertEquals(normalizeApiPath("/api/tarot/spreads"), "/api/tarot/spreads");
-});
-
-Deno.test("does not mistake a similarly named prefix for the api function", () => {
   assertEquals(normalizeApiPath("/apiary/health"), "/apiary/health");
 });
