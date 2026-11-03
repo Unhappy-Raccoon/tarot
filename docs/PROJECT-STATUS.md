@@ -35,7 +35,7 @@ Target project: `uayoqicecdtcxouwsprh` (North EU). This is a controlled test env
 | Supabase Cron | `pg_cron`, `pg_net` and Vault present; notification job scheduled |
 | Cron worker | Last observed run succeeded; Edge Function callback returned HTTP 200 and `sent=0, skipped=0, failed=0` (no due recipients) |
 | WebApp artifact | GitHub Pages production build and artifact upload pass |
-| GitHub Pages deployment | **Blocked:** `actions/deploy-pages` returns HTTP 404 because GitHub Pages is not enabled/configured for this repository |
+| GitHub Pages deployment | **Blocked:** build/artifact succeeds; deploy job is rejected before runner allocation (`runner_id=0`, no steps, no pending approvals). Check `github-pages` environment deployment-branch policy for `feat/supabase-edge-runtime`; workflow also logs Pages API source/build_type once the gate permits a runner |
 | Telegram webhook | Function and protected setup endpoint deployed; actual `getMe` / `setWebhook` / Mini App menu setup is pending successful Pages publication |
 | OpenAI | Runtime configuration is present; a real Responses API generation has not yet been performed |
 | End-to-end user flow | Pending: Telegram `/start`, Mini App authentication, Tarot, natal chart, AI chat and first opt-in notification |
