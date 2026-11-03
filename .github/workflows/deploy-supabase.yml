@@ -119,7 +119,7 @@ jobs:
           node-version-file: .nvmrc
       - name: Install workspace dependencies
         if: steps.stage.outputs.stage == 'deploy-functions'
-        run: npm ci --no-audit --no-fund
+        run: npm install --no-audit --no-fund
       - name: Build application workspaces
         if: steps.stage.outputs.stage == 'deploy-functions'
         run: npm run build
