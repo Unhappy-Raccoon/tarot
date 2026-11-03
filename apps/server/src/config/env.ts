@@ -1,3 +1,5 @@
+import process from "node:process";
+
 type DenoRuntimeLike = {
   env: {
     get(name: string): string | undefined;
