@@ -1,5 +1,5 @@
 name: Supabase hosted smoke test
-# Validate Session Pooler connectivity after Edge isolate refresh or smoke workflow updates.
+# Check the deployed Edge API, database Session Pooler and runtime readiness.
 
 on:
   push:
