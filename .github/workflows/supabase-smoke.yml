@@ -40,14 +40,24 @@ jobs:
         run: |
           set -euo pipefail
           base_url="https://${SUPABASE_PROJECT_ID}.supabase.co/functions/v1/api"
+          body_file="$(mktemp)"
+          trap 'rm -f "$body_file"' EXIT
 
-          health="$(curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 3 --max-time 30 "$base_url/health")"
-          printf '%s\n' "$health" | jq .
-          printf '%s' "$health" | jq -e '.status == "ok" and .service == "personal-cosmic-journal-api"'
+          health_status="$(curl --silent --show-error --retry 5 --retry-all-errors --retry-delay 3 --max-time 30 --output "$body_file" --write-out '%{http_code}' "$base_url/health")"
+          echo "GET /health -> HTTP $health_status"
+          cat "$body_file" | jq .
+          if [[ "$health_status" != "200" ]]; then
+            exit 1
+          fi
+          jq -e '.status == "ok" and .service == "personal-cosmic-journal-api"' "$body_file"
 
-          spreads="$(curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 3 --max-time 30 "$base_url/api/tarot/spreads")"
-          printf '%s\n' "$spreads" | jq .
-          printf '%s' "$spreads" | jq -e '.spreads | type == "array" and length >= 3'
+          spreads_status="$(curl --silent --show-error --retry 5 --retry-all-errors --retry-delay 3 --max-time 30 --output "$body_file" --write-out '%{http_code}' "$base_url/api/tarot/spreads")"
+          echo "GET /api/tarot/spreads -> HTTP $spreads_status"
+          cat "$body_file" | jq .
+          if [[ "$spreads_status" != "200" ]]; then
+            exit 1
+          fi
+          jq -e '.spreads | type == "array" and length >= 3' "$body_file"
 
       - name: Check application readiness
         shell: bash
@@ -57,9 +67,34 @@ jobs:
           body_file="$(mktemp)"
           trap 'rm -f "$body_file"' EXIT
           status="$(curl --silent --show-error --retry 3 --retry-connrefused --retry-delay 3 --max-time 30 --output "$body_file" --write-out '%{http_code}' "$base_url/health/ready")"
+          echo "GET /health/ready -> HTTP $status"
           cat "$body_file" | jq .
           if [[ "$status" != "200" ]]; then
-            echo "Application readiness failed with HTTP $status."
+            echo "Application readiness failed."
             exit 1
           fi
           jq -e '.status == "ready" and .checks.database.ready == true and .checks.telegramBot == true and .checks.sessionAuth == true and .checks.webApp == true and .checks.aiProvider == true' "$body_file"
+
+      - name: Retrieve recent Supabase function errors
+        if: failure()
+        shell: bash
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$SUPABASE_ACCESS_TOKEN" ]]; then
+            echo "SUPABASE_ACCESS_TOKEN is unavailable to the smoke-test workflow."
+            exit 0
+          fi
+          start="$(date -u -d '30 minutes ago' +'%Y-%m-%dT%H:%M:%SZ')"
+          end="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          sql="SELECT timestamp, source, severity_text, event_message FROM logs WHERE source IN ('function_logs', 'function_edge_logs') AND timestamp >= now() - INTERVAL 30 MINUTE ORDER BY timestamp DESC LIMIT 50"
+          body_file="$(mktemp)"
+          trap 'rm -f "$body_file"' EXIT
+          status="$(curl --silent --show-error --get --output "$body_file" --write-out '%{http_code}' "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_ID/analytics/endpoints/logs" --header "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" --data-urlencode "sql=$sql" --data-urlencode "iso_timestamp_start=$start" --data-urlencode "iso_timestamp_end=$end")"
+          echo "Supabase Logs API -> HTTP $status"
+          if [[ "$status" != "200" ]]; then
+            jq . "$body_file" || cat "$body_file"
+            exit 0
+          fi
+          jq -c '.result[]? | {timestamp, source, severity_text, event_message}' "$body_file"
