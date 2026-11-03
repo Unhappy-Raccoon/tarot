@@ -1,9 +1,10 @@
+import { getRuntimeEnv } from "../config/env.js";
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
 import * as schema from "./schema.js";
 
-const connectionString = process.env.DATABASE_URL;
-const configuredPoolMax = Number(process.env.DATABASE_POOL_MAX ?? 5);
+const connectionString = getRuntimeEnv("DATABASE_URL");
+const configuredPoolMax = Number(getRuntimeEnv("DATABASE_POOL_MAX") ?? 5);
 const poolMax = Number.isInteger(configuredPoolMax) && configuredPoolMax >= 1 && configuredPoolMax <= 10
   ? configuredPoolMax
   : 5;
