@@ -1,5 +1,5 @@
 name: Supabase hosted smoke test
-# This push-triggered run verifies API health after the Deno import-map deployment.
+# This push-triggered run verifies API health after the route-prefix fix deployment.
 
 on:
   push:
