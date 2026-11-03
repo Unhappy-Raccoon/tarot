@@ -24,6 +24,12 @@ interface ResponsesAPIResult {
   };
 }
 
+function safeProviderCode(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const normalized = value.trim().toLowerCase();
+  return /^[a-z0-9_.-]{1,64}$/.test(normalized) ? normalized : undefined;
+}
+
 export class OpenAIResponsesProvider implements AIChatProvider {
   readonly name = "openai";
 
@@ -68,10 +74,23 @@ export class OpenAIResponsesProvider implements AIChatProvider {
     const payload = await response.json().catch(() => null) as ResponsesAPIResult | null;
 
     if (!response.ok) {
+      const providerCode = safeProviderCode(payload?.error?.code);
       if (response.status === 429) {
-        throw new AIProviderError("rate_limited", "AI provider rate limit reached", requestId);
+        throw new AIProviderError(
+          "rate_limited",
+          "AI provider rate limit reached",
+          requestId,
+          response.status,
+          providerCode,
+        );
       }
-      throw new AIProviderError("upstream", "AI provider returned an error", requestId);
+      throw new AIProviderError(
+        "upstream",
+        "AI provider returned an error",
+        requestId,
+        response.status,
+        providerCode,
+      );
     }
 
     if (!payload) {
