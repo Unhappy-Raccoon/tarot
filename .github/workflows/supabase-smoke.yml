@@ -71,6 +71,7 @@ jobs:
             sudo apt-get install --yes postgresql-client
           fi
           export PGPASSWORD="$SUPABASE_DB_PASSWORD"
+          export PGSSLMODE=require
           psql \
             --host aws-0-eu-north-1.pooler.supabase.com \
             --port 5432 \
@@ -147,6 +148,18 @@ jobs:
             ) THEN
               RAISE EXCEPTION 'Missing birth profile coordinate constraint';
             END IF;
+
+            IF EXISTS (
+              SELECT 1 FROM pg_policies
+              WHERE schemaname = 'public'
+                AND tablename = ANY (ARRAY[
+                  'users', 'birth_profiles', 'tarot_readings', 'natal_charts',
+                  'ai_conversations', 'ai_messages', 'ai_daily_usage',
+                  'daily_horoscopes', 'horoscope_preferences'
+                ])
+            ) THEN
+              RAISE EXCEPTION 'Unexpected public RLS policies exist; review before launch';
+            END IF;
           END
           $audit$;
 
@@ -163,8 +176,101 @@ jobs:
               'ai_conversations', 'ai_messages', 'ai_daily_usage',
               'daily_horoscopes', 'horoscope_preferences'
             );
+
+          SELECT
+            'RLS_POLICY_AUDIT_OK policies=' || count(*)
+          FROM pg_policies
+          WHERE schemaname = 'public'
+            AND tablename IN (
+              'users', 'birth_profiles', 'tarot_readings', 'natal_charts',
+              'ai_conversations', 'ai_messages', 'ai_daily_usage',
+              'daily_horoscopes', 'horoscope_preferences'
+            );
+
+          SELECT
+            'EXTENSIONS pg_cron=' ||
+            EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron') ||
+            ' pg_net=' ||
+            EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_net') ||
+            ' supabase_vault=' ||
+            EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'supabase_vault');
+
+          DO $runtime$
+          DECLARE
+            scheduled boolean := false;
+            vault_ready boolean := false;
+          BEGIN
+            IF to_regclass('cron.job') IS NOT NULL THEN
+              EXECUTE
+                'SELECT EXISTS (SELECT 1 FROM cron.job WHERE jobname = $1)'
+                INTO scheduled
+                USING 'pcj-horoscope-notifications';
+              RAISE WARNING 'CRON_JOB_STATE=%', CASE WHEN scheduled THEN 'scheduled' ELSE 'not_scheduled' END;
+            ELSE
+              RAISE WARNING 'CRON_JOB_STATE=pg_cron_missing';
+            END IF;
+
+            IF to_regclass('vault.decrypted_secrets') IS NOT NULL THEN
+              EXECUTE
+                'SELECT count(*) = 2 FROM vault.decrypted_secrets WHERE name IN ($1, $2)'
+                INTO vault_ready
+                USING 'pcj_project_url', 'pcj_horoscope_cron_secret';
+              RAISE WARNING 'CRON_VAULT_SECRETS=%', CASE WHEN vault_ready THEN 'present' ELSE 'missing' END;
+            ELSE
+              RAISE WARNING 'CRON_VAULT_SECRETS=vault_missing';
+            END IF;
+          END
+          $runtime$;
           SQL
           unset PGPASSWORD
+
+      - name: Verify authentication, CORS and secret guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          api_url="https://${SUPABASE_PROJECT_ID}.supabase.co/functions/v1/api"
+          webhook_url="https://${SUPABASE_PROJECT_ID}.supabase.co/functions/v1/telegram-webhook"
+          worker_url="https://${SUPABASE_PROJECT_ID}.supabase.co/functions/v1/process-horoscope-notifications"
+          body_file="$(mktemp)"
+          trap 'rm -f "$body_file"' EXIT
+
+          assert_status() {
+            local expected="$1"
+            shift
+            local actual
+            actual="$(curl --silent --show-error --max-time 20 --output "$body_file" --write-out '%{http_code}' "$@")"
+            if [[ "$actual" != "$expected" ]]; then
+              echo "Expected HTTP $expected, received HTTP $actual"
+              cat "$body_file" | jq . || true
+              exit 1
+            fi
+          }
+
+          assert_status 401 "$api_url/api/me"
+          assert_status 401 "$api_url/api/ai/status"
+          assert_status 401 "$api_url/api/tarot/readings"
+          assert_status 401 --request POST --header 'content-type: application/json' --data '{"initData":"invalid"}' "$api_url/api/auth/telegram"
+
+          assert_status 401 --request POST --header 'content-type: application/json' --data '{"update_id":1}' "$webhook_url"
+          assert_status 401 --request POST --header 'content-type: application/json' --data '{}' "$worker_url"
+
+          cors_status="$(curl --silent --show-error --max-time 20 --output "$body_file" --write-out '%{http_code}' \
+            --request OPTIONS --header 'Origin: https://unhappy-raccoon.github.io' \
+            --header 'Access-Control-Request-Method: GET' "$api_url/health")"
+          if [[ "$cors_status" != "204" ]] || ! grep -qi '^access-control-allow-origin: https://unhappy-raccoon.github.io' "$body_file"; then
+            echo "Allowed WebApp CORS preflight failed (HTTP $cors_status)."
+            exit 1
+          fi
+
+          cors_status="$(curl --silent --show-error --max-time 20 --output "$body_file" --write-out '%{http_code}' \
+            --request OPTIONS --header 'Origin: https://example.invalid' \
+            --header 'Access-Control-Request-Method: GET' "$api_url/health")"
+          if [[ "$cors_status" != "403" ]]; then
+            echo "Unexpected origin was not rejected (HTTP $cors_status)."
+            exit 1
+          fi
+
+          echo "AUTH_CORS_WEBHOOK_CRON_GUARDS_OK"
 
       - name: Check application readiness
         shell: bash
