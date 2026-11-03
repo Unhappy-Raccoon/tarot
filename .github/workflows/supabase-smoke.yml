@@ -1,5 +1,5 @@
 name: Supabase hosted smoke test
-# This run validates PostgreSQL Session Pooler connectivity and all required runtime secrets.
+# This run validates PostgreSQL Session Pooler connectivity after Edge isolate refresh.
 
 on:
   push:
