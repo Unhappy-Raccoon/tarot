@@ -157,6 +157,91 @@ jobs:
           PY
           supabase secrets set --env-file "$env_file" --project-ref "$SUPABASE_PROJECT_ID"
           echo "Configured DATABASE_URL with the Session Pooler connection."
+      - name: Configure Supabase Cron and Vault secrets
+        if: steps.stage.outputs.stage == 'deploy-functions'
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v psql >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install --yes postgresql-client
+          fi
+
+          cron_secret="$(openssl rand -hex 32)"
+          echo "::add-mask::$cron_secret"
+          secret_file="${RUNNER_TEMP}/horoscope-cron-secret.env"
+          trap 'rm -f "$secret_file"; unset cron_secret PGPASSWORD' EXIT
+          printf 'HOROSCOPE_CRON_SECRET=%s\\n' "$cron_secret" > "$secret_file"
+          chmod 600 "$secret_file"
+          supabase secrets set --env-file "$secret_file" --project-ref "$SUPABASE_PROJECT_ID"
+
+          export PGPASSWORD="$SUPABASE_DB_PASSWORD"
+          export PGSSLMODE=require
+          psql \
+            --host aws-0-eu-north-1.pooler.supabase.com \
+            --port 5432 \
+            --username "postgres.$SUPABASE_PROJECT_ID" \
+            --dbname postgres \
+            --set ON_ERROR_STOP=1 \
+            --set "project_url=https://$SUPABASE_PROJECT_ID.supabase.co" \
+            --set "cron_secret=$cron_secret" \
+            --no-psqlrc \
+            --quiet \
+            --tuples-only \
+            --no-align <<'SQL'
+          CREATE SCHEMA IF NOT EXISTS extensions;
+          CREATE EXTENSION IF NOT EXISTS pg_cron WITH SCHEMA pg_catalog;
+          CREATE EXTENSION IF NOT EXISTS pg_net WITH SCHEMA extensions;
+          GRANT USAGE ON SCHEMA cron TO postgres;
+          GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA cron TO postgres;
+
+          SELECT vault.create_secret(:'project_url', 'pcj_project_url', 'Supabase project URL for scheduled horoscope worker')
+          WHERE NOT EXISTS (
+            SELECT 1 FROM vault.secrets WHERE name = 'pcj_project_url'
+          );
+          SELECT vault.update_secret(id, :'project_url', 'pcj_project_url', 'Supabase project URL for scheduled horoscope worker')
+          FROM vault.secrets
+          WHERE name = 'pcj_project_url';
+
+          SELECT vault.create_secret(:'cron_secret', 'pcj_horoscope_cron_secret', 'Shared secret for scheduled horoscope worker')
+          WHERE NOT EXISTS (
+            SELECT 1 FROM vault.secrets WHERE name = 'pcj_horoscope_cron_secret'
+          );
+          SELECT vault.update_secret(id, :'cron_secret', 'pcj_horoscope_cron_secret', 'Shared secret for scheduled horoscope worker')
+          FROM vault.secrets
+          WHERE name = 'pcj_horoscope_cron_secret';
+
+          SELECT cron.unschedule(jobid)
+          FROM cron.job
+          WHERE jobname = 'pcj-horoscope-notifications';
+
+          SELECT cron.schedule(
+            'pcj-horoscope-notifications',
+            '* * * * *',
+            $job$
+              SELECT net.http_post(
+                url := (
+                  SELECT decrypted_secret
+                  FROM vault.decrypted_secrets
+                  WHERE name = 'pcj_project_url'
+                ) || '/functions/v1/process-horoscope-notifications',
+                headers := jsonb_build_object(
+                  'Content-Type', 'application/json',
+                  'x-cron-secret', (
+                    SELECT decrypted_secret
+                    FROM vault.decrypted_secrets
+                    WHERE name = 'pcj_horoscope_cron_secret'
+                  )
+                ),
+                body := '{}'::jsonb,
+                timeout_milliseconds := 10000
+              ) AS request_id;
+            $job$
+          );
+          SQL
+          unset PGPASSWORD cron_secret
+          echo "Supabase Cron job and Vault secrets configured."
+
       - name: Deploy API Edge Function
         if: steps.stage.outputs.stage == 'deploy-functions'
         run: supabase functions deploy api --project-ref "$SUPABASE_PROJECT_ID" --no-verify-jwt
