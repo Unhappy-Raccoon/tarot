@@ -975,3 +975,12 @@ button { -webkit-tap-highlight-color: transparent; }
   .ai-scenario-list { grid-template-columns: 1fr; }
   .ai-chat-thread { padding: .7rem .55rem; }
 }
+
+@media (max-width: 600px) {
+  /* Prevent iOS WebKit from auto-zooming the Telegram Mini App on field focus. */
+  .onboarding-card input,
+  .birth-edit-form input,
+  .ai-chat-composer textarea {
+    font-size: 16px;
+  }
+}
