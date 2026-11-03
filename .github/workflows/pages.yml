@@ -112,6 +112,25 @@ jobs:
             echo "Pages publication marker must contain exactly PUBLISH_TO_TEST."
             exit 1
           fi
+      - name: Inspect GitHub Pages configuration
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          body_file="$(mktemp)"
+          trap 'rm -f "$body_file"' EXIT
+          status="$(curl --silent --show-error --get --output "$body_file" --write-out '%{http_code}' \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/pages" \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header "Accept: application/vnd.github+json" \
+            --header "X-GitHub-Api-Version: 2022-11-28")"
+          echo "GitHub Pages configuration API -> HTTP $status"
+          if [[ "$status" == "200" ]]; then
+            jq '{status, build_type, source, html_url}' "$body_file"
+          else
+            jq '{message, documentation_url}' "$body_file" || true
+          fi
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
