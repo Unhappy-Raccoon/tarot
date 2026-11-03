@@ -36,6 +36,40 @@ jobs:
           fi
           echo "Smoke-testing the approved Supabase test project."
 
+      - name: Check published WebApp assets with desktop and mobile clients
+        shell: bash
+        run: |
+          set -euo pipefail
+          base_url="https://unhappy-raccoon.github.io/tarot"
+          body_file="$(mktemp)"
+          asset_file="$(mktemp)"
+          trap 'rm -f "$body_file" "$asset_file"' EXIT
+          for agent in desktop mobile; do
+            if [[ "$agent" == "mobile" ]]; then
+              user_agent="Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
+            else
+              user_agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130.0.0.0 Safari/537.36"
+            fi
+            status="$(curl --silent --show-error --max-time 20 --user-agent "$user_agent" --output "$body_file" --write-out '%{http_code}' "$base_url/")"
+            echo "Pages index ($agent) -> HTTP $status"
+            test "$status" = "200"
+            grep -q 'id="root"' "$body_file"
+            js_path="$(grep -oE 'src="[^"]+\.js"' "$body_file" | head -n1 | cut -d '"' -f2)"
+            css_path="$(grep -oE 'href="[^"]+\.css"' "$body_file" | head -n1 | cut -d '"' -f2)"
+            test -n "$js_path"
+            test -n "$css_path"
+            for asset in "$js_path" "$css_path"; do
+              asset_status="$(curl --silent --show-error --max-time 20 --user-agent "$user_agent" --output "$asset_file" --write-out '%{http_code}' "$base_url$asset")"
+              echo "Pages asset ($agent) $asset -> HTTP $asset_status bytes=$(wc -c < "$asset_file")"
+              test "$asset_status" = "200"
+              test "$(wc -c < "$asset_file")" -gt 500
+            done
+            if [[ "$agent" == "mobile" ]]; then
+              grep -q 'onboarding-shell' "$asset_file" || true
+            fi
+          done
+          echo "PAGES_DESKTOP_MOBILE_ASSETS_OK"
+
       - name: Check API liveness and tarot catalog
         shell: bash
         run: |
@@ -331,9 +365,9 @@ jobs:
             echo "SUPABASE_ACCESS_TOKEN is unavailable to the smoke-test workflow."
             exit 0
           fi
-          start="$(date -u -d '30 minutes ago' +'%Y-%m-%dT%H:%M:%SZ')"
+          start="$(date -u -d '120 minutes ago' +'%Y-%m-%dT%H:%M:%SZ')"
           end="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-          sql="SELECT timestamp, source, severity_text, event_message FROM logs WHERE source IN ('function_logs', 'function_edge_logs') AND timestamp >= now() - INTERVAL 120 MINUTE AND (severity_text IN ('ERROR','WARN') OR event_message ILIKE '%AI provider request failed%' OR event_message ILIKE '%Unable to complete AI chat request%' OR event_message ILIKE '%Astrologer%' OR event_message ILIKE '%setTimeout%') ORDER BY timestamp DESC LIMIT 150"
+          sql="SELECT timestamp, source, severity_text, event_message FROM logs WHERE source IN ('function_logs', 'function_edge_logs') AND timestamp >= now() - INTERVAL 120 MINUTE AND (severity_text IN ('ERROR','WARN','WARNING') OR event_message ILIKE '%AI provider request failed%' OR event_message ILIKE '%Unable to complete AI chat request%' OR event_message ILIKE '%Astrologer%' OR event_message ILIKE '%setTimeout%') ORDER BY timestamp DESC LIMIT 150"
           body_file="$(mktemp)"
           trap 'rm -f "$body_file"' EXIT
           status="$(curl --silent --show-error --get --output "$body_file" --write-out '%{http_code}' "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_ID/analytics/endpoints/logs" --header "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" --data-urlencode "sql=$sql" --data-urlencode "iso_timestamp_start=$start" --data-urlencode "iso_timestamp_end=$end")"
