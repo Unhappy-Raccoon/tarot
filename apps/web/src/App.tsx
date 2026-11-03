@@ -288,7 +288,7 @@ export default function App() {
         {activeScreen === "tarot-result" && reading && <TarotResultScreen reading={reading} onBack={() => navigate("tarot")} />}
         {activeScreen === "daily-horoscope" && <DailyHoroscopeScreen onBack={() => navigate("home")} accessToken={accessToken} previewMode={previewMode} />}
         {activeScreen === "natal" && <NatalChartScreen onBack={() => navigate("home")} accessToken={accessToken} previewMode={previewMode} />}
-        {activeScreen === "astrologer" && <AstrologerScreen onBack={() => navigate("home")} />}
+        {activeScreen === "astrologer" && <AstrologerScreen onBack={() => navigate("home")} accessToken={accessToken} />}
         {activeScreen === "journal" && <JournalScreen onBack={() => navigate("home")} readings={journalReadings} onOpenReading={openReading} loading={journalLoading} error={journalError} />}
         {activeScreen === "profile" && <ProfileScreen profile={profile} displayName={displayName} onPremium={() => navigate("premium")} onSaveBirthProfile={updateBirthProfile} />}
         {activeScreen === "premium" && <PremiumScreen onBack={() => navigate("profile")} />}
