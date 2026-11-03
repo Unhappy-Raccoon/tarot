@@ -116,7 +116,7 @@ supabase secrets set --env-file .env.supabase
 **Repository Variable**
 - `SUPABASE_PROJECT_ID=uayoqicecdtcxouwsprh`.
 
-Workflow `.github/workflows/deploy-supabase.yml` запускается вручную из ветки `feat/supabase-edge-runtime` через Actions → Deploy Supabase test environment → Run workflow. Он поддерживает три раздельных режима:
+Workflow `.github/workflows/deploy-supabase.yml` автоматически запускает безопасный `validate` при изменении самого workflow в ветке `feat/supabase-edge-runtime`. Это нужно, поскольку GitHub показывает ручной `workflow_dispatch` только после появления файла workflow в default branch; мы намеренно пока не меняем `main`. После интеграции workflow в default branch появится возможность запускать все три режима через Actions → Deploy Supabase test environment → Run workflow. Он поддерживает три раздельных режима:
 
 1. `validate` — связывает CLI с ожидаемым test project и показывает pending migrations через dry run; удалённую схему не изменяет.
 2. `apply-migrations` — сначала показывает dry run, затем применяет миграции. В поле Confirmation необходимо ввести `DEPLOY_TO_TEST`.
