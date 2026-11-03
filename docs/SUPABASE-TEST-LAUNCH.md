@@ -50,7 +50,7 @@ Supabase в общей таблице выбора подключения рек
 
 ## 2. Применить миграции Supabase
 
-**Первичная проверка подключения (2026-11-03):** GitHub Actions успешно прошёл `supabase link` и `supabase db push --dry-run` для Project Ref `uayoqicecdtcxouwsprh`. CLI подключился к удалённой базе и показал семь ожидаемых миграций `20261102000100_core.sql`–`20261102000700_horoscope_notification_claims.sql`. Dry run завершился успешно; реальная миграция на момент проверки не запускалась, база не изменялась. Workflow дополнительно фиксирует `--linked`, чтобы команды явно адресовали удалённый проект.
+**Проверка подключения и применение миграций (2026-11-03):** GitHub Actions успешно связал проект `uayoqicecdtcxouwsprh`, выполнил dry run, затем с явным подтверждением применил все семь миграций: `20261102000100_core.sql`–`20261102000700_horoscope_notification_claims.sql`. Журнал [run #41642833963](https://github.com/Unhappy-Raccoon/tarot/actions/runs/41642833963) подтверждает `Applying migration ...` для каждой из семи файлов и завершение `Finished supabase db push`. После удаления одноразового deployment-request marker контрольный read-only run [#41642994353](https://github.com/Unhappy-Raccoon/tarot/actions/runs/41642994353) завершился сообщением `Remote database is up to date`. Таким образом, все семь миграций применены и повторная проверка не обнаружила pending migrations. `--linked` используется явно для адресации связанного удалённого проекта. Edge Functions, runtime secrets и Telegram/Cron ещё не развёрнуты.
 
 
 Требуется Supabase CLI и авторизация в нём. Из корня репозитория:
