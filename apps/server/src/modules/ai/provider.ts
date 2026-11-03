@@ -1,3 +1,4 @@
+import { getRuntimeEnv } from "../../config/env.js";
 import {
   AIProviderError,
   type AIChatProvider,
@@ -105,13 +106,13 @@ export class OpenAIResponsesProvider implements AIChatProvider {
 }
 
 export function createAIProviderFromEnv(): AIChatProvider | null {
-  const provider = (process.env.AI_PROVIDER ?? "openai").trim().toLowerCase();
+  const provider = (getRuntimeEnv("AI_PROVIDER") ?? "openai").trim().toLowerCase();
   if (provider !== "openai") return null;
 
-  const apiKey = process.env.AI_API_KEY?.trim();
-  const model = process.env.AI_MODEL?.trim();
+  const apiKey = getRuntimeEnv("AI_API_KEY")?.trim();
+  const model = getRuntimeEnv("AI_MODEL")?.trim();
   if (!apiKey || !model) return null;
 
-  const baseUrl = process.env.AI_BASE_URL?.trim() || "https://api.openai.com/v1";
+  const baseUrl = getRuntimeEnv("AI_BASE_URL")?.trim() || "https://api.openai.com/v1";
   return new OpenAIResponsesProvider(apiKey, model, baseUrl);
 }
