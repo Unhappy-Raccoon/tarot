@@ -40,7 +40,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          base_url="https://unhappy-raccoon.github.io/tarot"
+          origin_url="https://unhappy-raccoon.github.io"
+          app_url="$origin_url/tarot"
           body_file="$(mktemp)"
           asset_file="$(mktemp)"
           trap 'rm -f "$body_file" "$asset_file"' EXIT
@@ -50,7 +51,7 @@ jobs:
             else
               user_agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130.0.0.0 Safari/537.36"
             fi
-            status="$(curl --silent --show-error --max-time 20 --user-agent "$user_agent" --output "$body_file" --write-out '%{http_code}' "$base_url/")"
+            status="$(curl --silent --show-error --max-time 20 --header 'Cache-Control: no-cache' --user-agent "$user_agent" --output "$body_file" --write-out '%{http_code}' "$app_url/")"
             echo "Pages index ($agent) -> HTTP $status"
             test "$status" = "200"
             grep -q 'id="root"' "$body_file"
@@ -59,13 +60,13 @@ jobs:
             test -n "$js_path"
             test -n "$css_path"
             for asset in "$js_path" "$css_path"; do
-              asset_status="$(curl --silent --show-error --max-time 20 --user-agent "$user_agent" --output "$asset_file" --write-out '%{http_code}' "$base_url$asset")"
+              asset_status="$(curl --silent --show-error --max-time 20 --user-agent "$user_agent" --output "$asset_file" --write-out '%{http_code}' "$origin_url$asset")"
               echo "Pages asset ($agent) $asset -> HTTP $asset_status bytes=$(wc -c < "$asset_file")"
               test "$asset_status" = "200"
               test "$(wc -c < "$asset_file")" -gt 500
             done
             if [[ "$agent" == "mobile" ]]; then
-              grep -q 'onboarding-shell' "$asset_file" || true
+              grep -q 'onboarding-shell' "$asset_file"
             fi
           done
           echo "PAGES_DESKTOP_MOBILE_ASSETS_OK"
