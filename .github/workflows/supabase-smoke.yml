@@ -1,0 +1,65 @@
+name: Supabase hosted smoke test
+
+on:
+  push:
+    branches:
+      - feat/supabase-edge-runtime
+    paths:
+      - ".github/workflows/supabase-smoke.yml"
+      - "supabase/functions/**"
+      - "apps/server/src/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supabase-hosted-smoke
+  cancel-in-progress: false
+
+jobs:
+  smoke:
+    if: github.ref == 'refs/heads/feat/supabase-edge-runtime'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SUPABASE_PROJECT_ID: ${{ vars.SUPABASE_PROJECT_ID }}
+    steps:
+      - name: Validate test target
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$SUPABASE_PROJECT_ID" != "uayoqicecdtcxouwsprh" ]]; then
+            echo "SUPABASE_PROJECT_ID is missing or does not match the approved test project."
+            exit 1
+          fi
+          echo "Smoke-testing the approved Supabase test project."
+
+      - name: Check API liveness and tarot catalog
+        shell: bash
+        run: |
+          set -euo pipefail
+          base_url="https://${SUPABASE_PROJECT_ID}.supabase.co/functions/v1/api"
+
+          health="$(curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 3 --max-time 30 "$base_url/health")"
+          printf '%s\n' "$health" | jq .
+          printf '%s' "$health" | jq -e '.status == "ok" and .service == "personal-cosmic-journal-api"'
+
+          spreads="$(curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 3 --max-time 30 "$base_url/api/tarot/spreads")"
+          printf '%s\n' "$spreads" | jq .
+          printf '%s' "$spreads" | jq -e '.spreads | type == "array" and length >= 3'
+
+      - name: Check application readiness
+        shell: bash
+        run: |
+          set -euo pipefail
+          base_url="https://${SUPABASE_PROJECT_ID}.supabase.co/functions/v1/api"
+          body_file="$(mktemp)"
+          trap 'rm -f "$body_file"' EXIT
+          status="$(curl --silent --show-error --retry 3 --retry-connrefused --retry-delay 3 --max-time 30 --output "$body_file" --write-out '%{http_code}' "$base_url/health/ready")"
+          cat "$body_file" | jq .
+          if [[ "$status" != "200" ]]; then
+            echo "Application readiness failed with HTTP $status."
+            exit 1
+          fi
+          jq -e '.status == "ready" and .checks.database.ready == true and .checks.telegramBot == true and .checks.sessionAuth == true and .checks.webApp == true and .checks.aiProvider == true' "$body_file"
