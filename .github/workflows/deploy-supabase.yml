@@ -72,10 +72,10 @@ jobs:
         run: supabase link --project-ref "$SUPABASE_PROJECT_ID"
       - name: Show pending migrations (dry run)
         if: env.DEPLOY_STAGE == 'validate' || env.DEPLOY_STAGE == 'apply-migrations'
-        run: supabase db push --dry-run
+        run: supabase db push --dry-run --linked
       - name: Apply database migrations
         if: env.DEPLOY_STAGE == 'apply-migrations'
-        run: supabase db push --yes
+        run: supabase db push --yes --linked
       - name: Setup Node.js
         if: env.DEPLOY_STAGE == 'deploy-functions'
         uses: actions/setup-node@v4
