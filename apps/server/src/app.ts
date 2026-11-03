@@ -1,3 +1,4 @@
+import { getRuntimeEnv } from "./config/env.js";
 import Fastify, { type FastifyRequest } from "fastify";
 import { checkDatabaseReadiness } from "./db/index.js";
 import { createSessionToken, verifySessionToken } from "./auth/session.js";
@@ -120,7 +121,7 @@ function normalizeOptionalString(
 export function buildApp(options: AppOptions = {}) {
   const app = Fastify({
     logger: {
-      level: process.env.LOG_LEVEL ?? "info",
+      level: getRuntimeEnv("LOG_LEVEL") ?? "info",
       redact: [
         "req.headers.authorization",
         "req.headers.cookie",
@@ -179,7 +180,8 @@ export function buildApp(options: AppOptions = {}) {
     const database = await checkDatabaseReadiness();
     let webAppReady = false;
     try {
-      const webUrl = process.env.TELEGRAM_WEBAPP_URL ? new URL(process.env.TELEGRAM_WEBAPP_URL) : null;
+      const telegramWebAppUrl = getRuntimeEnv("TELEGRAM_WEBAPP_URL");
+      const webUrl = telegramWebAppUrl ? new URL(telegramWebAppUrl) : null;
       const origin = options.webAppOrigin ? new URL(options.webAppOrigin) : null;
       webAppReady = Boolean(
         webUrl && origin &&
@@ -443,7 +445,7 @@ export function buildApp(options: AppOptions = {}) {
     const query = request.query as { timeZone?: unknown };
     const timeZone = typeof query.timeZone === "string"
       ? query.timeZone
-      : process.env.HOROSCOPE_DEFAULT_TIME_ZONE ?? "Europe/Tallinn";
+      : getRuntimeEnv("HOROSCOPE_DEFAULT_TIME_ZONE") ?? "Europe/Tallinn";
 
     try {
       const horoscope = await generateDailyHoroscope(telegramId, timeZone, aiProvider);
@@ -489,7 +491,7 @@ export function buildApp(options: AppOptions = {}) {
     const suggestedTimeZone = typeof query.timeZone === "string" &&
       isValidTimeZone(query.timeZone)
       ? query.timeZone
-      : process.env.HOROSCOPE_DEFAULT_TIME_ZONE ?? "Europe/Tallinn";
+      : getRuntimeEnv("HOROSCOPE_DEFAULT_TIME_ZONE") ?? "Europe/Tallinn";
     try {
       const preferences = await getHoroscopePreferences(telegramId, suggestedTimeZone);
       return { preferences };
