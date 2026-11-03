@@ -132,6 +132,31 @@ jobs:
       - name: Run Deno type checks
         if: steps.stage.outputs.stage == 'deploy-functions'
         run: deno check --config supabase/functions/deno.json supabase/functions/api/index.ts supabase/functions/telegram-webhook/index.ts supabase/functions/process-horoscope-notifications/index.ts
+      - name: Configure PostgreSQL Session Pooler secret
+        if: steps.stage.outputs.stage == 'deploy-functions'
+        shell: bash
+        run: |
+          set -euo pipefail
+          env_file="${RUNNER_TEMP}/supabase-edge-secrets.env"
+          trap 'rm -f "$env_file"' EXIT
+          python3 - "$env_file" <<'PY'
+          import os
+          import sys
+          from urllib.parse import quote
+
+          project_id = os.environ["SUPABASE_PROJECT_ID"]
+          password = quote(os.environ["SUPABASE_DB_PASSWORD"], safe="")
+          database_url = (
+              f"postgresql://postgres.{project_id}:{password}"
+              "@aws-0-eu-north-1.pooler.supabase.com:5432/postgres?sslmode=require"
+          )
+          path = sys.argv[1]
+          with open(path, "w", encoding="utf-8") as secret_file:
+              secret_file.write(f"DATABASE_URL={database_url}\\n")
+          os.chmod(path, 0o600)
+          PY
+          supabase secrets set --env-file "$env_file" --project-ref "$SUPABASE_PROJECT_ID"
+          echo "Configured DATABASE_URL with the Session Pooler connection."
       - name: Deploy API Edge Function
         if: steps.stage.outputs.stage == 'deploy-functions'
         run: supabase functions deploy api --project-ref "$SUPABASE_PROJECT_ID" --no-verify-jwt
