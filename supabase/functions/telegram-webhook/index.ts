@@ -22,7 +22,6 @@ async function getBot(): Promise<Bot> {
 }
 
 async function configureTelegramWebhook(): Promise<Response> {
-  const cronSecret = Deno.env.get("HOROSCOPE_CRON_SECRET") ?? "";
   const token = Deno.env.get("TELEGRAM_BOT_TOKEN");
   const webhookSecret = Deno.env.get("TELEGRAM_WEBHOOK_SECRET");
   const webAppUrl = Deno.env.get("TELEGRAM_WEBAPP_URL");
