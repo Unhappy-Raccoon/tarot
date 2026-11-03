@@ -195,6 +195,36 @@ jobs:
             ' supabase_vault=' ||
             EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'supabase_vault');
 
+          SELECT
+            'CRON_LAST_RUN status=' ||
+            coalesce((
+              SELECT d.status
+              FROM cron.job_run_details d
+              JOIN cron.job j ON j.jobid = d.jobid
+              WHERE j.jobname = 'pcj-horoscope-notifications'
+              ORDER BY d.start_time DESC
+              LIMIT 1
+            ), 'no_run') ||
+            ' return=' ||
+            coalesce((
+              SELECT left(d.return_message, 160)
+              FROM cron.job_run_details d
+              JOIN cron.job j ON j.jobid = d.jobid
+              WHERE j.jobname = 'pcj-horoscope-notifications'
+              ORDER BY d.start_time DESC
+              LIMIT 1
+            ), 'none');
+
+          SELECT
+            'CRON_HTTP_LAST status=' ||
+            coalesce(status_code::text, 'none') ||
+            ' timeout=' || coalesce(timed_out::text, 'none') ||
+            ' error=' || coalesce(left(error_msg, 120), 'none') ||
+            ' body=' || coalesce(left(content, 180), 'none')
+          FROM net._http_response
+          ORDER BY created DESC
+          LIMIT 1;
+
           DO $runtime$
           DECLARE
             scheduled boolean := false;
