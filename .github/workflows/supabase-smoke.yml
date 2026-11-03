@@ -60,6 +60,112 @@ jobs:
           fi
           jq -e '.spreads | type == "array" and length >= 3' "$body_file"
 
+      - name: Audit PostgreSQL schema and RLS
+        shell: bash
+        env:
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if ! command -v psql >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install --yes postgresql-client
+          fi
+          export PGPASSWORD="$SUPABASE_DB_PASSWORD"
+          psql \
+            --host aws-0-eu-north-1.pooler.supabase.com \
+            --port 5432 \
+            --username "postgres.$SUPABASE_PROJECT_ID" \
+            --dbname postgres \
+            --set ON_ERROR_STOP=1 \
+            --no-psqlrc \
+            --quiet \
+            --tuples-only \
+            --no-align <<'SQL'
+          DO $audit$
+          DECLARE
+            table_name text;
+          BEGIN
+            FOREACH table_name IN ARRAY ARRAY[
+              'users',
+              'birth_profiles',
+              'tarot_readings',
+              'natal_charts',
+              'ai_conversations',
+              'ai_messages',
+              'ai_daily_usage',
+              'daily_horoscopes',
+              'horoscope_preferences'
+            ] LOOP
+              IF to_regclass(format('public.%I', table_name)) IS NULL THEN
+                RAISE EXCEPTION 'Missing expected table: public.%', table_name;
+              END IF;
+              IF NOT EXISTS (
+                SELECT 1
+                FROM pg_class c
+                JOIN pg_namespace n ON n.oid = c.relnamespace
+                WHERE n.nspname = 'public'
+                  AND c.relname = table_name
+                  AND c.relrowsecurity = true
+              ) THEN
+                RAISE EXCEPTION 'RLS is not enabled on public.%', table_name;
+              END IF;
+            END LOOP;
+
+            IF EXISTS (
+              SELECT 1
+              FROM (VALUES
+                ('birth_profiles', 'birth_latitude'),
+                ('birth_profiles', 'birth_longitude'),
+                ('horoscope_preferences', 'notification_claim_date'),
+                ('horoscope_preferences', 'notification_claimed_at'),
+                ('users', 'telegram_id'),
+                ('tarot_readings', 'cards'),
+                ('natal_charts', 'chart_data'),
+                ('ai_daily_usage', 'usage_date'),
+                ('daily_horoscopes', 'local_date')
+              ) AS required(table_name, column_name)
+              LEFT JOIN information_schema.columns c
+                ON c.table_schema = 'public'
+               AND c.table_name = required.table_name
+               AND c.column_name = required.column_name
+              WHERE c.column_name IS NULL
+            ) THEN
+              RAISE EXCEPTION 'One or more required columns are missing';
+            END IF;
+
+            IF NOT EXISTS (
+              SELECT 1 FROM pg_indexes
+              WHERE schemaname = 'public'
+                AND indexname = 'horoscope_preferences_due_idx'
+            ) THEN
+              RAISE EXCEPTION 'Missing horoscope notification due index';
+            END IF;
+
+            IF NOT EXISTS (
+              SELECT 1 FROM pg_constraint
+              WHERE conname = 'birth_profiles_coordinates_pair_check'
+            ) THEN
+              RAISE EXCEPTION 'Missing birth profile coordinate constraint';
+            END IF;
+          END
+          $audit$;
+
+          SELECT
+            'DB_SCHEMA_AUDIT_OK tables=' ||
+            count(*) FILTER (WHERE c.relkind = 'r') ||
+            ' rls_enabled=' ||
+            count(*) FILTER (WHERE c.relkind = 'r' AND c.relrowsecurity)
+          FROM pg_class c
+          JOIN pg_namespace n ON n.oid = c.relnamespace
+          WHERE n.nspname = 'public'
+            AND c.relname IN (
+              'users', 'birth_profiles', 'tarot_readings', 'natal_charts',
+              'ai_conversations', 'ai_messages', 'ai_daily_usage',
+              'daily_horoscopes', 'horoscope_preferences'
+            );
+          SQL
+          unset PGPASSWORD
+
       - name: Check application readiness
         shell: bash
         run: |
