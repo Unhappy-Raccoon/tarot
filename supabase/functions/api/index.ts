@@ -29,12 +29,7 @@ function safeDiagnostic(value: string): string {
 // implemented by the Supabase Edge Runtime's Node HTTP compatibility layer.
 // Supplying the server explicitly avoids that unsupported call while keeping
 // Fastify's inject-based routing adapter.
-const edgeServerFactory: FastifyServerFactory = (handler, options) => {
-  const server = createServer(options.http, handler);
-  server.keepAliveTimeout = options.keepAliveTimeout;
-  server.requestTimeout = options.requestTimeout;
-  return server;
-};
+const edgeServerFactory: FastifyServerFactory = (handler) => createServer(handler);
 
 let appPromise: Promise<FastifyApp> | null = null;
 
