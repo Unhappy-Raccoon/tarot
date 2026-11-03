@@ -171,7 +171,7 @@ jobs:
           echo "::add-mask::$cron_secret"
           secret_file="${RUNNER_TEMP}/horoscope-cron-secret.env"
           trap 'rm -f "$secret_file"; unset cron_secret PGPASSWORD' EXIT
-          printf 'HOROSCOPE_CRON_SECRET=%s\\n' "$cron_secret" > "$secret_file"
+          printf 'HOROSCOPE_CRON_SECRET=%s\n' "$cron_secret" > "$secret_file"
           chmod 600 "$secret_file"
           supabase secrets set --env-file "$secret_file" --project-ref "$SUPABASE_PROJECT_ID"
 
