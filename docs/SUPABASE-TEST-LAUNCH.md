@@ -13,20 +13,31 @@
 
 VPS не нужен. Supabase предоставляет управляемую PostgreSQL и serverless-функции, но не запускает произвольный постоянно работающий Docker/Node.js-процесс как VPS.
 
-## Важный текущий статус
+## Важный текущий статус — проверено 2026-11-03
 
-В ветке `feat/supabase-edge-runtime` подготовлены Supabase CLI config, PostgreSQL migrations, GitHub Pages workflow, Fastify-inject адаптер для API, Telegram webhook, Cron worker, claim-колонки и тесты security helper. Сборка Node workspace перед deploy создаёт `apps/server/dist`, откуда Edge Functions импортируют текущие серверные модули. Полный live deploy ещё не выполнен; Deno check и проверка работы Fastify/Postgres.js/grammY/Astronomy Engine в hosted Edge Runtime обязательны.
+Тестовый Supabase project `uayoqicecdtcxouwsprh` уже создан и подключён. Семь миграций применены; повторный CLI dry run не обнаруживает pending migrations. Последний аудит PostgreSQL проверил девять прикладных таблиц, RLS, индексы, ограничения и расширения.
 
-Перед реальным запуском остаются внешняя настройка Supabase/Pages и проверки в hosted runtime:
+Подтверждённые результаты:
+- Все 9 прикладных таблиц существуют, RLS включён на каждой; публичных RLS policies — 0.
+- Session Pooler доступен из Supabase Edge Runtime; `DATABASE_URL` автоматически формируется deploy workflow из GitHub Secret `SUPABASE_DB_PASSWORD`. Пароль URL-кодируется и не выводится в лог.
+- Edge Functions `api`, `telegram-webhook`, `process-horoscope-notifications` развернуты.
+- `/health`, `/api/tarot/spreads` и `/health/ready` возвращают HTTP 200.
+- Проверены Telegram/auth/cron secret guards и CORS: неавторизованные запросы и посторонний Origin отклоняются.
+- `pg_cron`, `pg_net`, Supabase Vault присутствуют; Cron job запланирован. Последний worker callback вернул HTTP 200 с `sent=0, skipped=0, failed=0` — в тот момент не было пользователей с due notification.
+- Node/TypeScript/Deno, серверные unit-тесты, security tests и production build проходят CI.
 
-1. Установить Node.js по `.nvmrc`, выполнить `npm install`, затем `npm run build`. Edge Functions импортируют собранный `apps/server/dist`, поэтому сборка обязательна перед каждым deploy.
-2. Выполнить `deno check --config supabase/functions/deno.json ...` и `deno test --config supabase/functions/deno.json supabase/functions/_shared/security.test.ts`. CI запускает эти проверки на ветке.
-3. Подключить тестовый Supabase project и применить семь миграций.
-4. Настроить secrets, деплой Edge Functions, Telegram Webhook и Cron по разделам ниже.
-5. В Supabase Edge Runtime проверить реальную работу Fastify `app.inject()`, PostgreSQL pooler, grammY, OpenAI и Astronomy Engine. Активное CPU-время Edge Function ограничено 2 секундами на запрос; полный лимит и wall-clock timeout зависят от плана. См. [Edge Functions limits](https://supabase.com/docs/guides/functions/limits).
-6. Для публичного GitHub Pages deployment задать repository Actions variable `VITE_API_URL` со значением `https://<PROJECT_REF>.supabase.co/functions/v1/api`.
+Проверочные журналы:
+- [Deploy Edge Functions и настройка Cron/Vault — #41669561604](https://github.com/Unhappy-Raccoon/tarot/actions/runs/41669561604)
+- [Полный DB/RLS/API/Auth/CORS/Cron smoke test — #41669991337](https://github.com/Unhappy-Raccoon/tarot/actions/runs/41669991337)
+- [CI — #41671460540](https://github.com/Unhappy-Raccoon/tarot/actions/runs/41671460540)
 
-Не считать окружение deployed до реальной публикации и проверки /health/ready, Telegram webhook и Pages.
+**Единственный внешний blocker публикации WebApp сейчас — GitHub Pages не включён в настройках репозитория.** Сборка Pages проходит, но `actions/deploy-pages` возвращает HTTP 404 с подсказкой включить Pages. Владелец репозитория должен открыть **Settings → Pages → Build and deployment → Source → GitHub Actions**. После этого нужно повторно запустить guarded Pages publish workflow.
+
+Успешная Pages публикация автоматически вызовет защищённый Supabase endpoint `telegram-webhook/configure`. Он проверит bot token через Telegram `getMe`, установит webhook, bot commands и Mini App menu, затем проверит `getWebhookInfo`. До успешной публикации Pages этот шаг намеренно не запускается.
+
+OpenAI readiness check подтверждает наличие серверной AI configuration, но реальный Responses API запрос ещё не выполнялся. После публикации и входа в WebApp нужно сделать один небольшой тестовый запрос AI. Реальная Telegram авторизация и пользовательские сценарии Таро/натальной карты/гороскопа также пока не проверены сквозным тестом.
+
+Payments / Telegram Stars выключены. Не приглашать внешних тестировщиков до подготовки и проверки privacy notice / terms: приложение сохраняет дату/время/место рождения и текст AI-диалогов.
 
 ## 1. Создать Supabase project
 
@@ -98,7 +109,7 @@ supabase secrets set --env-file .env.supabase
 
 ## 4. Опубликовать WebApp через GitHub Pages
 
-В репозитории открой Settings → Pages и выбери **GitHub Actions** как Build and deployment source. После отдельного утверждения реализации workflow будет собирать WebApp из `apps/web` и публиковать `apps/web/dist`. Для проекта `Unhappy-Raccoon/tarot` ожидаемый адрес — `https://unhappy-raccoon.github.io/tarot/`.
+В репозитории открой **Settings → Pages → Build and deployment → Source** и выбери **GitHub Actions**. Это обязательная настройка: пока Pages не включён, `actions/deploy-pages` отвечает HTTP 404. Ожидаемый адрес WebApp — `https://unhappy-raccoon.github.io/tarot/`.
 
 Настройки workflow:
 - Node.js: версия из `.nvmrc`.
@@ -106,7 +117,7 @@ supabase secrets set --env-file .env.supabase
 - Repository Actions variable `VITE_API_URL=https://<PROJECT_REF>.supabase.co/functions/v1/api`.
 - Vite base path `VITE_BASE_PATH=/tarot/`.
 
-Ветка содержит `.github/workflows/pages.yml`: при push она собирает и сохраняет Pages artifact без публикации. Публикация защищена ручным запуском workflow_dispatch с `publish=yes` только из `main`, чтобы feature branch не выкладывала незавершённую версию. В Settings → Pages выбрать **GitHub Actions**. В Settings → Secrets and variables → Actions → Variables добавить `VITE_API_URL` со значением `https://<PROJECT_REF>.supabase.co/functions/v1/api`. После интеграции изменений в main ручной запуск workflow опубликует `apps/web/dist` по адресу `https://unhappy-raccoon.github.io/tarot/`. Передать этот URL как `TELEGRAM_WEBAPP_URL`, а origin без пути — `WEBAPP_ORIGIN=https://unhappy-raccoon.github.io` в Supabase secrets.
+Текущий `.github/workflows/pages.yml` собирает WebApp из feature branch; тестовая публикация защищена одноразовым файлом `.github/deploy-requests/publish-pages.txt` со значением `PUBLISH_TO_TEST` и commit message с `[publish-pages]`. Push и PR используют разные concurrency groups, чтобы PR build не отменял публикацию. Workflow проверяет `VITE_API_URL` на соответствие тестовому Supabase project. После успешного deploy Pages workflow автоматически настраивает Telegram webhook и Mini App menu через защищённую Edge Function. Переменная `VITE_API_URL` по умолчанию указывает на API тестового проекта; менять её на другой URL нельзя без согласованного изменения project target.
 
 ## 5. Развернуть Edge Functions
 
@@ -151,14 +162,14 @@ URL:
 - Telegram webhook: `https://<PROJECT_REF>.supabase.co/functions/v1/telegram-webhook`
 - Scheduler worker: `https://<PROJECT_REF>.supabase.co/functions/v1/process-horoscope-notifications`
 
-После деплоя Edge Functions выполнить локально `npm run configure:supabase:telegram`. Скрипт читает `.env.supabase`, вызывает Telegram `setWebhook`, `setMyCommands` и `setChatMenuButton`; он не выводит token и secret в лог. Затем проверить `getWebhookInfo` через Telegram Bot API и убедиться, что webhook установлен без ошибок доставки.
+Telegram bot setup сейчас запускается post-deploy шагом Pages workflow после успешной публикации WebApp. Владелец не должен вручную запускать старый локальный `npm run configure:supabase:telegram`: автоматический шаг вызывает защищённый endpoint `/functions/v1/telegram-webhook/configure`, который использует Edge secrets, выполняет Telegram `getMe`, `setWebhook`, `setMyCommands`, `setChatMenuButton` и проверяет `getWebhookInfo`. Результат будет виден в журнале Pages deployment.
 
 ## 6. Включить расписание уведомлений
 
-1. В Supabase Dashboard включить расширения `pg_cron` и `pg_net`, если они ещё не включены.
-2. В SQL Editor выполнить инструкции из `supabase/cron/schedule-horoscope-notifications.sql.example`: положить `PROJECT_URL` и `HOROSCOPE_CRON_SECRET` в Supabase Vault и создать cron job раз в минуту.
-3. Worker использует атомарный UPDATE для claim пользователя/локальной даты и ограничивает пачку тремя уведомлениями. Ошибка до обращения к Telegram освобождает claim; если результат Telegram send неизвестен, claim сохраняется до истечения 10-минутной lease, чтобы немедленный retry не создал дубль. При сетевом сбое после фактической доставки exactly-once гарантия внешнего Telegram API невозможна.
-4. Проверить `cron.job`, `cron.job_run_details`, логи Edge Function и отсутствие повторной отправки одного уведомления за локальную дату пользователя.
+1. Расширения `pg_cron` и `pg_net` и два Vault secrets уже созданы deploy workflow.
+2. Workflow создаёт/обновляет Cron job `pcj-horoscope-notifications` с запуском раз в минуту и вызывает `process-horoscope-notifications` с `x-cron-secret`.
+3. Последний аудит подтвердил scheduled job, Vault secrets и последний callback HTTP 200: `{\"ok\":true,\"sent\":0,\"skipped\":0,\"failed\":0}`. Для фактической проверки доставки нужно включить notifications в тестовом Telegram-профиле и дождаться due local time.
+4. Worker использует атомарный UPDATE для claim пользователя/локальной даты и ограничивает пачку тремя уведомлениями. Ошибка до обращения к Telegram освобождает claim; если результат Telegram send неизвестен, claim сохраняется до истечения 10-минутной lease, чтобы немедленный retry не создал дубль. Exactly-once гарантия внешнего Telegram API невозможна при потере ответа после принятой доставки.
 
 Supabase рекомендует ограничивать параллельность Cron jobs и длительность каждого задания; worker должен обрабатывать ограниченную порцию пользователей за вызов и корректно продолжать при следующем запуске. См. [Supabase Cron](https://supabase.com/docs/guides/cron).
 
@@ -178,12 +189,11 @@ Supabase рекомендует ограничивать параллельно�
 
 ## 8. Что требуется от владельца проекта
 
-1. Создать Supabase project и сохранить Project Ref, Database password и Session pooler connection string у себя.
-2. Создать/подтвердить токен для `@my_first_tarot_test_bot`.
-3. Создать OpenAI API key и выбрать модель.
-4. Иметь права администратора/maintainer репозитория, чтобы включить GitHub Pages в Settings → Pages и добавить Actions variable `VITE_API_URL`.
-5. Выполнить вход в Supabase CLI на машине, где будет выполняться deploy, либо предоставить доступ через подходящий безопасный интеграционный механизм. Секреты в чат не передавать.
+1. Включить GitHub Pages в репозитории: **Settings → Pages → Build and deployment → Source → GitHub Actions**. Без этого деплой завершится HTTP 404.
+2. После включения Pages дать знать, чтобы повторно запустить guarded Pages deployment. Workflow затем автоматически настроит и проверит Telegram webhook и Mini App menu.
+3. После публикации открыть бота `@my_first_tarot_test_bot`, отправить `/start`, запустить Mini App и выполнить первый smoke test пользовательского сценария.
+4. Для внешнего тестирования отдельно утвердить privacy notice / terms. Пароли, Telegram token и OpenAI key в чат не присылать.
 
 ## Текущее ограничение объёма работ
 
-Кодовые адаптеры Fastify API, Telegram Webhook и Cron worker добавлены в `supabase/functions/`; существующие серверные маршруты переиспользуются после сборки в `apps/server/dist`. GitHub Pages workflow и настройки Vite также добавлены. Реальный deploy, проверка runtime совместимости и работа с настоящими секретами не выполнялись: для них требуется отдельный Supabase project, локальная авторизация CLI и заполнение `.env.supabase` владельцем проекта. Ветка не содержит production/test secrets и не создаёт Supabase project от имени пользователя.
+Кодовые адаптеры Fastify API, Telegram Webhook и Cron worker работают в hosted Supabase Edge Runtime; текущий test project подключён и проходит database/RLS/auth/CORS/Cron smoke test. Supabase secrets устанавливаются защищённым GitHub Actions workflow. GitHub Pages artifact собирается, но публикация блокируется выключенной Pages setting (HTTP 404). После включения Pages остаются Telegram webhook setup, реальная авторизация через `/start`, один тест AI Responses API и пользовательский E2E walkthrough. Ветка не содержит production/test secrets; пароль базы и AI key не публикуются в логах или frontend.
