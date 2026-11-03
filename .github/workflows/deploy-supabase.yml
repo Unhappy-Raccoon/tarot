@@ -57,19 +57,20 @@ jobs:
           stage="${INPUT_STAGE:-validate}"
           confirmation="${INPUT_CONFIRMATION:-}"
           if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
+            commit_message="$(jq -r '.head_commit.message // ""' "$GITHUB_EVENT_PATH")"
             changed_files="$(jq -r '[.head_commit.added[]?, .head_commit.modified[]?, .head_commit.removed[]?] | .[]' "$GITHUB_EVENT_PATH")"
             request_file=""
-            if grep -Fxq ".github/deploy-requests/apply-migrations.txt" <<< "$changed_files"; then
+            if [[ "$commit_message" == *"[apply-migrations]"* ]] || grep -Fxq ".github/deploy-requests/apply-migrations.txt" <<< "$changed_files"; then
               stage="apply-migrations"
               request_file=".github/deploy-requests/apply-migrations.txt"
-            elif grep -Fxq ".github/deploy-requests/deploy-functions.txt" <<< "$changed_files"; then
+            elif [[ "$commit_message" == *"[deploy-functions]"* ]] || grep -Fxq ".github/deploy-requests/deploy-functions.txt" <<< "$changed_files"; then
               stage="deploy-functions"
               request_file=".github/deploy-requests/deploy-functions.txt"
             else
               stage="validate"
             fi
             if [[ -n "$request_file" ]]; then
-              if [[ ! -f "$request_file" ]] || [[ "$(cat "$request_file")" != "DEPLOY_TO_TEST" ]]; then
+              if [[ ! -f "$request_file" ]] || [[ "$(tr -d '\r\n' < "$request_file")" != "DEPLOY_TO_TEST" ]]; then
                 echo "Deployment request file must contain exactly DEPLOY_TO_TEST."
                 exit 1
               fi
