@@ -1,3 +1,11 @@
+## 2026-11-03 — GitHub Actions deployment for the Supabase test project
+
+- Added `.github/workflows/deploy-supabase.yml` with three manual stages: `validate` (link project + migration dry run), `apply-migrations`, and `deploy-functions`.
+- The workflow is restricted to `feat/supabase-edge-runtime` and the confirmed test Project Ref `uayoqicecdtcxouwsprh`; write stages require the explicit typed confirmation `DEPLOY_TO_TEST`.
+- CI needs only two GitHub Actions Secrets (`SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`) and one Repository Variable (`SUPABASE_PROJECT_ID`). Application secrets are configured directly in Supabase Dashboard, not duplicated in GitHub.
+- The workflow uses the official Supabase CLI setup action pinned to the stable v2 channel, avoiding the CLI v3 hosted-mutation behavior change until it is separately reviewed.
+- No migrations, secrets, functions or Pages were deployed by adding this workflow. The next operation is the read-only `validate` stage after credentials are stored in GitHub.
+
 ## 2026-11-02 — Supabase database pooler compatibility correction
 
 - Runtime review found that the earlier runbook recommended Supabase shared Transaction Pooler for `postgres.js`. Supabase documents that its pipelining can hang or mismatch responses in transaction mode; disabling prepared statements does not disable pipelining, while `max_pipeline: 0` breaks `sql.begin()` used by the AI conversation transaction.
