@@ -1,5 +1,5 @@
 name: Supabase hosted smoke test
-# Verify Edge API, PostgreSQL schema, RLS, Telegram guards, Cron schedule and readiness.
+# Verify Edge API, PostgreSQL schema, RLS, Telegram setup guard, Cron delivery and readiness.
 
 on:
   push:
@@ -284,6 +284,7 @@ jobs:
 
           assert_status 401 --request POST --header 'content-type: application/json' --data '{"update_id":1}' "$webhook_url"
           assert_status 401 --request POST --header 'content-type: application/json' --data '{}' "$worker_url"
+          assert_status 401 --request POST --header 'content-type: application/json' --data '{}' "$webhook_url/configure"
 
           cors_status="$(curl --silent --show-error --max-time 20 --dump-header "$header_file" --output "$body_file" --write-out '%{http_code}' \
             --request OPTIONS --header 'Origin: https://unhappy-raccoon.github.io' \
