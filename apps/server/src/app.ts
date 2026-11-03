@@ -1,5 +1,5 @@
 import { getRuntimeEnv } from "./config/env.js";
-import Fastify, { type FastifyRequest } from "fastify";
+import Fastify, { type FastifyRequest, type FastifyServerFactory } from "fastify";
 import { checkDatabaseReadiness } from "./db/index.js";
 import { createSessionToken, verifySessionToken } from "./auth/session.js";
 import { validateTelegramInitData } from "./auth/telegram-init-data.js";
@@ -46,6 +46,7 @@ interface AppOptions {
   botToken?: string;
   sessionSecret?: string;
   webAppOrigin?: string;
+  serverFactory?: FastifyServerFactory;
   aiProvider?: AIChatProvider | null;
   aiFreeDailyLimit?: number;
   aiPremiumDailyLimit?: number;
@@ -120,6 +121,7 @@ function normalizeOptionalString(
 
 export function buildApp(options: AppOptions = {}) {
   const app = Fastify({
+    ...(options.serverFactory ? { serverFactory: options.serverFactory } : {}),
     logger: {
       level: getRuntimeEnv("LOG_LEVEL") ?? "info",
       redact: [
