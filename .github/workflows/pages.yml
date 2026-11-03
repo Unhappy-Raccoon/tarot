@@ -34,6 +34,7 @@ on:
 permissions:
   contents: read
 
+# Test publication is gated by the one-time PUBLISH_TO_TEST request marker.
 concurrency:
   group: github-pages-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
