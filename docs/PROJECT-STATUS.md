@@ -26,7 +26,7 @@
 | Telegram daily horoscope notifications | Opt-in preferences + Supabase Cron worker with atomic per-user/date claims implemented in PR #7; hosted delivery not verified |
 | Telegram Stars payments | Not implemented |
 | MVP stabilization / test launch | Technical preparation user-approved (2026-11-02); VPS plan superseded by Supabase target |
-| Supabase test deployment adaptation | Code and staged GitHub Actions workflow implemented on `feat/supabase-edge-runtime`; CI passed Node + Deno checks, API Docker and Compose; awaiting GitHub Actions secrets and first hosted validation run |
+| Supabase test deployment adaptation | Seven Supabase migrations applied to test Project `uayoqicecdtcxouwsprh`; post-deploy dry run confirms database up to date; Edge Functions and runtime smoke tests pending |
 | WebApp hosting target | GitHub Pages selected and workflow added; manual publish is guarded to `main` after integration and explicit dispatch |
 | Production deployment | Not configured; a real test deployment still requires operator secrets and domains |
 
