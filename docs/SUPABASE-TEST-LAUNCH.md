@@ -31,7 +31,7 @@ VPS не нужен. Supabase предоставляет управляемую 
 - [Полный DB/RLS/API/Auth/CORS/Cron smoke test — #41669991337](https://github.com/Unhappy-Raccoon/tarot/actions/runs/41669991337)
 - [CI — #41671460540](https://github.com/Unhappy-Raccoon/tarot/actions/runs/41671460540)
 
-**Единственный внешний blocker публикации WebApp сейчас — GitHub Pages не включён в настройках репозитория.** Сборка Pages проходит, но `actions/deploy-pages` возвращает HTTP 404 с подсказкой включить Pages. Владелец репозитория должен открыть **Settings → Pages → Build and deployment → Source → GitHub Actions**. После этого нужно повторно запустить guarded Pages publish workflow.
+**Внешний blocker публикации WebApp сейчас — GitHub deployment gate окружения `github-pages`.** Сборка Pages проходит, artifact загружается, но deploy-job завершается до запуска runner (`runner_id=0`, `steps=[]`, `pending_deployments=[]`). Это указывает на отказ до выполнения job; наиболее вероятно, deployment-branch policy окружения не разрешает `feat/supabase-edge-runtime`. Проверь **Settings → Environments → github-pages → Deployment branches and tags** и добавь точное правило для ветки `feat/supabase-edge-runtime` (не отключая ограничения для остальных веток). Дополнительно проверь **Settings → Pages → Build and deployment → Source → GitHub Actions**. После этого нужно повторно создать одноразовый marker и запустить guarded Pages publish workflow.
 
 Успешная Pages публикация автоматически вызовет защищённый Supabase endpoint `telegram-webhook/configure`. Он проверит bot token через Telegram `getMe`, установит webhook, bot commands и Mini App menu, затем проверит `getWebhookInfo`. До успешной публикации Pages этот шаг намеренно не запускается.
 
