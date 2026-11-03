@@ -652,11 +652,22 @@ export function buildApp(options: AppOptions = {}) {
       if (error instanceof AIProviderError) {
         request.log.warn({
           aiErrorCode: error.code,
+          providerHttpStatus: error.httpStatus,
+          providerErrorCode: error.providerCode,
           providerRequestId: error.requestId,
         }, "AI provider request failed");
+        const message = error.providerCode === "invalid_api_key" || error.httpStatus === 401
+          ? "AI-сервис отклонил ключ доступа. Администратору нужно проверить подключение провайдера."
+          : error.providerCode === "insufficient_quota"
+            ? "У AI-сервиса закончилась доступная квота. Попробуй позже."
+            : error.providerCode === "model_not_found" || error.httpStatus === 404
+              ? "Выбранная AI-модель недоступна. Администратору нужно проверить её название и доступ."
+              : error.code === "timeout"
+                ? "Астролог не успел подготовить ответ. Попробуй отправить более короткий вопрос."
+                : "Астролог временно не может ответить. Попробуй ещё раз немного позже.";
         return reply.code(503).send({
           error: "ai_provider_unavailable",
-          message: "Астролог сейчас не может ответить. Попробуй ещё раз немного позже.",
+          message,
         });
       }
       request.log.error({ errorCode: "ai_chat_unavailable" }, "Unable to complete AI chat request");
