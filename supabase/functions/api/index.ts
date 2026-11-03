@@ -1,3 +1,5 @@
+import { createServer } from "node:http";
+import type { FastifyServerFactory } from "fastify";
 import { normalizeApiPath } from "./path.ts";
 
 type FastifyApp = {
@@ -23,6 +25,17 @@ function safeDiagnostic(value: string): string {
     .slice(0, 1200);
 }
 
+// Fastify's default server factory calls Server.setTimeout(0), which is not
+// implemented by the Supabase Edge Runtime's Node HTTP compatibility layer.
+// Supplying the server explicitly avoids that unsupported call while keeping
+// Fastify's inject-based routing adapter.
+const edgeServerFactory: FastifyServerFactory = (handler, options) => {
+  const server = createServer(options.http, handler);
+  server.keepAliveTimeout = options.keepAliveTimeout;
+  server.requestTimeout = options.requestTimeout;
+  return server;
+};
+
 let appPromise: Promise<FastifyApp> | null = null;
 
 async function getApp(): Promise<FastifyApp> {
@@ -35,6 +48,7 @@ async function getApp(): Promise<FastifyApp> {
         botToken: Deno.env.get("TELEGRAM_BOT_TOKEN"),
         sessionSecret: Deno.env.get("SESSION_SECRET"),
         webAppOrigin: Deno.env.get("WEBAPP_ORIGIN"),
+        serverFactory: edgeServerFactory,
       }) as FastifyApp;
       await app.ready();
       return app;
