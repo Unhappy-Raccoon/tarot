@@ -152,7 +152,7 @@ jobs:
           )
           path = sys.argv[1]
           with open(path, "w", encoding="utf-8") as secret_file:
-              secret_file.write(f"DATABASE_URL={database_url}\\n")
+              secret_file.write(f"DATABASE_URL={database_url}\n")
           os.chmod(path, 0o600)
           PY
           supabase secrets set --env-file "$env_file" --project-ref "$SUPABASE_PROJECT_ID"
