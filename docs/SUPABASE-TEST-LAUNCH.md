@@ -122,8 +122,10 @@ supabase secrets set --env-file .env.supabase
 Workflow `.github/workflows/deploy-supabase.yml` автоматически запускает безопасный `validate` при изменении самого workflow в ветке `feat/supabase-edge-runtime`. Это нужно, поскольку GitHub показывает ручной `workflow_dispatch` только после появления файла workflow в default branch; мы намеренно пока не меняем `main`. После интеграции workflow в default branch появится возможность запускать все три режима через Actions → Deploy Supabase test environment → Run workflow. Он поддерживает три раздельных режима:
 
 1. `validate` — связывает CLI с ожидаемым test project и показывает pending migrations через dry run; удалённую схему не изменяет.
-2. `apply-migrations` — сначала показывает dry run, затем применяет миграции. В поле Confirmation необходимо ввести `DEPLOY_TO_TEST`.
-3. `deploy-functions` — собирает приложение, выполняет Deno type check и развёртывает три Edge Functions. До запуска этого этапа сначала добавь Runtime Secrets в Supabase Dashboard. В поле Confirmation также требуется `DEPLOY_TO_TEST`.
+2. `apply-migrations` — сначала показывает dry run, затем применяет миграции. Для ручного запуска требуется `DEPLOY_TO_TEST`.
+3. `deploy-functions` — собирает приложение, выполняет Deno type check и развёртывает три Edge Functions. До запуска этого этапа сначала добавь Runtime Secrets в Supabase Dashboard. Для ручного запуска также требуется `DEPLOY_TO_TEST`.
+
+Поскольку feature workflow пока не интегрирован в default branch, ручной `workflow_dispatch` из GitHub UI ещё не доступен. Для текущей feature-ветки предусмотрен однократный push-trigger через файл-запрос: `.github/deploy-requests/apply-migrations.txt` или `.github/deploy-requests/deploy-functions.txt`, содержащий ровно `DEPLOY_TO_TEST`. Такой файл добавляется отдельным commit только после явного согласия владельца проекта; его добавление само запускает соответствующий изменяющий этап. Обычные обновления workflow по-прежнему запускают только read-only validate.
 
 Workflow жёстко ограничен test project ref `uayoqicecdtcxouwsprh` и веткой `feat/supabase-edge-runtime`. Он не запускается из `main` и не сливает PR. Для CI используется Supabase CLI v2 stable через официальный `supabase/setup-cli` action; это избегает неявного перехода на CLI v3 с изменённым поведением hosted mutations. В CI все mutating commands выполняются с явным `--yes` после ручного выбора соответствующего stage. См. [Supabase CLI v3 migration guide](https://supabase.com/docs/guides/local-development/cli/migrating-to-v3).
 
