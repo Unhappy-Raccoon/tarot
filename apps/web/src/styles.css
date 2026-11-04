@@ -1301,3 +1301,438 @@ button { -webkit-tap-highlight-color: transparent; }
   .astrologer-screen .page-heading .back-button { top: .12rem; }
   .ai-chat-thread { min-height: 13rem; }
 }
+
+
+/* Approved render alignment — home, navigation and product surfaces */
+:root {
+  --color-night: #0b0a12;
+  --color-indigo: #1b1630;
+  --color-cosmic-violet: #6d5ae6;
+  --color-lavender: #b9a6ff;
+  --color-milk: #f6e8da;
+  --color-gold: #d9b98f;
+  --line: rgb(217 185 143 / 20%);
+  --muted: rgb(246 232 218 / 62%);
+  --surface: rgb(27 22 48 / 82%);
+  --surface-raised: rgb(35 27 57 / 94%);
+}
+
+body {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgb(109 90 230 / 12%), transparent 36%),
+    radial-gradient(ellipse at 0% 80%, rgb(27 22 48 / 38%), transparent 44%),
+    radial-gradient(ellipse at 100% 60%, rgb(58 39 78 / 18%), transparent 40%),
+    var(--color-night);
+}
+body::before {
+  background-image:
+    radial-gradient(1px 1px at 9% 18%, rgb(246 232 218 / 42%) 50%, transparent 100%),
+    radial-gradient(1px 1px at 84% 11%, rgb(217 185 143 / 35%) 50%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 70% 62%, rgb(246 232 218 / 26%) 50%, transparent 100%),
+    radial-gradient(1px 1px at 32% 49%, rgb(185 166 255 / 28%) 50%, transparent 100%),
+    radial-gradient(1px 1px at 94% 82%, rgb(217 185 143 / 25%) 50%, transparent 100%);
+  opacity: .72;
+}
+
+.app-frame {
+  width: min(100%, 32rem);
+  padding-bottom: calc(5.1rem + env(safe-area-inset-bottom));
+}
+.app-content { min-width: 0; }
+.home-screen {
+  gap: .82rem;
+  padding: calc(.9rem + env(safe-area-inset-top)) 1.1rem 1.15rem;
+}
+.home-header {
+  justify-items: stretch;
+  padding: .1rem .1rem .3rem;
+  text-align: left;
+}
+.home-moon {
+  justify-self: center;
+  width: 4.6rem;
+  height: 4.6rem;
+  margin-bottom: .55rem;
+  border-color: rgb(217 185 143 / 12%);
+  background: radial-gradient(circle, rgb(217 185 143 / 10%), transparent 72%);
+  box-shadow: 0 0 42px rgb(109 90 230 / 13%);
+}
+.moon-crescent {
+  font-size: 3rem;
+  text-shadow: 0 0 28px rgb(217 185 143 / 26%);
+}
+.home-header h1 {
+  margin: .25rem 0 .12rem;
+  font: 400 clamp(1.8rem, 7.3vw, 2.25rem)/1.15 "Playfair Display", Georgia, serif;
+  letter-spacing: -.025em;
+}
+.home-header > p { font-size: .79rem; }
+.home-settings {
+  top: .55rem;
+  right: .2rem;
+  width: 2.25rem;
+  height: 2.25rem;
+}
+.daily-card {
+  min-height: 9.7rem;
+  padding: 1.12rem;
+  border-color: rgb(217 185 143 / 44%);
+  border-radius: 1.12rem;
+  background:
+    linear-gradient(90deg, rgb(18 13 30 / 94%) 0%, rgb(18 13 30 / 77%) 48%, rgb(18 13 30 / 18%) 100%),
+    url("/images/home-card-clouds.webp") right center / 62% 100% no-repeat,
+    radial-gradient(ellipse at 76% 20%, rgb(185 166 255 / 24%), transparent 44%),
+    linear-gradient(135deg, #261b3a, #100d1b 80%);
+  box-shadow: 0 12px 34px rgb(0 0 0 / 25%), inset 0 1px 0 rgb(255 255 255 / 4%);
+  isolation: isolate;
+}
+.daily-card::after {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(180deg, transparent 54%, rgb(8 7 17 / 34%));
+  content: "";
+}
+.daily-card__front { gap: .52rem; max-width: 76%; }
+.daily-card__eyebrow { font-size: .54rem; letter-spacing: .16em; }
+.serif-title { font-size: 1.75rem; }
+.daily-card__copy { max-width: 12rem; font-size: .75rem; line-height: 1.45; }
+.round-arrow {
+  width: 2.15rem;
+  height: 2.15rem;
+  margin-top: .1rem;
+  border: 0;
+  background: #e6d0ba;
+  color: #231a2c;
+  font-size: 1rem;
+}
+.quick-section { gap: .62rem; }
+.quick-section .section-heading-row { align-items: baseline; }
+.quick-section .section-heading-row h2 { font-size: 1rem; }
+.section-caption { color: rgb(246 232 218 / 42%); font-size: .5rem; }
+.quick-grid { gap: .52rem; }
+.quick-tile {
+  min-height: 5.45rem;
+  padding: .55rem .3rem;
+  border-color: rgb(185 166 255 / 10%);
+  border-radius: .9rem;
+  background: linear-gradient(145deg, rgb(35 27 57 / 95%), rgb(18 14 30 / 98%));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 3%);
+  font-size: .65rem;
+}
+.quick-tile__icon {
+  color: var(--color-milk);
+  font-size: 1.5rem;
+  text-shadow: 0 0 15px rgb(185 166 255 / 18%);
+}
+.streak-card {
+  gap: .65rem;
+  padding: .7rem .8rem;
+  border-color: rgb(185 166 255 / 12%);
+  border-radius: .9rem;
+  background: linear-gradient(120deg, rgb(39 29 61 / 96%), rgb(19 15 31 / 96%));
+}
+.streak-flame {
+  display: grid;
+  place-items: center;
+  flex: 0 0 2.3rem;
+  width: 2.3rem;
+  height: 2.3rem;
+  border-radius: 50%;
+  background: rgb(217 185 143 / 9%);
+  color: #eec69d;
+  font-size: 1.35rem;
+}
+.streak-text strong { font: 400 .9rem "Playfair Display", Georgia, serif; }
+.streak-text small { font-size: .6rem; }
+.streak-track { gap: .18rem; }
+.streak-track i { width: 1rem; height: 4px; }
+.streak-track i:first-child,
+.streak-track i:nth-child(2) { background: var(--color-lavender); }
+.streak-value { font-size: .6rem; }
+.horoscope-link {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  min-height: 3.25rem;
+  padding: .55rem .72rem;
+  border: 1px solid rgb(217 185 143 / 13%);
+  border-radius: .82rem;
+  background: rgb(18 15 30 / 76%);
+  color: var(--color-milk);
+  text-align: left;
+  cursor: pointer;
+}
+.horoscope-link__icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 2rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: .65rem;
+  background: rgb(109 90 230 / 12%);
+  color: var(--color-gold);
+  font: 1.2rem Georgia, serif;
+}
+.horoscope-link > span:nth-child(2) { display: grid; flex: 1; gap: .1rem; }
+.horoscope-link strong { font: 400 .8rem "Playfair Display", Georgia, serif; }
+.horoscope-link small { color: var(--muted); font-size: .57rem; }
+.horoscope-link__arrow { color: var(--color-gold); }
+.home-footnote { font-size: .48rem; opacity: .7; }
+
+.bottom-nav {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  min-height: calc(4.35rem + env(safe-area-inset-bottom));
+  padding: .4rem .55rem calc(.4rem + env(safe-area-inset-bottom));
+  border-top-color: rgb(217 185 143 / 14%);
+  background: rgb(8 7 17 / 94%);
+  box-shadow: 0 -12px 34px rgb(0 0 0 / 20%);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+}
+.bottom-nav--5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.nav-button {
+  min-height: 3.2rem;
+  gap: .12rem;
+  color: rgb(246 232 218 / 56%);
+}
+.nav-button > span { font-size: 1.35rem; }
+.nav-button small { font-size: .58rem; }
+.nav-button.active { color: var(--color-milk); }
+.nav-button.active > span {
+  color: var(--color-gold);
+  text-shadow: 0 0 15px rgb(217 185 143 / 28%);
+}
+
+.page-screen {
+  gap: .9rem;
+  padding: calc(.95rem + env(safe-area-inset-top)) 1.08rem 1.5rem;
+}
+.page-brand { padding-bottom: .3rem; }
+.page-brand__moon { font-size: 2.25rem; }
+.page-brand__wordmark strong { font-size: 1rem; }
+.page-heading h1 {
+  font-size: clamp(1.72rem, 7.2vw, 2.15rem);
+  letter-spacing: -.018em;
+}
+.page-description { font-size: .76rem; line-height: 1.52; }
+
+/* Tarot selection — large horizontal cards with ornate card art on the right */
+.tarot-spread-list { gap: .68rem; }
+.spread-card {
+  position: relative;
+  grid-template-columns: minmax(0, 1fr) 5.5rem;
+  min-height: 9.5rem;
+  gap: .4rem;
+  padding: .9rem;
+  overflow: hidden;
+  border-color: rgb(185 166 255 / 16%);
+  border-radius: .95rem;
+  background:
+    radial-gradient(ellipse at 95% 50%, rgb(109 90 230 / 15%), transparent 42%),
+    linear-gradient(145deg, rgb(37 27 58 / 95%), rgb(14 11 24 / 98%));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 3%), 0 9px 26px rgb(0 0 0 / 15%);
+}
+.spread-card__art {
+  grid-column: 2;
+  grid-row: 1;
+  min-height: 7.2rem;
+  align-self: stretch;
+  border-color: rgb(217 185 143 / 36%);
+  border-radius: .55rem;
+  background:
+    radial-gradient(circle at 50% 50%, rgb(109 90 230 / 30%), transparent 56%),
+    repeating-radial-gradient(circle at 50% 50%, transparent 0 9px, rgb(217 185 143 / 9%) 10px 11px),
+    linear-gradient(160deg, #29203f, #0b0915);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 26%);
+}
+.spread-card__body {
+  grid-column: 1;
+  grid-row: 1;
+  align-content: center;
+  padding-right: .3rem;
+  gap: .35rem;
+}
+.spread-card__body h2 { font: 400 1.05rem/1.18 "Playfair Display", Georgia, serif; }
+.spread-card__body p { max-width: 16rem; font-size: .64rem; line-height: 1.48; }
+.spread-card__number { top: .35rem; left: .38rem; }
+.spread-card__glyph { font-size: 2.35rem; text-shadow: 0 0 18px rgb(217 185 143 / 24%); }
+.spread-card__orbit { width: 4.1rem; height: 4.1rem; }
+.text-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  min-height: 2rem;
+  margin-top: .1rem;
+  padding: .35rem .72rem;
+  border: 1px solid rgb(217 185 143 / 45%);
+  border-radius: 999px;
+  background: linear-gradient(135deg, #f4dcc2, #d9b98f);
+  color: #201729;
+  font-size: .62rem;
+  font-weight: 600;
+}
+.disclaimer { font-size: .58rem; }
+
+/* Tarot result — keep the cards visually dominant like the approved spread */
+.revealed-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+  gap: .45rem;
+}
+.revealed-card-wrap { min-width: 0; gap: .35rem; }
+.revealed-card-position {
+  min-height: 1.7rem;
+  color: var(--color-gold);
+  font-size: .51rem;
+  line-height: 1.35;
+  text-align: center;
+}
+.revealed-cards .tarot-flip-card {
+  max-width: none;
+  padding: .2rem;
+  border-radius: .62rem;
+  background: linear-gradient(145deg, #35264b, #0b0915);
+  box-shadow: 0 8px 22px rgb(0 0 0 / 25%);
+}
+.revealed-cards .tarot-flip-card__back,
+.revealed-cards .tarot-flip-card__front { padding: .45rem .25rem; }
+.revealed-card-name { font-size: .82rem; text-align: center; }
+.revealed-card__symbol { font-size: 2rem; }
+.interpretation-panel {
+  border-color: rgb(217 185 143 / 18%);
+  background: linear-gradient(145deg, rgb(35 26 53 / 88%), rgb(15 12 23 / 97%));
+}
+
+/* Journal and profile surfaces */
+.journal-intro-card {
+  min-height: 4.55rem;
+  border-color: rgb(217 185 143 / 25%);
+  background:
+    radial-gradient(ellipse at 95% 25%, rgb(109 90 230 / 18%), transparent 38%),
+    linear-gradient(145deg, rgb(35 26 53 / 92%), rgb(14 11 23 / 98%));
+}
+.journal-section-title { margin: .05rem 0 -.2rem; font: 400 1.15rem "Playfair Display", Georgia, serif; }
+.journal-entry {
+  border-color: rgb(185 166 255 / 12%);
+  background: linear-gradient(140deg, rgb(35 27 57 / 86%), rgb(14 11 23 / 98%));
+}
+.profile-identity {
+  position: relative;
+  min-height: 7.1rem;
+  padding: 1rem;
+  overflow: hidden;
+  border-color: rgb(217 185 143 / 26%);
+  border-radius: 1rem;
+  background:
+    radial-gradient(ellipse at 84% 8%, rgb(185 166 255 / 24%), transparent 38%),
+    radial-gradient(ellipse at 90% 100%, rgb(109 90 230 / 22%), transparent 50%),
+    linear-gradient(145deg, #251b35, #0e0b18);
+}
+.profile-identity::after {
+  position: absolute;
+  right: .8rem;
+  bottom: -.7rem;
+  color: rgb(217 185 143 / 12%);
+  content: "☾";
+  font: 6rem Georgia, serif;
+  pointer-events: none;
+}
+.profile-avatar {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-color: rgb(217 185 143 / 38%);
+  background: radial-gradient(circle, rgb(217 185 143 / 18%), rgb(27 22 48 / 96%));
+  font-size: 1.5rem;
+}
+.profile-identity > div, .profile-identity .plan-pill { position: relative; z-index: 1; }
+.premium-banner {
+  border-color: rgb(217 185 143 / 28%);
+  background:
+    radial-gradient(ellipse at 92% 18%, rgb(185 166 255 / 21%), transparent 40%),
+    linear-gradient(145deg, #2b203d, #100d1b);
+}
+.settings-group {
+  border-color: rgb(185 166 255 / 12%);
+  background: linear-gradient(145deg, rgb(31 24 48 / 86%), rgb(14 11 23 / 96%));
+}
+
+/* Astrologer chat — centered title and five-slot navigation matching its render */
+.astrologer-screen .page-heading {
+  grid-template-columns: 2.4rem minmax(0, 1fr) 2.4rem;
+  align-items: center;
+  gap: .1rem;
+  padding: .15rem 0 .5rem;
+  min-height: 3.6rem;
+}
+.astrologer-screen .page-heading .back-button {
+  grid-column: 1;
+  grid-row: 1;
+  margin: 0;
+}
+.astrologer-screen .page-heading h1 {
+  grid-column: 2;
+  grid-row: 1;
+  margin: 0;
+  font-size: 1.5rem;
+  text-align: center;
+}
+.astrologer-screen .page-heading .page-description {
+  display: none;
+}
+.chat-usage-panel {
+  border-color: rgb(217 185 143 / 27%);
+  background: linear-gradient(145deg, rgb(39 30 49 / 92%), rgb(14 11 21 / 98%));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 3%);
+}
+.ai-chat-thread {
+  min-height: 14rem;
+  border-color: transparent;
+  background:
+    radial-gradient(ellipse at 0% 95%, rgb(109 90 230 / 12%), transparent 42%),
+    radial-gradient(ellipse at 100% 15%, rgb(185 166 255 / 7%), transparent 36%),
+    rgb(8 7 17 / 35%);
+}
+.ai-chat-thread .chat-message--user > div {
+  border-color: rgb(185 166 255 / 16%);
+  border-radius: 1rem 1rem .25rem 1rem;
+  background: linear-gradient(145deg, #423149, #2a2035);
+}
+.ai-chat-thread .chat-message--assistant > div {
+  border-color: rgb(217 185 143 / 24%);
+  border-radius: 1rem 1rem 1rem .25rem;
+  background: linear-gradient(145deg, rgb(39 31 43 / 96%), rgb(19 15 26 / 98%));
+}
+.ai-chat-thread .chat-avatar {
+  flex-basis: 2rem;
+  width: 2rem;
+  height: 2rem;
+  border-color: rgb(217 185 143 / 43%);
+  background: radial-gradient(circle, rgb(217 185 143 / 14%), transparent 72%);
+}
+.ai-chat-composer {
+  border-color: rgb(217 185 143 / 27%);
+  border-radius: 999px;
+  padding: .42rem .48rem .42rem .7rem;
+  background: rgb(16 13 25 / 98%);
+}
+.ai-chat-composer textarea { min-height: 2.35rem; padding: .45rem .25rem; }
+.ai-chat-composer button {
+  flex-basis: 2.35rem;
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 50%;
+}
+.ai-composer-hint { margin-top: -.35rem; }
+
+@media (max-width: 380px) {
+  .home-screen { padding-right: .9rem; padding-left: .9rem; }
+  .daily-card { min-height: 9.2rem; }
+  .daily-card__front { max-width: 82%; }
+  .spread-card { grid-template-columns: minmax(0, 1fr) 4.8rem; padding: .78rem; }
+  .spread-card__art { min-height: 6.8rem; }
+  .revealed-cards { gap: .3rem; }
+  .astrologer-screen .page-heading h1 { font-size: 1.33rem; }
+}
