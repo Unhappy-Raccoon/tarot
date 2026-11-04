@@ -598,3 +598,34 @@ button:active:not(:disabled) { transform: scale(.985); }
 .premium-plan-note h2 { margin:.45rem 0;font-size:1.75rem; }
 .premium-plan-note p { color:#a6a7b2;font-size:.68rem;line-height:1.7; }
 .premium-plan-note .primary-button { margin-top:.3rem; }
+
+
+/* Retain approved bespoke visual assets in the new art direction. */
+.daily-card__art {
+  background-image:
+    linear-gradient(90deg, rgb(8 9 16 / 10%), rgb(8 9 16 / 4%)),
+    url("/tarot/images/home-card-clouds.webp");
+  background-size: cover;
+  background-position: center 44%;
+  background-blend-mode: screen, soft-light;
+  opacity: .84;
+  mask-image: linear-gradient(90deg, transparent 0%, #000 16%, #000 100%);
+}
+.daily-card__orb, .daily-card__moon, .daily-card__star, .daily-card__horizon { z-index: 1; }
+.astrologer-editorial-art {
+  background-image:
+    radial-gradient(circle, rgb(139 121 174 / 18%), transparent 68%),
+    url("/tarot/images/ai-astrologer-atmosphere.svg");
+  background-size: cover, 125%;
+  background-position: center, center;
+  background-repeat: no-repeat;
+}
+.premium-hero-art {
+  background-image:
+    radial-gradient(ellipse at 50% 40%, rgb(135 117 166 / 22%), transparent 56%),
+    url("/tarot/images/premium-moon-phases.svg"),
+    linear-gradient(150deg, #29243b, #101522 70%);
+  background-size: auto, 78% auto, auto;
+  background-position: center, center, center;
+  background-repeat: no-repeat;
+}
