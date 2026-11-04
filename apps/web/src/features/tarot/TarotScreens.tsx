@@ -25,7 +25,8 @@ export function TarotSelectionScreen({ onSelect, onBack, busySpread = null, erro
         {spreads.map((spread) => (
           <article className={`spread-card spread-card--${spread.id}`} key={spread.id}>
             <div className="spread-card__art" aria-hidden="true">
-              <span className="spread-card__number">{spread.number}</span>\n              <span className="spread-card__art-label">ARCANA STUDY · {spread.number}</span>
+              <span className="spread-card__number">{spread.number}</span>
+              <span className="spread-card__art-label">ARCANA STUDY · {spread.number}</span>
               {spread.id === "daily" ? (
                 <svg className="spread-artwork spread-artwork--single" viewBox="0 0 120 150" aria-hidden="true">
                   <rect x="18" y="9" width="84" height="132" rx="8" />
