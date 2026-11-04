@@ -43,15 +43,7 @@ export function HomeScreen({ profile, displayName, onNavigate, onDailyCard, busy
         </button>
       </section>
 
-      <button className="horoscope-card" type="button" onClick={() => onNavigate("daily-horoscope")}>
-        <span className="horoscope-art" aria-hidden="true"><span>☾</span></span>
-        <span className="horoscope-copy">
-          <span className="card-eyebrow">АСТРОЛОГИЯ</span>
-          <strong>Гороскоп дня</strong>
-          <small>Космическая погода и подсказка на сегодня</small>
-        </span>
-        <span className="subtle-arrow" aria-hidden="true">→</span>
-      </button>
+
 
       <section className="home-section quick-section">
         <div className="section-heading-row">
@@ -75,7 +67,12 @@ export function HomeScreen({ profile, displayName, onNavigate, onDailyCard, busy
         <span className="streak-value">0 дней <span aria-hidden="true">→</span></span>
       </button>
 
-      <p className="home-footnote">ТВОЁ ПРОСТРАНСТВО · ТВОЙ РИТМ · ТВОЯ ВСЕЛЕННАЯ</p>
+      <button className="horoscope-link" type="button" onClick={() => onNavigate("daily-horoscope")}>
+        <span className="horoscope-link__icon" aria-hidden="true">☾</span>
+        <span><strong>Гороскоп дня</strong><small>Космическая погода и подсказка на сегодня</small></span>
+        <span className="horoscope-link__arrow" aria-hidden="true">→</span>
+      </button>
+            <p className="home-footnote">ТВОЁ ПРОСТРАНСТВО · ТВОЙ РИТМ · ТВОЯ ВСЕЛЕННАЯ</p>
     </div>
   );
 }
