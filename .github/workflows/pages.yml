@@ -58,6 +58,10 @@ jobs:
           node-version-file: .nvmrc
       - name: Install dependencies
         run: npm install --no-audit --no-fund
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - name: Build WebApp for GitHub Pages
         env:
           VITE_BASE_PATH: /tarot/
