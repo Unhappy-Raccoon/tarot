@@ -102,7 +102,7 @@ button { -webkit-tap-highlight-color: transparent; }
 }
 .loading-screen h1, .message-screen h1 { margin: .6rem 0; font-size: clamp(1.7rem, 7vw, 2.25rem); line-height: 1.15; }
 .message-screen p { max-width: 25rem; color: var(--muted); font-size: .88rem; line-height: 1.65; }
-.moon-mark { color: var(--color-gold); font-family: Georgia, serif; font-size: 2.2rem; line-height: 1; text-shadow: 0 0 24px rgb(217 185 131 / 30%); }
+.moon-mark { color: var(--color-gold); font-family: Georgia, serif; font-size: 2.2rem; line-height: 1; text-shadow: 0 0 24px rgb(217 185 143 / 30%); }
 .eyebrow, .card-eyebrow {
   margin: 0;
   color: var(--color-gold);
@@ -130,7 +130,7 @@ button { -webkit-tap-highlight-color: transparent; }
   padding: calc(1.5rem + env(safe-area-inset-top)) 1.15rem calc(2rem + env(safe-area-inset-bottom));
   overflow: hidden;
   background:
-    radial-gradient(ellipse at 50% 0%, rgb(88 71 184 / 18%), transparent 48%),
+    radial-gradient(ellipse at 50% 0%, rgb(109 90 230 / 18%), transparent 48%),
     linear-gradient(180deg, rgb(11 10 20 / 10%), rgb(11 10 20 / 55%));
 }
 .onboarding-orbit {
@@ -140,9 +140,9 @@ button { -webkit-tap-highlight-color: transparent; }
   z-index: -1;
   width: 15rem;
   height: 15rem;
-  border: 1px solid rgb(217 185 131 / 9%);
+  border: 1px solid rgb(217 185 143 / 9%);
   border-radius: 50%;
-  box-shadow: 0 0 70px rgb(88 71 184 / 10%), inset 0 0 50px rgb(88 71 184 / 7%);
+  box-shadow: 0 0 70px rgb(109 90 230 / 10%), inset 0 0 50px rgb(109 90 230 / 7%);
   transform: translateX(-50%);
   pointer-events: none;
 }
@@ -171,7 +171,7 @@ button { -webkit-tap-highlight-color: transparent; }
   gap: .82rem;
   width: 100%;
   padding: 1rem;
-  border: 1px solid rgb(217 185 131 / 20%);
+  border: 1px solid rgb(217 185 143 / 20%);
   border-radius: 1.1rem;
   background:
     linear-gradient(145deg, rgb(42 31 39 / 32%), transparent 52%),
@@ -192,7 +192,7 @@ button { -webkit-tap-highlight-color: transparent; }
 .optional {
   display: inline;
   margin-left: .2rem;
-  color: rgb(241 220 203 / 42%);
+  color: rgb(246 232 218 / 42%);
   font-size: .64rem;
   font-weight: 400;
 }
@@ -202,9 +202,9 @@ button { -webkit-tap-highlight-color: transparent; }
   min-width: 0;
   min-height: 2.8rem;
   padding: .68rem .78rem;
-  border: 1px solid rgb(217 185 131 / 23%);
+  border: 1px solid rgb(217 185 143 / 23%);
   border-radius: .72rem;
-  background: #0b0a14;
+  background: #0b0a12;
   color: var(--color-milk);
   color-scheme: dark;
   font-size: .84rem;
@@ -213,13 +213,13 @@ button { -webkit-tap-highlight-color: transparent; }
   appearance: none;
 }
 .onboarding-card input::placeholder, .birth-edit-form input::placeholder {
-  color: rgb(241 220 203 / 33%);
+  color: rgb(246 232 218 / 33%);
   opacity: 1;
 }
 .onboarding-card input:focus, .birth-edit-form input:focus {
-  border-color: rgb(217 185 131 / 72%);
+  border-color: rgb(217 185 143 / 72%);
   outline: none;
-  box-shadow: 0 0 0 3px rgb(217 185 131 / 10%);
+  box-shadow: 0 0 0 3px rgb(217 185 143 / 10%);
 }
 .onboarding-card input[type="date"], .onboarding-card input[type="time"],
 .birth-edit-form input[type="date"], .birth-edit-form input[type="time"] {
@@ -229,16 +229,16 @@ button { -webkit-tap-highlight-color: transparent; }
 .preview-note {
   margin: 0 0 .1rem;
   padding: .55rem .7rem;
-  border: 1px solid rgb(217 185 131 / 18%);
+  border: 1px solid rgb(217 185 143 / 18%);
   border-radius: .65rem;
-  background: rgb(217 185 131 / 6%);
+  background: rgb(217 185 143 / 6%);
   color: var(--color-gold);
   font-size: .67rem;
   line-height: 1.45;
 }
 .privacy-hint {
   margin: -.1rem 0 0;
-  color: rgb(241 220 203 / 45%);
+  color: rgb(246 232 218 / 45%);
   font-size: .63rem;
   line-height: 1.5;
   text-align: center;
@@ -269,10 +269,10 @@ button { -webkit-tap-highlight-color: transparent; }
 }
 .primary-button {
   width: 100%;
-  border: 1px solid rgb(217 185 131 / 75%);
+  border: 1px solid rgb(217 185 143 / 75%);
   background: linear-gradient(135deg, #dfc697, #c4a56e);
   color: #211a20;
-  box-shadow: 0 7px 20px rgb(217 185 131 / 13%);
+  box-shadow: 0 7px 20px rgb(217 185 143 / 13%);
 }
 .primary-button:active:not(:disabled) { transform: translateY(1px); }
 .secondary-button {
@@ -330,7 +330,7 @@ button { -webkit-tap-highlight-color: transparent; }
 .section-caption { color: var(--muted); font-size: .54rem; letter-spacing: .14em; }
 .disclaimer, .demo-disclaimer {
   margin: .15rem 0 0;
-  color: rgb(241 220 203 / 42%);
+  color: rgb(246 232 218 / 42%);
   font-size: .62rem;
   line-height: 1.55;
   text-align: center;
@@ -353,7 +353,7 @@ button { -webkit-tap-highlight-color: transparent; }
   padding: .8rem .6rem .55rem;
   text-align: center;
 }
-.home-moon { position: relative; display: grid; place-items: center; width: 5.2rem; height: 5.2rem; margin-bottom: .85rem; border: 1px solid rgb(217 185 131 / 17%); border-radius: 50%; background: radial-gradient(circle, rgb(217 185 131 / 10%), transparent 72%); }
+.home-moon { position: relative; display: grid; place-items: center; width: 5.2rem; height: 5.2rem; margin-bottom: .85rem; border: 1px solid rgb(217 185 143 / 17%); border-radius: 50%; background: radial-gradient(circle, rgb(217 185 143 / 10%), transparent 72%); }
 .moon-crescent { color: var(--color-gold); font: 3.2rem Georgia, serif; }
 .moon-star, .gold-sparkle { color: var(--color-gold); }
 .moon-star { position: absolute; top: .55rem; right: .45rem; font-size: .85rem; }
@@ -369,11 +369,11 @@ button { -webkit-tap-highlight-color: transparent; }
   min-height: 11.3rem;
   padding: 1.2rem;
   overflow: hidden;
-  border: 1px solid rgb(217 185 131 / 32%);
+  border: 1px solid rgb(217 185 143 / 32%);
   border-radius: 1.05rem;
   background:
-    radial-gradient(circle at 82% 20%, rgb(217 185 131 / 15%), transparent 28%),
-    radial-gradient(circle at 12% 100%, rgb(88 71 184 / 25%), transparent 48%),
+    radial-gradient(circle at 82% 20%, rgb(217 185 143 / 15%), transparent 28%),
+    radial-gradient(circle at 12% 100%, rgb(109 90 230 / 25%), transparent 48%),
     linear-gradient(135deg, #211a2a, #0d0b15 78%);
   color: var(--color-milk);
   text-align: left;
@@ -383,7 +383,7 @@ button { -webkit-tap-highlight-color: transparent; }
 .daily-card__eyebrow { color: var(--color-gold); font-size: .56rem; letter-spacing: .15em; }
 .serif-title { font: 400 1.85rem/1.1 "Playfair Display", Georgia, serif; }
 .daily-card__copy { color: var(--muted); font-size: .72rem; }
-.round-arrow { display: grid; place-items: center; width: 2rem; height: 2rem; border: 1px solid rgb(217 185 131 / 35%); border-radius: 50%; color: var(--color-gold); }
+.round-arrow { display: grid; place-items: center; width: 2rem; height: 2rem; border: 1px solid rgb(217 185 143 / 35%); border-radius: 50%; color: var(--color-gold); }
 .horoscope-card, .streak-card, .premium-banner {
   display: flex;
   align-items: center;
@@ -397,7 +397,7 @@ button { -webkit-tap-highlight-color: transparent; }
   text-align: left;
   cursor: pointer;
 }
-.horoscope-art { display: grid; place-items: center; flex: 0 0 3rem; width: 3rem; height: 3rem; border-radius: .8rem; background: rgb(217 185 131 / 8%); color: var(--color-gold); font: 2rem Georgia, serif; }
+.horoscope-art { display: grid; place-items: center; flex: 0 0 3rem; width: 3rem; height: 3rem; border-radius: .8rem; background: rgb(217 185 143 / 8%); color: var(--color-gold); font: 2rem Georgia, serif; }
 .horoscope-copy { display: grid; flex: 1; gap: .15rem; min-width: 0; }
 .horoscope-copy strong { font: 400 1rem "Playfair Display", Georgia, serif; }
 .horoscope-copy small { color: var(--muted); font-size: .65rem; line-height: 1.4; }
@@ -412,9 +412,9 @@ button { -webkit-tap-highlight-color: transparent; }
 .streak-text strong { font: 400 .95rem "Playfair Display", Georgia, serif; }
 .streak-text small { color: var(--muted); font-size: .61rem; }
 .streak-track { display: flex; gap: .22rem; margin-top: .35rem; }
-.streak-track i { width: 1rem; height: 3px; border-radius: 9px; background: rgb(217 185 131 / 24%); }
+.streak-track i { width: 1rem; height: 3px; border-radius: 9px; background: rgb(217 185 143 / 24%); }
 .streak-value { color: var(--color-gold); font-size: .64rem; white-space: nowrap; }
-.home-footnote { margin: .2rem 0 0; color: rgb(217 185 131 / 40%); font-size: .52rem; letter-spacing: .13em; text-align: center; }
+.home-footnote { margin: .2rem 0 0; color: rgb(217 185 143 / 40%); font-size: .52rem; letter-spacing: .13em; text-align: center; }
 
 /* Persistent bottom navigation */
 .bottom-nav {
@@ -429,15 +429,15 @@ button { -webkit-tap-highlight-color: transparent; }
   min-height: 4.5rem;
   margin: 0 auto;
   padding: .45rem .55rem calc(.45rem + env(safe-area-inset-bottom));
-  border-top: 1px solid rgb(217 185 131 / 16%);
+  border-top: 1px solid rgb(217 185 143 / 16%);
   background: rgb(11 10 20 / 94%);
   backdrop-filter: blur(18px);
 }
-.nav-button { display: grid; justify-items: center; align-content: center; gap: .12rem; min-width: 0; min-height: 3.2rem; border: 0; background: transparent; color: rgb(241 220 203 / 48%); cursor: pointer; }
+.nav-button { display: grid; justify-items: center; align-content: center; gap: .12rem; min-width: 0; min-height: 3.2rem; border: 0; background: transparent; color: rgb(246 232 218 / 48%); cursor: pointer; }
 .nav-button > span { font-size: 1.15rem; line-height: 1.3; }
 .nav-button small { font-size: .58rem; }
 .nav-button.active { color: var(--color-gold); }
-.nav-button.active > span { text-shadow: 0 0 14px rgb(217 185 131 / 30%); }
+.nav-button.active > span { text-shadow: 0 0 14px rgb(217 185 143 / 30%); }
 
 /* Journal and empty states */
 .journal-filters { display: flex; gap: .4rem; padding-bottom: .15rem; overflow-x: auto; scrollbar-width: none; }
@@ -451,14 +451,14 @@ button { -webkit-tap-highlight-color: transparent; }
   color: var(--muted);
   font-size: .65rem;
 }
-.journal-filters button.selected, .natal-tabs button[aria-selected="true"] { border-color: rgb(217 185 131 / 55%); background: rgb(217 185 131 / 10%); color: var(--color-gold); }
+.journal-filters button.selected, .natal-tabs button[aria-selected="true"] { border-color: rgb(217 185 143 / 55%); background: rgb(217 185 143 / 10%); color: var(--color-gold); }
 .journal-list { display: grid; gap: .65rem; }
 .empty-state { display: grid; justify-items: center; gap: .5rem; padding: 2rem 1.1rem; border: 1px solid var(--line); border-radius: 1rem; background: var(--surface); text-align: center; }
 .empty-state > span, .placeholder-star { color: var(--color-gold); font: 2rem Georgia, serif; }
 .empty-state h2 { margin: 0; font-size: 1.2rem; }
 .empty-state p { max-width: 23rem; margin: 0; color: var(--muted); font-size: .72rem; line-height: 1.6; }
 .journal-entry { display: flex; align-items: center; gap: .75rem; width: 100%; padding: .9rem; border: 1px solid var(--line); border-radius: .9rem; background: var(--surface); color: var(--color-milk); }
-.journal-entry__icon { display: grid; place-items: center; flex: 0 0 2.65rem; height: 2.65rem; border-radius: .7rem; background: rgb(217 185 131 / 8%); color: var(--color-gold); font-size: 1.35rem; }
+.journal-entry__icon { display: grid; place-items: center; flex: 0 0 2.65rem; height: 2.65rem; border-radius: .7rem; background: rgb(217 185 143 / 8%); color: var(--color-gold); font-size: 1.35rem; }
 .journal-entry__body { flex: 1; min-width: 0; }
 .journal-entry__meta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .25rem .5rem; color: var(--muted); font-size: .56rem; }
 .journal-entry__body h2 { margin: .25rem 0; font-size: 1rem; }
@@ -466,7 +466,7 @@ button { -webkit-tap-highlight-color: transparent; }
 
 /* Profile and premium */
 .profile-identity { display: flex; align-items: center; gap: .75rem; padding: .9rem; border: 1px solid var(--line); border-radius: .9rem; background: var(--surface); }
-.profile-avatar { display: grid; place-items: center; flex: 0 0 3rem; width: 3rem; height: 3rem; border: 1px solid rgb(217 185 131 / 30%); border-radius: 50%; background: rgb(217 185 131 / 8%); color: var(--color-gold); font: 1.3rem "Playfair Display", Georgia, serif; }
+.profile-avatar { display: grid; place-items: center; flex: 0 0 3rem; width: 3rem; height: 3rem; border: 1px solid rgb(217 185 143 / 30%); border-radius: 50%; background: rgb(217 185 143 / 8%); color: var(--color-gold); font: 1.3rem "Playfair Display", Georgia, serif; }
 .profile-identity > div { flex: 1; min-width: 0; }
 .profile-identity h2 { margin: 0; font-size: 1.05rem; }
 .profile-identity p { margin: .12rem 0 0; color: var(--muted); font-size: .66rem; }
@@ -484,7 +484,7 @@ button { -webkit-tap-highlight-color: transparent; }
 .settings-row small { color: var(--muted); font-size: .61rem; line-height: 1.4; }
 .settings-icon { width: 1.3rem; color: var(--color-gold); text-align: center; }
 .settings-chevron { color: var(--muted); }
-.premium-hero-art { position: relative; display: grid; place-items: center; min-height: 10rem; border: 1px solid var(--line); border-radius: 1.1rem; background: radial-gradient(circle, rgb(217 185 131 / 13%), transparent 55%), linear-gradient(145deg, #211a2a, #0c0b14); color: var(--color-gold); }
+.premium-hero-art { position: relative; display: grid; place-items: center; min-height: 10rem; border: 1px solid var(--line); border-radius: 1.1rem; background: radial-gradient(circle, rgb(217 185 143 / 13%), transparent 55%), linear-gradient(145deg, #211a2a, #0c0b14); color: var(--color-gold); }
 .premium-hero-art > span { font: 5rem Georgia, serif; }
 .premium-hero-art i { position: absolute; top: 1.7rem; right: 26%; font-size: 1.2rem; font-style: normal; }
 .premium-benefits { display: grid; gap: .55rem; }
@@ -499,10 +499,10 @@ button { -webkit-tap-highlight-color: transparent; }
 /* Tarot, astrology and conversation common surfaces */
 .tarot-spread-list { display: grid; gap: .7rem; }
 .spread-card { display: grid; grid-template-columns: 5.1rem minmax(0, 1fr); gap: .85rem; padding: .8rem; border: 1px solid var(--line); border-radius: .95rem; background: var(--surface); }
-.spread-card__art { position: relative; display: grid; place-items: center; min-height: 8rem; overflow: hidden; border: 1px solid rgb(217 185 131 / 25%); border-radius: .7rem; background: radial-gradient(circle, rgb(217 185 131 / 12%), transparent 62%), #100d18; }
+.spread-card__art { position: relative; display: grid; place-items: center; min-height: 8rem; overflow: hidden; border: 1px solid rgb(217 185 143 / 25%); border-radius: .7rem; background: radial-gradient(circle, rgb(217 185 143 / 12%), transparent 62%), #100d18; }
 .spread-card__number { position: absolute; top: .45rem; left: .45rem; color: var(--muted); font-size: .52rem; }
 .spread-card__glyph { color: var(--color-gold); font: 2rem Georgia, serif; }
-.spread-card__orbit { position: absolute; width: 4rem; height: 4rem; border: 1px solid rgb(217 185 131 / 18%); border-radius: 50%; }
+.spread-card__orbit { position: absolute; width: 4rem; height: 4rem; border: 1px solid rgb(217 185 143 / 18%); border-radius: 50%; }
 .spread-card__body { display: grid; align-content: center; gap: .3rem; min-width: 0; }
 .spread-card__body h2 { margin: 0; font-size: 1rem; line-height: 1.2; }
 .spread-card__body p { margin: 0; color: var(--muted); font-size: .63rem; line-height: 1.5; }
@@ -527,16 +527,16 @@ button { -webkit-tap-highlight-color: transparent; }
 .chat-message { display: flex; align-items: flex-start; gap: .5rem; max-width: 92%; }
 .chat-message > div { padding: .75rem; border: 1px solid var(--line); border-radius: .85rem; background: var(--surface); }
 .chat-message--user { justify-self: end; }
-.chat-message--user > div { background: rgb(88 71 184 / 16%); }
+.chat-message--user > div { background: rgb(109 90 230 / 16%); }
 .chat-message small { color: var(--color-gold); font-size: .52rem; letter-spacing: .12em; }
 .chat-message p { margin: .2rem 0 0; color: var(--color-milk); font-size: .72rem; line-height: 1.6; }
 .chat-avatar { display: grid; place-items: center; flex: 0 0 1.8rem; height: 1.8rem; border: 1px solid var(--line); border-radius: 50%; color: var(--color-gold); }
 .suggestion-block { display: grid; gap: .5rem; }
 .suggestion-chips { display: flex; flex-wrap: wrap; gap: .4rem; }
 .suggestion-chips button { min-height: 2.2rem; padding: .45rem .7rem; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--color-milk); font-size: .63rem; }
-.chat-system-notice { margin: 0; padding: .65rem; border-radius: .65rem; background: rgb(217 185 131 / 7%); color: var(--color-gold); font-size: .68rem; }
+.chat-system-notice { margin: 0; padding: .65rem; border-radius: .65rem; background: rgb(217 185 143 / 7%); color: var(--color-gold); font-size: .68rem; }
 .chat-composer { display: flex; gap: .5rem; }
-.chat-composer input { flex: 1; min-width: 0; min-height: 2.8rem; padding: .65rem .75rem; border: 1px solid var(--line); border-radius: .7rem; background: #0b0a14; color: var(--color-milk); }
+.chat-composer input { flex: 1; min-width: 0; min-height: 2.8rem; padding: .65rem .75rem; border: 1px solid var(--line); border-radius: .7rem; background: #0b0a12; color: var(--color-milk); }
 
 /* Smaller phones and short Telegram viewports */
 @media (max-width: 360px) {
@@ -556,13 +556,13 @@ button { -webkit-tap-highlight-color: transparent; }
 }
 
 /* Additions for the functional Tarot reading flow */
-.reading-date { margin: -.6rem 0 0; color: rgb(241 220 203 / 45%); font-size: .62rem; text-align: center; }
+.reading-date { margin: -.6rem 0 0; color: rgb(246 232 218 / 45%); font-size: .62rem; text-align: center; }
 .tarot-flip-card {
   display: block; width: 100%; padding: .28rem;
-  border: 1px solid var(--color-gold, #d9b983); border-radius: .65rem;
+  border: 1px solid var(--color-gold, #D9B98F); border-radius: .65rem;
   background: linear-gradient(145deg, #241a28, #08070d);
   perspective: 1000px; cursor: pointer;
-  box-shadow: 0 8px 30px rgb(0 0 0 / 32%), 0 0 18px rgb(217 185 131 / 8%);
+  box-shadow: 0 8px 30px rgb(0 0 0 / 32%), 0 0 18px rgb(217 185 143 / 8%);
 }
 .tarot-flip-card__inner {
   position: relative; display: block; width: 100%; aspect-ratio: 3 / 4.7;
@@ -573,24 +573,24 @@ button { -webkit-tap-highlight-color: transparent; }
 .tarot-flip-card__back, .tarot-flip-card__front {
   position: absolute; inset: 0; display: flex; flex-direction: column;
   align-items: center; justify-content: space-between; padding: .6rem .3rem;
-  border: 1px solid rgb(217 185 131 / 44%); border-radius: .42rem;
+  border: 1px solid rgb(217 185 143 / 44%); border-radius: .42rem;
   backface-visibility: hidden; -webkit-backface-visibility: hidden;
 }
 .tarot-flip-card__back {
   background:
-    radial-gradient(circle at 50% 45%, rgb(217 185 131 / 13%), transparent 42%),
-    repeating-radial-gradient(circle at 50% 50%, transparent 0 13px, rgb(217 185 131 / 7%) 14px 15px),
+    radial-gradient(circle at 50% 45%, rgb(217 185 143 / 13%), transparent 42%),
+    repeating-radial-gradient(circle at 50% 50%, transparent 0 13px, rgb(217 185 143 / 7%) 14px 15px),
     #100c17;
 }
-.tarot-back-moon { margin-top: 28%; color: var(--color-milk, #f1dccb); font-family: Georgia, serif; font-size: clamp(2.2rem, 11vw, 3.5rem); text-shadow: 0 0 20px rgb(217 185 131 / 25%); }
-.tarot-back-stars { color: var(--color-gold, #d9b983); font-size: .7rem; letter-spacing: .18em; }
-.tarot-back-caption { color: rgb(217 185 131 / 58%); font-size: .38rem; letter-spacing: .12em; }
-.tarot-flip-card__front { transform: rotateY(180deg); background: radial-gradient(circle at 50% 48%, rgb(217 185 131 / 16%), transparent 55%); }
-.reveal-text-button { margin-top: .32rem; padding: .35rem .45rem; border: 0; background: transparent; color: var(--color-gold, #d9b983); font-size: .62rem; cursor: pointer; }
-.reflection-question { margin-top: .35rem !important; color: var(--color-gold, #d9b983) !important; font-size: .67rem !important; }
+.tarot-back-moon { margin-top: 28%; color: var(--color-milk, #F6E8DA); font-family: Georgia, serif; font-size: clamp(2.2rem, 11vw, 3.5rem); text-shadow: 0 0 20px rgb(217 185 143 / 25%); }
+.tarot-back-stars { color: var(--color-gold, #D9B98F); font-size: .7rem; letter-spacing: .18em; }
+.tarot-back-caption { color: rgb(217 185 143 / 58%); font-size: .38rem; letter-spacing: .12em; }
+.tarot-flip-card__front { transform: rotateY(180deg); background: radial-gradient(circle at 50% 48%, rgb(217 185 143 / 16%), transparent 55%); }
+.reveal-text-button { margin-top: .32rem; padding: .35rem .45rem; border: 0; background: transparent; color: var(--color-gold, #D9B98F); font-size: .62rem; cursor: pointer; }
+.reflection-question { margin-top: .35rem !important; color: var(--color-gold, #D9B98F) !important; font-size: .67rem !important; }
 .keyword-list { display: flex; flex-wrap: wrap; gap: .25rem; margin-top: .45rem; }
-.keyword-list span { padding: .2rem .42rem; border: 1px solid rgb(217 185 131 / 18%); border-radius: 999px; color: rgb(241 220 203 / 70%); font-size: .53rem; }
-.journal-saved-note { margin: 0; color: var(--color-gold, #d9b983); font-size: .72rem; text-align: center; }
+.keyword-list span { padding: .2rem .42rem; border: 1px solid rgb(217 185 143 / 18%); border-radius: 999px; color: rgb(246 232 218 / 70%); font-size: .53rem; }
+.journal-saved-note { margin: 0; color: var(--color-gold, #D9B98F); font-size: .72rem; text-align: center; }
 .journal-entry--button { width: 100%; color: inherit; text-align: left; cursor: pointer; }
 @media (prefers-reduced-motion: reduce) {
   .tarot-flip-card__inner { transition-duration: .01ms; }
@@ -601,7 +601,7 @@ button { -webkit-tap-highlight-color: transparent; }
 .coordinate-fields { display: grid; gap: .55rem; }
 .coordinate-fields > p { margin: 0; color: var(--color-milk); font-size: .84rem; }
 .coordinate-fields > div { display: grid; grid-template-columns: 1fr 1fr; gap: .55rem; }
-.coordinate-fields small { color: rgb(241 220 203 / 48%); font-size: .66rem; line-height: 1.45; }
+.coordinate-fields small { color: rgb(246 232 218 / 48%); font-size: .66rem; line-height: 1.45; }
 .natal-precision-panel, .natal-status-panel {
   display: grid; gap: .45rem; padding: .95rem 1rem;
   border: 1px solid var(--line); border-radius: 1rem;
@@ -623,7 +623,7 @@ button { -webkit-tap-highlight-color: transparent; }
 .edit-birth-button {
   width: 100%; min-height: 2.7rem; margin-top: .45rem;
   border: 1px solid var(--line); border-radius: .75rem;
-  background: rgb(217 185 131 / 6%); color: var(--color-gold);
+  background: rgb(217 185 143 / 6%); color: var(--color-gold);
   font-size: .72rem; cursor: pointer;
 }
 .edit-birth-button span { margin-left: .45rem; }
@@ -631,7 +631,7 @@ button { -webkit-tap-highlight-color: transparent; }
 .birth-edit-form label { display: grid; gap: .42rem; color: var(--color-milk); font-size: .78rem; }
 .birth-edit-form input {
   width: 100%; min-height: 2.8rem; padding: .7rem .8rem;
-  border: 1px solid rgb(217 185 131 / 22%); border-radius: .75rem;
+  border: 1px solid rgb(217 185 143 / 22%); border-radius: .75rem;
   background: rgb(5 5 10 / 55%); color: var(--color-milk);
 }
 .birth-edit-form input[type="date"], .birth-edit-form input[type="time"] { color-scheme: dark; }
@@ -649,7 +649,7 @@ button { -webkit-tap-highlight-color: transparent; }
 }
 .daily-horoscope-hero { padding: 1.2rem 1rem; }
 .horoscope-hero-orbit {
-  position: absolute; top: .2rem; right: .8rem; color: rgb(217 185 131 / 12%);
+  position: absolute; top: .2rem; right: .8rem; color: rgb(217 185 143 / 12%);
   font-family: Georgia, serif; font-size: 5.5rem; line-height: 1;
   pointer-events: none;
 }
@@ -661,9 +661,9 @@ button { -webkit-tap-highlight-color: transparent; }
   position: relative; margin: 0; color: var(--color-milk);
   font: 400 1.65rem/1.2 "Playfair Display", Georgia, serif;
 }
-.horoscope-precision { display: block; margin-top: .45rem; color: rgb(217 185 131 / 72%); font-size: .62rem; }
+.horoscope-precision { display: block; margin-top: .45rem; color: rgb(217 185 143 / 72%); font-size: .62rem; }
 .daily-horoscope-content { display: grid; gap: .85rem; margin-top: 1.2rem; }
-.daily-horoscope-content p { margin: 0; color: rgb(241 220 203 / 82%); font-size: .82rem; line-height: 1.7; white-space: pre-wrap; }
+.daily-horoscope-content p { margin: 0; color: rgb(246 232 218 / 82%); font-size: .82rem; line-height: 1.7; white-space: pre-wrap; }
 .horoscope-text-section { display: grid; gap: .3rem; }
 .horoscope-text-section h3 { margin: 0; color: var(--color-gold); font: 400 1rem/1.3 "Playfair Display", Georgia, serif; }
 .horoscope-reflection-note { margin: 1rem 0 0; padding-top: .7rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .63rem; line-height: 1.5; }
@@ -672,7 +672,7 @@ button { -webkit-tap-highlight-color: transparent; }
 .transit-position-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
 .transit-position {
   display: flex; align-items: center; gap: .55rem; min-width: 0; padding: .55rem;
-  border: 1px solid rgb(217 185 131 / 13%); border-radius: .7rem;
+  border: 1px solid rgb(217 185 143 / 13%); border-radius: .7rem;
   background: rgb(5 5 10 / 30%);
 }
 .transit-position > span { color: var(--color-gold); font-size: 1.15rem; }
@@ -683,7 +683,7 @@ button { -webkit-tap-highlight-color: transparent; }
 .horoscope-aspect-list { display: grid; gap: .35rem; }
 .horoscope-aspect {
   display: grid; grid-template-columns: 1fr auto 1.2fr auto; align-items: center; gap: .35rem;
-  padding: .55rem 0; border-bottom: 1px solid rgb(217 185 131 / 12%);
+  padding: .55rem 0; border-bottom: 1px solid rgb(217 185 143 / 12%);
 }
 .horoscope-aspect:last-child { border-bottom: 0; }
 .horoscope-aspect span { color: var(--color-milk); font-size: .66rem; }
@@ -699,13 +699,13 @@ button { -webkit-tap-highlight-color: transparent; }
 .horoscope-toggle-row input { width: 1.2rem; height: 1.2rem; accent-color: var(--color-gold); }
 .horoscope-time-row input {
   min-height: 2.4rem; padding: .4rem .55rem; border: 1px solid var(--line);
-  border-radius: .6rem; background: #0b0a14; color: var(--color-milk); color-scheme: dark;
+  border-radius: .6rem; background: #0b0a12; color: var(--color-milk); color-scheme: dark;
 }
 .horoscope-preference-notice { color: var(--color-gold) !important; }
 .horoscope-history-panel { display: grid; gap: .4rem; }
 .horoscope-history-item {
   display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: .7rem;
-  padding: .7rem 0; border: 0; border-bottom: 1px solid rgb(217 185 131 / 12%);
+  padding: .7rem 0; border: 0; border-bottom: 1px solid rgb(217 185 143 / 12%);
   background: transparent; color: var(--color-milk); text-align: left; cursor: pointer;
 }
 .horoscope-history-item span:first-child { color: var(--muted); font-size: .63rem; text-transform: capitalize; }
@@ -729,7 +729,7 @@ button { -webkit-tap-highlight-color: transparent; }
   padding: .75rem .85rem;
   border: 1px solid var(--line);
   border-radius: .9rem;
-  background: linear-gradient(135deg, rgb(88 71 184 / 14%), transparent 72%), var(--surface);
+  background: linear-gradient(135deg, rgb(109 90 230 / 14%), transparent 72%), var(--surface);
 }
 .chat-usage-panel .chat-limit__moon { grid-row: span 2; font-size: 1.5rem; }
 .chat-usage-copy { display: grid; gap: .08rem; }
@@ -741,7 +741,7 @@ button { -webkit-tap-highlight-color: transparent; }
   margin-top: .28rem;
   overflow: hidden;
   border-radius: 99px;
-  background: rgb(241 220 203 / 10%);
+  background: rgb(246 232 218 / 10%);
 }
 .chat-usage-meter > span {
   display: block;
@@ -794,9 +794,9 @@ button { -webkit-tap-highlight-color: transparent; }
   gap: .5rem;
   min-width: 0;
   padding-top: .5rem;
-  border-top: 1px solid rgb(217 185 131 / 10%);
+  border-top: 1px solid rgb(217 185 143 / 10%);
 }
-.ai-history-item.active { border-top-color: rgb(217 185 131 / 30%); }
+.ai-history-item.active { border-top-color: rgb(217 185 143 / 30%); }
 .ai-history-open {
   display: grid;
   flex: 1;
@@ -826,7 +826,7 @@ button { -webkit-tap-highlight-color: transparent; }
   gap: .8rem;
   min-height: 15rem;
   padding: .9rem .75rem;
-  border: 1px solid rgb(217 185 131 / 13%);
+  border: 1px solid rgb(217 185 143 / 13%);
   border-radius: 1rem;
   background: linear-gradient(180deg, rgb(17 14 22 / 64%), rgb(11 10 20 / 40%));
 }
@@ -845,12 +845,12 @@ button { -webkit-tap-highlight-color: transparent; }
   width: 3.6rem;
   height: 3.6rem;
   margin-bottom: .3rem;
-  border: 1px solid rgb(217 185 131 / 20%);
+  border: 1px solid rgb(217 185 143 / 20%);
   border-radius: 50%;
-  background: radial-gradient(circle, rgb(217 185 131 / 12%), transparent 72%);
+  background: radial-gradient(circle, rgb(217 185 143 / 12%), transparent 72%);
   color: var(--color-gold);
   font: 2rem Georgia, serif;
-  box-shadow: 0 0 28px rgb(217 185 131 / 7%);
+  box-shadow: 0 0 28px rgb(217 185 143 / 7%);
 }
 .ai-chat-empty h2 { margin: 0; font-size: 1.15rem; }
 .ai-chat-empty > p { max-width: 23rem; margin: 0; color: var(--muted); font-size: .69rem; line-height: 1.6; }
@@ -870,11 +870,11 @@ button { -webkit-tap-highlight-color: transparent; }
 }
 .ai-chat-thread .chat-message time {
   display: block;
-  color: rgb(241 220 203 / 35%);
+  color: rgb(246 232 218 / 35%);
   font-size: .52rem;
   text-align: right;
 }
-.ai-chat-thread .chat-message--user > div { border-color: rgb(163 146 216 / 22%); }
+.ai-chat-thread .chat-message--user > div { border-color: rgb(185 166 255 / 22%); }
 .ai-typing-state {
   display: inline-flex;
   align-items: center;
@@ -915,17 +915,17 @@ button { -webkit-tap-highlight-color: transparent; }
 }
 .ai-scenario-list button > span { color: var(--color-gold); }
 .ai-scenario-list button.selected {
-  border-color: rgb(217 185 131 / 55%);
-  background: rgb(217 185 131 / 8%);
+  border-color: rgb(217 185 143 / 55%);
+  background: rgb(217 185 143 / 8%);
   color: var(--color-gold);
 }
 .ai-selected-scenario { margin: -.25rem 0; color: var(--color-gold); font-size: .61rem; }
 .ai-limit-notice {
   margin: 0;
   padding: .65rem .75rem;
-  border: 1px solid rgb(217 185 131 / 20%);
+  border: 1px solid rgb(217 185 143 / 20%);
   border-radius: .7rem;
-  background: rgb(217 185 131 / 6%);
+  background: rgb(217 185 143 / 6%);
   color: var(--color-gold);
   font-size: .67rem;
   line-height: 1.5;
@@ -935,12 +935,12 @@ button { -webkit-tap-highlight-color: transparent; }
   align-items: flex-end;
   gap: .5rem;
   padding: .45rem;
-  border: 1px solid rgb(217 185 131 / 24%);
+  border: 1px solid rgb(217 185 143 / 24%);
   border-radius: .95rem;
   background: rgb(17 14 22 / 96%);
   box-shadow: 0 8px 24px rgb(0 0 0 / 18%);
 }
-.ai-chat-composer:focus-within { border-color: rgb(217 185 131 / 58%); }
+.ai-chat-composer:focus-within { border-color: rgb(217 185 143 / 58%); }
 .ai-chat-composer textarea {
   display: block;
   flex: 1;
@@ -956,7 +956,7 @@ button { -webkit-tap-highlight-color: transparent; }
   font-size: .75rem;
   line-height: 1.5;
 }
-.ai-chat-composer textarea::placeholder { color: rgb(241 220 203 / 38%); }
+.ai-chat-composer textarea::placeholder { color: rgb(246 232 218 / 38%); }
 .ai-chat-composer textarea:focus-visible { outline: 0; }
 .ai-chat-composer button {
   display: grid;
@@ -964,7 +964,7 @@ button { -webkit-tap-highlight-color: transparent; }
   flex: 0 0 2.55rem;
   width: 2.55rem;
   height: 2.55rem;
-  border: 1px solid rgb(217 185 131 / 55%);
+  border: 1px solid rgb(217 185 143 / 55%);
   border-radius: .75rem;
   background: linear-gradient(135deg, #dfc697, #c4a56e);
   color: #211a20;
@@ -975,7 +975,7 @@ button { -webkit-tap-highlight-color: transparent; }
 .ai-chat-composer button:disabled { opacity: .38; }
 .ai-composer-hint {
   margin: -.55rem 0 0;
-  color: rgb(241 220 203 / 35%);
+  color: rgb(246 232 218 / 35%);
   font-size: .55rem;
   text-align: center;
 }
