@@ -1,6 +1,7 @@
 name: Supabase hosted smoke test
 # Verify Edge API, PostgreSQL schema, RLS, Telegram setup guard, Cron delivery and readiness.
 # Re-run after a test Pages publication to confirm the live mobile bootstrap and assets.
+# This run verifies the current approved-reference styling release.
 
 on:
   push:
