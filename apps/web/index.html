@@ -24,8 +24,7 @@
       .pcj-boot-error button { min-height: 44px; padding: 0 22px; border: 1px solid #D9B98F; border-radius: 999px; background: #D9B98F; color: #201729; font: inherit; }
       @keyframes pcj-pulse { 0%, 100% { opacity: .35; transform: scaleX(.78); } 50% { opacity: 1; transform: scaleX(1); } }
     </style>
-    <script id="telegram-web-app-sdk" defer src="%BASE_URL%vendor/telegram-web-app.js"></script>
-    <script>
+        <script>
       (function () {
         function notifyTelegramReady() {
           try {
@@ -130,25 +129,18 @@
             if (ready) notifyTelegramReady();
             resolve(ready);
           };
-          var sdk = document.getElementById("telegram-web-app-sdk");
           var timer = window.setTimeout(function () {
             finish(Boolean(window.Telegram && window.Telegram.WebApp));
           }, 7000);
-
-          if (!sdk) {
-            finish(false);
-            return;
-          }
-          sdk.addEventListener("load", function () {
+          var sdk = document.createElement("script");
+          sdk.id = "telegram-web-app-sdk";
+          sdk.async = true;
+          sdk.src = new URL("vendor/telegram-web-app.js", window.location.href).toString();
+          sdk.onload = function () {
             finish(Boolean(window.Telegram && window.Telegram.WebApp));
-          }, { once: true });
-          sdk.addEventListener("error", function () {
-            finish(false);
-          }, { once: true });
-
-          // Handle the case where the async SDK completed just before listeners
-          // were attached.
-          if (window.Telegram && window.Telegram.WebApp) finish(true);
+          };
+          sdk.onerror = function () { finish(false); };
+          document.head.appendChild(sdk);
         });
       })();
     </script>
