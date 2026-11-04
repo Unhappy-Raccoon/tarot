@@ -2835,7 +2835,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
   padding: .2rem 0 .55rem;
   background:
     linear-gradient(180deg, rgb(9 7 17 / 15%), rgb(9 7 17 / 82%)),
-    url("/tarot/images/ai-astrologer-nebula.webp") center 36% / cover no-repeat;
+    url("/tarot/images/ai-astrologer-atmosphere.svg") center 36% / cover no-repeat;
 }
 .astrologer-screen .page-heading .back-button {
   grid-column: 1;
