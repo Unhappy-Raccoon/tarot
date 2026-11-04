@@ -59,18 +59,18 @@ export function ProfileScreen({ profile, displayName, onPremium, onSaveBirthProf
     <div className="page-screen profile-screen">
       <PageHeading title="Твой профиль" description="Твои данные и настройки личного пространства." />
       <section className="profile-identity">
-        <div className="profile-avatar" aria-hidden="true">{displayName.slice(0, 1).toUpperCase()}</div>
+        <div className="profile-avatar"><img src="/tarot/images/profile-statue.svg" alt="" /></div>
         <div><h2>{displayName}</h2><p>{profile.username ? `@${profile.username}` : "Личный космический журнал"}</p></div>
         <span className="plan-pill">{profile.plan === "premium" ? "PREMIUM" : "FREE"}</span>
       </section>
       <button className="premium-banner" type="button" onClick={onPremium}>
         <span><small>БОЛЬШЕ ВОЗМОЖНОСТЕЙ</small><strong>Premium</strong><em>Глубже работа с собой и расширенные практики</em><b>✓ Персональные прогнозы</b><b>✓ Расширенные расклады Таро</b></span>
-        <span className="premium-banner__ornament" aria-hidden="true">☾</span>
+        <span className="premium-banner__ornament" aria-hidden="true">✧</span>
         <span className="subtle-arrow" aria-hidden="true">→</span>
       </button>
       <section className="birth-profile-section">
         <button className="birth-profile-card" type="button" onClick={() => setEditingBirth((current) => !current)}>
-          <span className="birth-profile-symbol" aria-hidden="true">♓</span>
+          <span className="birth-profile-symbol" aria-hidden="true"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="15"/><path d="M10 14h20M10 20h20M10 26h20M20 5v30"/></svg></span>
           <span><strong>Данные рождения</strong><small>{birth ? [birth.birthDate, birth.birthTime, birth.birthPlace].filter(Boolean).join(" · ") : "Добавь дату, время и место рождения"}</small></span>
           <span className="birth-profile-arrow" aria-hidden="true">›</span>
         </button>
