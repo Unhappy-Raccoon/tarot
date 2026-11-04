@@ -64,7 +64,7 @@ export function ProfileScreen({ profile, displayName, onPremium, onSaveBirthProf
         <span className="plan-pill">{profile.plan === "premium" ? "PREMIUM" : "FREE"}</span>
       </section>
       <button className="premium-banner" type="button" onClick={onPremium}>
-        <span><small>БОЛЬШЕ ВОЗМОЖНОСТЕЙ</small><strong>Premium</strong><em>Глубже работа с собой и расширенные практики</em><b>✓ Персональные прогнозы</b><b>✓ Расширенные расклады Таро</b></span>
+        <span><small>БОЛЬШЕ ВОЗМОЖНОСТЕЙ</small><strong>Premium</strong><em>Больше глубины для твоих ежедневных ритуалов</em><b>✓ Больше диалогов с астрологом</b><b>✓ Расширенные расклады Таро</b><b>✓ Глубже натальная карта</b><b>✓ Персональные прогнозы</b></span>
         <span className="premium-banner__ornament" aria-hidden="true">✧</span>
         <span className="subtle-arrow" aria-hidden="true">→</span>
       </button>
