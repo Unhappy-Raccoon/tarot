@@ -58,6 +58,11 @@ jobs:
             echo "Pages index ($agent) -> HTTP $status"
             test "$status" = "200"
             grep -q 'id="root"' "$body_file"
+            if grep -q '</script>ipt>' "$body_file"; then
+              echo "Published HTML still contains stray script suffix."
+              exit 1
+            fi
+            grep -q 'Загрузка заняла слишком много времени' "$body_file"
             js_path="$(grep -oE 'src="[^"]+\.js"' "$body_file" | head -n1 | cut -d '"' -f2)"
             css_path="$(grep -oE 'href="[^"]+\.css"' "$body_file" | head -n1 | cut -d '"' -f2)"
             test -n "$js_path"
