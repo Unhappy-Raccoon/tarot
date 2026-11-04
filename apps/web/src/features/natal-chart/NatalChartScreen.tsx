@@ -198,7 +198,7 @@ export function NatalChartScreen({ onBack, accessToken, previewMode }: Props) {
                 {chart.placements.filter((placement) => placement.id === "sun" || placement.id === "moon").map((placement) => (
                   <article className="natal-highlight-card" key={placement.id}>
                     <span className="natal-highlight-icon">{placement.glyph}</span>
-                    <span><small>{placement.name.toUpperCase()}</small><strong>В {placement.sign ?? placement.possibleSigns.join(" / ") || "знаке уточнения"}</strong><em>{placement.degreeInSign !== null ? formatDegree(placement.degreeInSign) : "Требуется точное время"}</em></span>
+                    <span><small>{placement.name.toUpperCase()}</small><strong>В {placement.sign ?? (placement.possibleSigns.join(" / ") || "знаке уточнения")}</strong><em>{placement.degreeInSign !== null ? formatDegree(placement.degreeInSign) : "Требуется точное время"}</em></span>
                     <span className="natal-highlight-arrow">›</span>
                   </article>
                 ))}
