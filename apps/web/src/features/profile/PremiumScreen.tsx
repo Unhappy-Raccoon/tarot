@@ -12,7 +12,7 @@ const benefits = [
 export function PremiumScreen({ onBack }: Props) {
   return (
     <div className="page-screen premium-screen">
-      <PageHeading eyebrow="ТВОЁ ЛИЧНОЕ ПРОСТРАНСТВО" title="Premium" description="Больше глубины, времени и возможностей для ежедневных ритуалов." onBack={onBack} />
+      <PageHeading title="Premium" description="Больше глубины, времени и возможностей для ежедневных ритуалов." onBack={onBack} hideBrand />
       <section className="premium-hero-art">
         <span className="premium-hero-kicker">ЛИЧНОЕ ПРОСТРАНСТВО БЕЗ ГРАНИЦ</span>
         <h2>Раскрой больше<br/>возможностей</h2>
