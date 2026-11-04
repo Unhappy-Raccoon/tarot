@@ -374,3 +374,36 @@ button:active:not(:disabled) { transform: scale(.985); }
  .daily-card__orb--inner { width:8rem; height:8rem; }
  .daily-card__moon { font-size:6.2rem; }
 }
+
+
+/* Bespoke Tarot atelier */
+.tarot-selection-screen { gap:1.2rem; }
+.tarot-intro-copy { max-width:21rem; margin:-.35rem 0 0; color:#b0afba; font-family:var(--font-display); font-size:1.22rem; line-height:1.35; }
+.tarot-spread-heading { display:flex; align-items:center; justify-content:space-between; padding-bottom:.7rem; border-bottom:1px solid var(--hairline); color:#c4b18d; font-size:.55rem; letter-spacing:.19em; }
+.tarot-spread-heading small { color:var(--text-tertiary); font-size:.52rem; }
+.tarot-spread-list { display:grid; gap:1rem; }
+.spread-card { position:relative; display:grid; grid-template-columns:42% 1fr; min-height:11.8rem; border-radius:1rem; overflow:hidden; }
+.spread-card__art { position:relative; display:grid; place-items:center; min-height:100%; overflow:hidden; background:radial-gradient(ellipse at 52% 48%,rgb(145 128 174 / 27%),transparent 57%),linear-gradient(145deg,#27243a,#111522); }
+.spread-card__art::before,.spread-card__art::after { position:absolute; content:""; border:1px solid rgb(203 183 149 / 23%); border-radius:50%; }
+.spread-card__art::before { width:9rem;height:9rem; }
+.spread-card__art::after { width:7rem;height:7rem;border-style:dashed;opacity:.55; }
+.spread-card__number { position:absolute; top:.8rem;left:.85rem;z-index:1;color:#cbb890;font-size:.58rem;letter-spacing:.15em; }
+.spread-card__art-label { position:absolute; bottom:.75rem;z-index:1;color:#8d8b99;font-size:.39rem;letter-spacing:.12em; }
+.spread-artwork { position:relative;z-index:1;width:78%;max-height:9.2rem;filter:drop-shadow(0 14px 18px rgb(0 0 0 / 34%)); }
+.spread-card__body { display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:.42rem;padding:1rem .9rem; }
+.spread-card__body h2 { font-family:var(--font-display);font-size:1.45rem;line-height:1.03; }
+.spread-card__body p { margin:0;color:#aaaab6;font-size:.65rem;line-height:1.55; }
+.spread-card__body .text-cta { margin-top:.35rem;padding:.15rem 0;font-size:.63rem; }
+.spread-card--love .spread-card__art { background:radial-gradient(ellipse at center,rgba(155,105,133,.25),transparent 62%),linear-gradient(145deg,#302134,#151522); }
+.tarot-result-screen .reading-meta-row { color:#9394a3; }
+.revealed-cards { gap:.65rem; }
+.revealed-card-position { color:#c9b48e;font-size:.55rem;letter-spacing:.14em; }
+.tarot-flip-card { border-radius:.45rem; }
+.tarot-flip-card__front { padding:.3rem; }
+.tarot-card-illustration { width:100%; }
+.revealed-card-name { font-family:var(--font-display);font-size:1.05rem; }
+.interpretation-panel { padding:1.25rem; }
+.interpretation-panel > h2 { margin:.35rem 0 .6rem;font-size:2rem; }
+.meaning-row { padding:1rem 0; border-top:1px solid var(--hairline); }
+.meaning-row h3 { font-size:1.35rem; }
+.meaning-row p { font-size:.75rem; }
