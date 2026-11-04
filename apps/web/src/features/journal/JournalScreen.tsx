@@ -22,6 +22,19 @@ export function JournalScreen({ onBack, readings, onOpenReading, loading = false
   const [filter, setFilter] = useState<Filter>("Все");
   const filters: Filter[] = ["Все", "Таро", "Гороскоп", "Натальная карта"];
   const visible = filter === "Все" || filter === "Таро" ? readings : [];
+  const grouped = visible.reduce((groups, entry) => {
+    const date = new Date(entry.createdAt);
+    const key = Number.isNaN(date.valueOf()) ? "Без даты" : new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long", year: "numeric" }).format(date);
+    const current = groups.get(key) ?? [];
+    current.push(entry);
+    groups.set(key, current);
+    return groups;
+  }, new Map<string, TarotReading[]>());
+  const todayKey = new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long", year: "numeric" }).format(new Date());
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayKey = new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long", year: "numeric" }).format(yesterday);
+
 
   return (
     <div className="page-screen journal-screen">
@@ -41,18 +54,27 @@ export function JournalScreen({ onBack, readings, onOpenReading, loading = false
       <div className="journal-list">
         {loading ? (
           <div className="empty-state"><span>✧</span><h2>Открываем журнал</h2><p>Собираем сохранённые моменты…</p></div>
-        ) : visible.length ? visible.map((entry) => (
-          <button className="journal-entry journal-entry--button" key={entry.id} type="button" onClick={() => onOpenReading(entry)}>
-            <div className="journal-entry__icon" aria-hidden="true">♧</div>
-            <div className="journal-entry__body">
-              <div className="journal-entry__meta"><span>Таро · {entry.cards.length} {entry.cards.length === 1 ? "карта" : "карты"}</span><time>{formatDate(entry.createdAt)}</time></div>
-              <h2>{entry.title}</h2>
-              <p>{entry.cards.map((card) => card.name).join(" · ")}</p>
-            </div>
-            <span className="subtle-arrow" aria-hidden="true">→</span>
-          </button>
-        )) : (
-          <div className="empty-state"><span>✧</span><h2>{filter === "Все" || filter === "Таро" ? "Пока здесь тихо" : "Раздел скоро откроется"}</h2><p>{filter === "Все" || filter === "Таро" ? "Завершённые расклады будут автоматически сохраняться здесь." : "Этот тип записей появится после подключения соответствующего раздела."}</p></div>
+        ) : visible.length ? (
+          Array.from(grouped.entries()).map(([key, entries]) => (
+            <section className="journal-day-group" key={key}>
+              <div className="journal-day-heading"><span>{key === todayKey ? "СЕГОДНЯ" : key === yesterdayKey ? "ВЧЕРА" : key.toUpperCase()}</span><i /></div>
+              {entries.map((entry) => (
+                <button className="journal-entry journal-entry--button" key={entry.id} type="button" onClick={() => onOpenReading(entry)}>
+                  <div className="journal-entry__icon" aria-hidden="true">
+                    <svg viewBox="0 0 48 48"><rect x="8" y="6" width="30" height="36" rx="3"/><circle cx="23" cy="24" r="10"/><path d="M23 10v28M9 24h28M23 15l3 9-3 9-3-9z"/></svg>
+                  </div>
+                  <div className="journal-entry__body">
+                    <div className="journal-entry__meta"><span>ТАРО · {entry.cards.length} {entry.cards.length === 1 ? "КАРТА" : "КАРТЫ"}</span><time>{formatDate(entry.createdAt)}</time></div>
+                    <h2>{entry.title}</h2>
+                    <p>{entry.cards.map((card) => card.name).join(" · ")}</p>
+                  </div>
+                  <span className="subtle-arrow" aria-hidden="true">›</span>
+                </button>
+              ))}
+            </section>
+          ))
+        ) : (
+          <div className="empty-state"><span>✧</span><h2>{filter === "Все" || filter === "Таро" ? "Пока здесь тихо" : "Пока нет таких записей"}</h2><p>{filter === "Все" || filter === "Таро" ? "Завершённые расклады будут автоматически сохраняться здесь." : "Записи этого раздела появятся здесь, когда будет доступно их сохранение."}</p></div>
         )}
       </div>
       <p className="demo-disclaimer">Расклады Таро сохраняются в твоём аккаунте и доступны только тебе.</p>
