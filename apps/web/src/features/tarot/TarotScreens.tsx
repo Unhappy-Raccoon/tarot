@@ -23,8 +23,15 @@ export function TarotSelectionScreen({ onSelect, onBack, busySpread = null, erro
       <div className="tarot-spread-heading"><span>КОЛЛЕКЦИЯ АРКАНОВ</span><small>03 ПРАКТИКИ</small></div>
       <div className="tarot-spread-list">
         {spreads.map((spread) => (
-          <article className={`spread-card spread-card--${spread.id}`} key={spread.id}>
-            <div className="spread-card__art" aria-hidden="true">
+          <button
+            className={`spread-card spread-card--${spread.id}`}
+            key={spread.id}
+            type="button"
+            disabled={busySpread !== null}
+            aria-label={`Открыть расклад «${spread.title}»`}
+            onClick={() => onSelect(spread.id)}
+          >
+            <span className="spread-card__art" aria-hidden="true">
               <span className="spread-card__number">{spread.number}</span>
               <span className="spread-card__art-label">ARCANA STUDY · {spread.number}</span>
               {spread.id === "daily" ? (
@@ -49,16 +56,16 @@ export function TarotSelectionScreen({ onSelect, onBack, busySpread = null, erro
                   <circle cx="65" cy="43" r="3" className="spread-artwork__fill" />
                 </svg>
               )}
-            </div>
-            <div className="spread-card__body">
+            </span>
+            <span className="spread-card__body">
               <span className="card-eyebrow">{spread.count}</span>
-              <h2>{spread.title}</h2>
-              <p>{spread.subtitle}</p>
-              <button className="text-cta" type="button" disabled={busySpread !== null} onClick={() => onSelect(spread.id)}>
+              <span className="spread-card__title">{spread.title}</span>
+              <span className="spread-card__description">{spread.subtitle}</span>
+              <span className="text-cta">
                 {busySpread === spread.id ? "Перемешиваем карты…" : "Открыть"} <span aria-hidden="true">→</span>
-              </button>
-            </div>
-          </article>
+              </span>
+            </span>
+          </button>
         ))}
       </div>
       {error && <p className="form-error" role="alert">{error}</p>}
@@ -148,7 +155,7 @@ function TarotCardIllustration({ glyph, name, index }: { glyph: string; name: st
 }
 
 export function TarotResultScreen({ reading, onBack }: ResultProps) {
-  const [revealed, setRevealed] = useState<string[]>(() => reading.cards.map((card) => card.cardId));
+  const [revealed, setRevealed] = useState<string[]>([]);
   const allRevealed = reading.cards.every((card) => revealed.includes(card.cardId));
 
   function toggleCard(cardId: string) {
@@ -196,8 +203,7 @@ export function TarotResultScreen({ reading, onBack }: ResultProps) {
                   </span>
                 </span>
               </button>
-              <p className="revealed-card-name">{isRevealed ? card.name : "Карта закрыта"}</p>
-              {!isRevealed && <button className="reveal-text-button" type="button" onClick={() => toggleCard(card.cardId)}>Открыть карту</button>}
+              <p className="revealed-card-name">{isRevealed ? card.name : "Коснись карты, чтобы открыть"}</p>
             </article>
           );
         })}
@@ -207,7 +213,7 @@ export function TarotResultScreen({ reading, onBack }: ResultProps) {
         <h2>Главное послание</h2>
         <p>{reading.summary}</p>
         <div className="interpretation-divider" />
-        {reading.cards.map((card) => (
+        {reading.cards.filter((card) => revealed.includes(card.cardId)).map((card) => (
           <article className="meaning-row" key={card.positionId}>
             <span className="meaning-symbol" aria-hidden="true">{card.glyph}</span>
             <div>
@@ -219,6 +225,7 @@ export function TarotResultScreen({ reading, onBack }: ResultProps) {
             </div>
           </article>
         ))}
+        {!allRevealed && <p className="meaning-locked-note">Переверни карту, чтобы открыть её трактовку. К любой открытой карте можно вернуться и закрыть её повторным касанием.</p>}
       </section>
       <div className="result-actions">
         <div className="result-action-row">

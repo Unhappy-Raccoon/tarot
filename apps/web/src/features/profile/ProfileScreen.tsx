@@ -5,11 +5,12 @@ import { PageHeading } from "../../components/PageHeading";
 interface Props {
   profile: UserProfile;
   displayName: string;
+  onBack: () => void;
   onPremium: () => void;
   onSaveBirthProfile: (profile: BirthProfile) => Promise<void>;
 }
 
-export function ProfileScreen({ profile, displayName, onPremium, onSaveBirthProfile }: Props) {
+export function ProfileScreen({ profile, displayName, onBack, onPremium, onSaveBirthProfile }: Props) {
   const birth = profile.birthProfile;
   const [editingBirth, setEditingBirth] = useState(false);
   const [name, setName] = useState(birth?.displayName ?? displayName);
@@ -57,7 +58,7 @@ export function ProfileScreen({ profile, displayName, onPremium, onSaveBirthProf
 
   return (
     <div className="page-screen profile-screen">
-      <PageHeading title="Профиль" description="Твоё личное пространство" hideBrand />
+      <PageHeading title="Профиль" description="Твоё личное пространство" onBack={onBack} hideBrand />
       <section className="profile-identity">
         <div className="profile-avatar"><img src="/tarot/images/profile-statue.svg" alt="" /></div>
         <div><h2>{displayName}</h2><p>{profile.username ? `@${profile.username}` : "Личный космический журнал"}</p></div>

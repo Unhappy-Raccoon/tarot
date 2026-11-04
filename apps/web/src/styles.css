@@ -1106,3 +1106,406 @@ button:focus-visible { outline:2px solid #e0bd8c; outline-offset:3px; }
 .chat-limit__moon svg { width:1.45rem;height:1.45rem;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round; }
 .settings-icon { display:grid;place-items:center;width:1.45rem;height:1.45rem; }
 .settings-icon svg { width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.45;stroke-linecap:round;stroke-linejoin:round; }
+
+
+/* Desktop WebView + mobile layout foundation.
+   These structural rules intentionally sit last so the same compositions work
+   inside narrow Telegram popups and full-height mobile Mini Apps. */
+:root { color-scheme: dark; }
+html, body, #root {
+  width: 100%;
+  min-width: 320px;
+  min-height: 100%;
+  margin: 0;
+}
+body { overflow-x: hidden; }
+#root { min-height: 100dvh; }
+button { color: inherit; }
+.app-frame {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 430px;
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: 0 0 calc(5.55rem + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  isolation: isolate;
+}
+.app-content { flex: 1 0 auto; width: 100%; min-width: 0; }
+.page-screen, .home-screen {
+  display: grid;
+  align-content: start;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  margin: 0;
+  padding: 1.1rem 1.1rem 1.65rem;
+  gap: 1.15rem;
+  box-sizing: border-box;
+}
+.page-screen { min-height: calc(100dvh - 5.2rem - env(safe-area-inset-bottom)); }
+.home-screen { padding-top: calc(1rem + env(safe-area-inset-top)); }
+.page-heading {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  gap: .8rem;
+}
+.page-heading__brand-row { display: flex; align-items: center; min-width: 0; }
+.page-brand { display: flex; align-items: center; gap: .75rem; min-width: 0; }
+.page-brand__wordmark { display: grid; min-width: 0; gap: .15rem; }
+.page-brand__wordmark strong { line-height: 1.1; }
+.page-brand__wordmark small { line-height: 1.4; }
+.page-heading__title-row { display: flex; align-items: flex-start; gap: .75rem; min-width: 0; }
+.page-heading__titles { display: grid; min-width: 0; gap: .25rem; }
+.page-heading__titles h1 { min-width: 0; margin: 0; }
+.page-heading__titles .page-description { margin: .2rem 0 0; }
+.back-button {
+  display: grid;
+  place-items: center;
+  flex: 0 0 2.55rem;
+  width: 2.55rem;
+  min-width: 2.55rem;
+  min-height: 2.55rem;
+  padding: 0;
+  border: 1px solid var(--hairline);
+  border-radius: 50%;
+  background: rgba(30, 21, 37, .82);
+}
+.back-button svg { display: block; width: 1.1rem; height: 1.1rem; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.home-header { display: grid; justify-items: start; align-content: start; width: 100%; min-width: 0; gap: .35rem; }
+.home-header__topline { display: flex; align-items: center; justify-content: space-between; width: 100%; min-width: 0; gap: .75rem; }
+.home-wordmark { min-width: 0; line-height: 1.5; }
+.home-settings {
+  position: static;
+  display: grid;
+  place-items: center;
+  flex: 0 0 2.65rem;
+  width: 2.65rem;
+  height: 2.65rem;
+  min-width: 2.65rem;
+  padding: 0;
+  border: 1px solid rgba(224,189,140,.35);
+  border-radius: .85rem;
+  background: linear-gradient(145deg, rgba(49,34,58,.94), rgba(18,12,25,.98));
+  color: #ead2ae;
+  box-shadow: inset 0 1px rgba(255,255,255,.06), 0 8px 22px rgba(0,0,0,.18);
+}
+.home-settings svg { display: block; width: 1.2rem; height: 1.2rem; }
+.home-header h1 { margin: .15rem 0 0; font-size: clamp(2.4rem, 9vw, 3.25rem); line-height: .96; }
+.home-subtitle { margin: .25rem 0 0; }
+.home-section { display: grid; width: 100%; min-width: 0; gap: .75rem; }
+.home-section-kicker { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .25rem .6rem; line-height: 1.45; }
+.home-feature-section { gap: .45rem; }
+.daily-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr);
+  align-items: stretch;
+  width: 100%;
+  min-width: 0;
+  min-height: 17rem;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid rgba(226,195,158,.5);
+  border-radius: 1.3rem;
+  background: linear-gradient(145deg, #33243c, #110b18 78%);
+  color: var(--text-primary);
+  text-align: left;
+  appearance: none;
+}
+.daily-card__art { position: absolute; inset: 0 0 0 auto; width: 54%; pointer-events: none; }
+.daily-card__content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
+  min-height: 17rem;
+  padding: 1.15rem;
+  gap: .7rem;
+}
+.daily-card__content .daily-card__eyebrow { max-width: 100%; font-size: .52rem; line-height: 1.55; }
+.daily-card__content .serif-title {
+  max-width: 100%;
+  font-size: clamp(1.9rem, 7.1vw, 2.45rem);
+  line-height: .98;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+.daily-card__content .daily-card__copy { max-width: 100%; font-size: .66rem; line-height: 1.55; }
+.daily-card__action { white-space: nowrap; }
+.quick-section { display: grid; width: 100%; min-width: 0; gap: .75rem; }
+.section-heading-row { display: flex; align-items: flex-end; justify-content: space-between; min-width: 0; gap: .65rem; }
+.section-heading-row > div { min-width: 0; }
+.quick-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .55rem; width: 100%; min-width: 0; }
+.quick-tile {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  align-items: stretch;
+  justify-items: start;
+  width: 100%;
+  min-width: 0;
+  min-height: 7.1rem;
+  padding: .75rem .7rem;
+  border: 1px solid rgba(205,171,192,.22);
+  border-radius: 1rem;
+  background: linear-gradient(155deg, rgba(49,32,56,.8), rgba(19,13,25,.98));
+  color: var(--text-primary);
+  text-align: left;
+  gap: .4rem;
+}
+.quick-tile__number { display: block; font-size: .48rem; letter-spacing: .13em; }
+.quick-tile__icon { display: grid; place-items: center; align-self: center; width: 2rem; height: 2rem; }
+.quick-tile__icon svg { display: block; width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.25; stroke-linecap: round; stroke-linejoin: round; }
+.quick-tile > span:last-child { display: block; max-width: 100%; font-size: .85rem; line-height: 1.1; overflow-wrap: normal; word-break: normal; }
+.streak-card, .home-journal-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-width: 0;
+  gap: .8rem;
+  padding: 1rem;
+  border: 1px solid var(--hairline);
+  border-radius: 1rem;
+  background: linear-gradient(120deg, #21172c, #120d1b);
+  color: var(--text-primary);
+  text-align: left;
+}
+.streak-text { display: grid; flex: 1; min-width: 0; gap: .2rem; }
+.streak-text strong { line-height: 1.1; }
+.streak-text small { font-size: .65rem; line-height: 1.4; }
+.streak-value { display: inline-flex; flex: 0 0 auto; align-items: center; gap: .35rem; white-space: nowrap; font-size: .62rem; }
+.bottom-nav {
+  position: fixed;
+  z-index: 50;
+  right: auto;
+  bottom: 0;
+  left: 50%;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  width: min(100%, 430px);
+  min-height: 4.8rem;
+  margin: 0;
+  padding: .45rem .5rem calc(.45rem + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  border-top: 1px solid rgba(216,185,157,.22);
+  background: rgba(12,8,16,.96);
+  box-shadow: 0 -14px 38px rgba(0,0,0,.3);
+  -webkit-backdrop-filter: blur(22px) saturate(130%);
+  backdrop-filter: blur(22px) saturate(130%);
+  transform: translateX(-50%);
+}
+.bottom-nav--5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.nav-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
+  min-height: 3.55rem;
+  padding: .35rem .1rem;
+  gap: .28rem;
+  border: 1px solid transparent;
+  border-radius: .8rem;
+  background: transparent;
+  color: #8c8292;
+  appearance: none;
+}
+.nav-button.active {
+  border-color: rgba(224,189,140,.2);
+  background: linear-gradient(180deg, rgba(224,189,140,.1), rgba(224,189,140,.025));
+  color: #e8c99e;
+}
+.nav-icon { display: grid; place-items: center; width: 1.45rem; height: 1.45rem; }
+.nav-icon svg { display: block; width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.35; stroke-linecap: round; stroke-linejoin: round; }
+.nav-button small { display: block; max-width: 100%; overflow: hidden; color: inherit; font-size: .59rem; line-height: 1.2; text-overflow: ellipsis; white-space: nowrap; }
+.nav-button:focus-visible, .spread-card:focus-visible, .tarot-flip-card:focus-visible { outline: 2px solid #e4c18e; outline-offset: 3px; }
+.tarot-selection-screen, .tarot-result-screen, .journal-screen, .profile-screen, .premium-screen, .natal-screen, .daily-horoscope-screen, .astrologer-screen { display: grid; align-content: start; min-width: 0; }
+.tarot-spread-list { display: grid; gap: .95rem; width: 100%; min-width: 0; }
+.spread-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(7.2rem, .9fr) minmax(0, 1.1fr);
+  align-items: stretch;
+  width: 100%;
+  min-width: 0;
+  min-height: 13rem;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid rgba(204,166,199,.45);
+  border-radius: 1.2rem;
+  background: linear-gradient(135deg, #2c1c35 0%, #1b1124 62%, #100b15 100%);
+  box-shadow: 0 18px 42px rgba(0,0,0,.25), inset 0 1px rgba(255,255,255,.045);
+  color: var(--text-primary);
+  text-align: left;
+  appearance: none;
+  cursor: pointer;
+  transition: transform .28s ease, border-color .28s ease, box-shadow .28s ease;
+}
+.spread-card:enabled:hover { transform: translateY(-2px); border-color: rgba(224,189,140,.72); box-shadow: 0 22px 45px rgba(0,0,0,.32); }
+.spread-card:disabled { opacity: .75; cursor: progress; }
+.spread-card__art { position: relative; display: grid; place-items: center; align-self: stretch; min-width: 0; min-height: 100%; overflow: hidden; }
+.spread-card__body { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-width: 0; padding: 1rem .9rem; gap: .45rem; }
+.spread-card__title { display: block; max-width: 100%; font: 400 clamp(1.25rem, 5.4vw, 1.7rem)/1.03 var(--font-display); color: #f4eee5; overflow-wrap: normal; word-break: normal; }
+.spread-card__description { display: block; color: #c7b8c8; font-size: .66rem; line-height: 1.5; overflow-wrap: normal; }
+.spread-card__body .text-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .6rem;
+  min-height: 2.55rem;
+  margin-top: .4rem;
+  padding: .65rem 1rem;
+  border: 1px solid rgba(224,189,140,.55);
+  border-radius: 999px;
+  background: linear-gradient(110deg, #f2dfc0, #d4ae7e);
+  color: #241729;
+  font-size: .66rem;
+  font-weight: 650;
+  letter-spacing: .02em;
+  white-space: nowrap;
+}
+.spread-card--love .spread-card__art { background: radial-gradient(ellipse at center, rgba(155,105,133,.25), transparent 62%), linear-gradient(145deg,#302134,#151522); }
+.tarot-result-screen { gap: 1rem; }
+.reading-meta-row { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: .35rem .8rem; font-size: .55rem; letter-spacing: .11em; line-height: 1.45; }
+.revealed-cards { display: grid; grid-template-columns: minmax(0, 1fr); gap: .9rem; width: 100%; min-width: 0; }
+.revealed-cards--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .55rem; }
+.revealed-card-wrap { display: grid; align-content: start; justify-items: center; min-width: 0; gap: .5rem; }
+.revealed-card-position { display: block; width: 100%; min-height: 1.7em; color: #d1b990; font-size: .53rem; letter-spacing: .09em; line-height: 1.35; text-align: center; overflow-wrap: anywhere; }
+.tarot-flip-card {
+  display: block;
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  max-width: 16rem;
+  aspect-ratio: 200 / 278;
+  padding: 0;
+  border: 0;
+  border-radius: .75rem;
+  background: transparent;
+  color: var(--text-primary);
+  perspective: 1200px;
+  -webkit-tap-highlight-color: transparent;
+  appearance: none;
+  cursor: pointer;
+}
+.tarot-flip-card__inner {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: rotateY(0deg);
+  transform-style: preserve-3d;
+  transition: transform .85s cubic-bezier(.2,.72,.15,1);
+}
+.tarot-flip-card.is-revealed .tarot-flip-card__inner { transform: rotateY(180deg); }
+.tarot-flip-card__back, .tarot-flip-card__front {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid rgba(226,195,158,.72);
+  border-radius: .7rem;
+  box-shadow: 0 18px 38px rgba(0,0,0,.38), inset 0 1px rgba(255,255,255,.08);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+.tarot-flip-card__back {
+  gap: .8rem;
+  background:
+    radial-gradient(ellipse at 50% 43%, rgba(125,88,145,.42), transparent 58%),
+    repeating-linear-gradient(45deg, transparent 0 13px, rgba(224,189,140,.045) 13px 14px),
+    linear-gradient(145deg, #35233e, #120b1c 75%);
+  color: #e7cca5;
+}
+.tarot-flip-card__back::before, .tarot-flip-card__back::after { position: absolute; inset: .55rem; border: 1px solid rgba(224,189,140,.35); border-radius: .42rem; content: ""; pointer-events: none; }
+.tarot-flip-card__back::after { inset: .85rem; border-style: dashed; opacity: .55; }
+.tarot-back-moon { position: relative; z-index: 1; font: 4.2rem/1 Georgia, serif; text-shadow: 0 0 34px rgba(224,189,140,.38); }
+.tarot-back-stars, .tarot-back-caption { position: relative; z-index: 1; text-align: center; }
+.tarot-back-stars { font-size: .9rem; letter-spacing: .35em; }
+.tarot-back-caption { max-width: 80%; font-size: .42rem; letter-spacing: .2em; }
+.tarot-flip-card__front {
+  gap: .2rem;
+  padding: .45rem;
+  transform: rotateY(180deg);
+  background: radial-gradient(ellipse at 50% 42%, #30243a, #100b18 78%);
+}
+.tarot-card-illustration { display: block; flex: 1 1 auto; width: 100%; height: auto; min-height: 0; object-fit: contain; }
+.revealed-card__corner { position: absolute; top: .75rem; left: .8rem; z-index: 2; color: #e5c99f; font-size: .58rem; }
+.revealed-card__title { position: relative; z-index: 2; flex: 0 0 auto; max-width: 100%; color: #f1e4d2; font: 400 clamp(.82rem, 3vw, 1.08rem)/1.05 var(--font-display); text-align: center; overflow-wrap: anywhere; }
+.revealed-card__ornament { color: #d9b983; font-size: .55rem; letter-spacing: .2em; }
+.revealed-card-name { min-height: 1.4em; margin: 0; color: #d9c8b7; font: 400 .95rem/1.35 var(--font-display); text-align: center; }
+.reveal-text-button { display: none; }
+.interpretation-panel { display: grid; gap: .7rem; min-width: 0; padding: 1.1rem; border: 1px solid rgba(215,173,120,.2); border-radius: 1rem; }
+.interpretation-panel > h2 { margin: 0; font-size: 1.8rem; line-height: 1.05; }
+.interpretation-panel > p { margin: 0; }
+.meaning-row { display: grid; grid-template-columns: 2.4rem minmax(0,1fr); gap: .75rem; align-items: start; min-width: 0; padding: .95rem 0 0; border-top: 1px solid var(--hairline); }
+.meaning-row > div { min-width: 0; }
+.meaning-symbol { display: grid; place-items: center; width: 2.3rem; height: 2.3rem; border: 1px solid var(--hairline); border-radius: 50%; color: #e2c293; }
+.meaning-row h3 { margin: .2rem 0; }
+.meaning-row p { margin: .35rem 0; font-size: .75rem; line-height: 1.6; }
+.meaning-locked-note { margin: 0; color: var(--text-secondary); font-size: .72rem; line-height: 1.55; }
+.result-actions { display: grid; gap: .75rem; }
+.result-action-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .6rem; }
+.result-back-link { min-height: 2.5rem; padding: .65rem .9rem; border: 1px solid var(--hairline); border-radius: 999px; background: rgba(42,30,48,.8); color: #e7cca5; white-space: nowrap; }
+.journal-screen, .profile-screen { gap: 1.1rem; }
+.journal-intro-card { display: grid; grid-template-columns: auto minmax(0,1fr) auto; align-items: center; min-width: 0; gap: .8rem; }
+.journal-intro-card > span:nth-child(2) { min-width: 0; }
+.journal-list, .journal-day-group { display: grid; min-width: 0; gap: .7rem; }
+.journal-entry, .journal-entry--button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  gap: .8rem;
+  padding: .85rem;
+  border: 1px solid var(--hairline);
+  border-radius: .95rem;
+  background: linear-gradient(145deg,#21172c,#120d1b);
+}
+.journal-entry--button { color: var(--text-primary); text-align: left; cursor: pointer; appearance: none; }
+.journal-entry__icon { display: grid; place-items: center; flex: 0 0 3rem; width: 3rem; min-width: 3rem; }
+.journal-entry__body { flex: 1; min-width: 0; }
+.journal-entry__body h2 { margin: .25rem 0; font-size: 1.25rem; }
+.journal-entry__body p { margin: 0; overflow-wrap: anywhere; }
+.profile-screen { gap: 1.1rem; }
+.profile-identity { display: flex; align-items: center; min-width: 0; gap: .85rem; }
+.profile-identity > div:nth-child(2) { flex: 1; min-width: 0; }
+.profile-identity .plan-pill { flex: 0 0 auto; }
+.settings-group { display: grid; min-width: 0; }
+.premium-banner { width: 100%; }
+.astrologer-screen, .natal-screen, .daily-horoscope-screen, .premium-screen { gap: 1.1rem; }
+@media (max-width: 370px) {
+  .app-frame { padding-bottom: calc(5.35rem + env(safe-area-inset-bottom)); }
+  .page-screen, .home-screen { padding-right: .9rem; padding-left: .9rem; }
+  .daily-card--editorial { grid-template-columns: minmax(0,1.05fr) minmax(0,.95fr); }
+  .daily-card__content { padding: .95rem; }
+  .daily-card__content .serif-title { font-size: 1.85rem; }
+  .quick-grid { gap: .4rem; }
+  .quick-tile { padding: .65rem .55rem; }
+  .quick-tile > span:last-child { font-size: .78rem; }
+  .spread-card { grid-template-columns: minmax(6.7rem,.82fr) minmax(0,1.18fr); }
+  .spread-card__body { padding: .85rem .75rem; }
+  .spread-card__title { font-size: 1.28rem; }
+  .spread-card__body .text-cta { padding: .58rem .8rem; }
+  .nav-button small { font-size: .54rem; }
+}
+@media (min-width: 520px) {
+  .app-frame { box-shadow: 0 0 70px rgba(0,0,0,.36); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tarot-flip-card__inner, .spread-card, .daily-card__orb { transition: none !important; animation: none !important; }
+}

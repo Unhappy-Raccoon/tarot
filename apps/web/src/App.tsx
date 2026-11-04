@@ -355,7 +355,7 @@ export default function App() {
         {activeScreen === "natal" && <NatalChartScreen onBack={() => navigate("home")} accessToken={accessToken} previewMode={previewMode} />}
         {activeScreen === "astrologer" && <AstrologerScreen onBack={() => navigate("home")} accessToken={accessToken} />}
         {activeScreen === "journal" && <JournalScreen onBack={() => navigate("home")} readings={journalReadings} onOpenReading={openReading} loading={journalLoading} error={journalError} />}
-        {activeScreen === "profile" && <ProfileScreen profile={profile} displayName={displayName} onPremium={() => navigate("premium")} onSaveBirthProfile={updateBirthProfile} />}
+        {activeScreen === "profile" && <ProfileScreen profile={profile} displayName={displayName} onBack={() => navigate("home")} onPremium={() => navigate("premium")} onSaveBirthProfile={updateBirthProfile} />}
         {activeScreen === "premium" && <PremiumScreen onBack={() => navigate("profile")} />}
         {tarotError && activeScreen === "home" && <div className="toast-notice" role="alert">{tarotError}</div>}
       </main>
