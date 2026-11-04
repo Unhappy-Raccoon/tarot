@@ -24,10 +24,20 @@
       .pcj-boot-error button { min-height: 44px; padding: 0 22px; border: 1px solid #D9B98F; border-radius: 999px; background: #D9B98F; color: #201729; font: inherit; }
       @keyframes pcj-pulse { 0%, 100% { opacity: .35; transform: scaleX(.78); } 50% { opacity: 1; transform: scaleX(1); } }
     </style>
-    <script id="telegram-web-app-sdk" async src="https://telegram.org/js/telegram-web-app.js?64"></script>
+    <script id="telegram-web-app-sdk" defer src="%BASE_URL%vendor/telegram-web-app.js"></script>
     <script>
       (function () {
+        function notifyTelegramReady() {
+          try {
+            if (window.Telegram && window.Telegram.WebApp &&
+                typeof window.Telegram.WebApp.ready === "function") {
+              window.Telegram.WebApp.ready();
+            }
+          } catch (e) {}
+        }
+
         function showBootError(title, message) {
+          notifyTelegramReady();
           var root = document.getElementById("root");
           if (!root || root.dataset.pcjReactStarted === "true" || root.dataset.pcjBootFailed === "true") return;
           root.dataset.pcjBootFailed = "true";
@@ -103,6 +113,7 @@
             /(?:^|[?&])tgWebApp(?:Data|Version|Platform|StartParam)=/i.test(window.location.search);
 
           if (window.Telegram && window.Telegram.WebApp) {
+            notifyTelegramReady();
             resolve(true);
             return;
           }
@@ -116,6 +127,7 @@
             if (settled) return;
             settled = true;
             window.clearTimeout(timer);
+            if (ready) notifyTelegramReady();
             resolve(ready);
           };
           var sdk = document.getElementById("telegram-web-app-sdk");
