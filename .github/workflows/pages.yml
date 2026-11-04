@@ -150,6 +150,7 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
       - name: Configure Telegram webhook and Mini App menu
+        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[configure-telegram]')
         shell: bash
         run: |
           set -euo pipefail
