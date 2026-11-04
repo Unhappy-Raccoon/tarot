@@ -24,6 +24,7 @@
       .pcj-boot-error button { min-height: 44px; padding: 0 22px; border: 1px solid #D9B98F; border-radius: 999px; background: #D9B98F; color: #201729; font: inherit; }
       @keyframes pcj-pulse { 0%, 100% { opacity: .35; transform: scaleX(.78); } 50% { opacity: 1; transform: scaleX(1); } }
     </style>
+    <script src="https://telegram.org/js/telegram-web-app.js?64"></script>
     <script>
       (function () {
         function showBootError(title, message) {
@@ -93,28 +94,11 @@
           }
         }, 20000);
 
-        window.__pcjTelegramReady = new Promise(function (resolve) {
-          if (window.Telegram && window.Telegram.WebApp) {
-            resolve(true);
-            return;
-          }
-          var settled = false;
-          var finish = function (ready) {
-            if (settled) return;
-            settled = true;
-            window.clearTimeout(timer);
-            resolve(ready);
-          };
-          var timer = window.setTimeout(function () {
-            finish(Boolean(window.Telegram && window.Telegram.WebApp));
-          }, 8000);
-          var script = document.createElement("script");
-          script.src = "https://telegram.org/js/telegram-web-app.js";
-          script.async = true;
-          script.onload = function () { finish(Boolean(window.Telegram && window.Telegram.WebApp)); };
-          script.onerror = function () { finish(false); };
-          document.head.appendChild(script);
-        });
+        // Telegram's official SDK is loaded synchronously in <head>, before
+        // the application module. No dynamic script-injection race is needed.
+        window.__pcjTelegramReady = Promise.resolve(
+          Boolean(window.Telegram && window.Telegram.WebApp)
+        );
       })();
     </script>
   </head>
