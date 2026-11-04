@@ -9,6 +9,7 @@ on:
       - feat/supabase-edge-runtime
     paths:
       - ".github/workflows/supabase-smoke.yml"
+      - "apps/web/**"
       - "supabase/functions/**"
       - "apps/server/src/**"
   workflow_dispatch:
