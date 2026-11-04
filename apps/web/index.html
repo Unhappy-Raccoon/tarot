@@ -20,24 +20,75 @@
       .pcj-boot-line { width: 84px; height: 2px; margin-top: 12px; border-radius: 99px; background: linear-gradient(90deg, transparent, #D9B98F, transparent); animation: pcj-pulse 1.5s ease-in-out infinite; }
       .pcj-boot-error { display: grid; justify-items: center; gap: 12px; max-width: 360px; padding: 28px; }
       .pcj-boot-error p { color: #D6C7D9; line-height: 1.6; }
+      .pcj-boot-link { color: #B9A6FF; font-size: 13px; text-underline-offset: 4px; }
       .pcj-boot-error button { min-height: 44px; padding: 0 22px; border: 1px solid #D9B98F; border-radius: 999px; background: #D9B98F; color: #201729; font: inherit; }
       @keyframes pcj-pulse { 0%, 100% { opacity: .35; transform: scaleX(.78); } 50% { opacity: 1; transform: scaleX(1); } }
     </style>
     <script>
       (function () {
-        function showBootError(message) {
+        function showBootError(title, message) {
           var root = document.getElementById("root");
-          if (!root || root.dataset.pcjReactStarted === "true") return;
-          root.innerHTML = '<main class="pcj-boot-screen"><div class="pcj-boot-error"><div class="pcj-boot-moon">☾</div><h1 class="pcj-boot-title">Не удалось открыть приложение</h1><p>' + message + '</p><button type="button" onclick="window.location.reload()">Перезагрузить</button></div></main>';
+          if (!root || root.dataset.pcjReactStarted === "true" || root.dataset.pcjBootFailed === "true") return;
+          root.dataset.pcjBootFailed = "true";
+          root.replaceChildren();
+          var screen = document.createElement("main");
+          screen.className = "pcj-boot-screen";
+          var panel = document.createElement("section");
+          panel.className = "pcj-boot-error";
+          var moon = document.createElement("div");
+          moon.className = "pcj-boot-moon";
+          moon.textContent = "☾";
+          var heading = document.createElement("h1");
+          heading.className = "pcj-boot-title";
+          heading.textContent = title;
+          var copy = document.createElement("p");
+          copy.textContent = message;
+          var retry = document.createElement("button");
+          retry.type = "button";
+          retry.textContent = "Перезагрузить";
+          retry.addEventListener("click", function () { window.location.reload(); });
+          var safari = document.createElement("a");
+          safari.className = "pcj-boot-link";
+          safari.href = window.location.href;
+          safari.target = "_blank";
+          safari.rel = "noopener noreferrer";
+          safari.textContent = "Открыть эту страницу в Safari";
+          panel.append(moon, heading, copy, retry, safari);
+          screen.appendChild(panel);
+          root.appendChild(screen);
         }
+
         window.addEventListener("error", function (event) {
           if (event.target && event.target.tagName === "SCRIPT") {
-            showBootError("Не удалось загрузить модуль интерфейса. Проверь подключение к интернету и попробуй ещё раз.");
+            showBootError(
+              "Не удалось загрузить приложение",
+              "iPhone не смог получить JavaScript-модуль страницы. Проверь сеть и попробуй открыть приложение в Safari."
+            );
+          } else if (event.message) {
+            showBootError(
+              "Ошибка запуска приложения",
+              "Встроенный браузер остановил загрузку интерфейса. Попробуй перезагрузить страницу или открыть её в Safari."
+            );
           }
         }, true);
+
         window.addEventListener("unhandledrejection", function () {
-          showBootError("Приложение столкнулось с ошибкой при запуске. Перезагрузи страницу.");
+          showBootError(
+            "Не удалось запустить приложение",
+            "Произошла ошибка во время запуска. Перезагрузи Mini App; если экран останется пустым, открой эту страницу в Safari."
+          );
         });
+
+        window.setTimeout(function () {
+          var root = document.getElementById("root");
+          if (root && root.dataset.pcjReactStarted !== "true" && root.dataset.pcjBootFailed !== "true") {
+            showBootError(
+              "Загрузка заняла слишком много времени",
+              "Telegram не смог загрузить модуль интерфейса за 20 секунд. Проверь, открывается ли та же ссылка в Safari."
+            );
+          }
+        }, 20000);
+
         window.__pcjTelegramReady = new Promise(function (resolve) {
           if (window.Telegram && window.Telegram.WebApp) {
             resolve(true);
@@ -54,14 +105,14 @@
             finish(Boolean(window.Telegram && window.Telegram.WebApp));
           }, 8000);
           var script = document.createElement("script");
-          script.src = "https://telegram.org/js/telegram-web-app.js?64";
+          script.src = "https://telegram.org/js/telegram-web-app.js";
           script.async = true;
           script.onload = function () { finish(Boolean(window.Telegram && window.Telegram.WebApp)); };
           script.onerror = function () { finish(false); };
           document.head.appendChild(script);
         });
       })();
-    </script>
+    </script>ipt>
   </head>
   <body>
     <div id="root">
