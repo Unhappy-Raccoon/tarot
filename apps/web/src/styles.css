@@ -778,3 +778,146 @@ button { -webkit-appearance: none; appearance: none; touch-action: manipulation;
 @supports (height: 100dvh) {
   .app-frame { min-height: 100dvh; }
 }
+
+
+/* Approved Personal Cosmic Journal renders — visual alignment pass.
+   Palette, contrast and component treatment are taken from the approved screens
+   in the supplied mockup archive (home, tarot, natal, astrologer, journal, profile). */
+:root {
+  --color-night: #080611;
+  --color-indigo: #171027;
+  --color-cosmic-violet: #76518f;
+  --color-lavender: #cbb9d9;
+  --color-milk: #f4eee5;
+  --color-gold: #d7ad78;
+  --line: rgb(215 173 120 / 22%);
+  --muted: rgb(220 210 214 / 64%);
+  --surface: #171020;
+  --surface-raised: #241a31;
+  --ink-0: #080611;
+  --ink-1: #100b19;
+  --ink-2: #171020;
+  --ink-3: #251a32;
+  --accent-plum: #382548;
+  --accent-lilac: #cbb9d9;
+  --accent-champagne: #d7ad78;
+  --text-primary: #f4eee5;
+  --text-secondary: #b9aebb;
+  --text-tertiary: #887d91;
+  --hairline: rgb(231 213 196 / 14%);
+  --shadow-luxe: 0 22px 64px rgb(0 0 0 / 48%);
+}
+body {
+  background:
+    radial-gradient(ellipse at 50% -8%, rgb(104 66 126 / 22%), transparent 34rem),
+    radial-gradient(ellipse at 92% 52%, rgb(62 36 75 / 13%), transparent 30rem),
+    linear-gradient(180deg, #080611 0%, #0b0812 58%, #090711 100%);
+}
+.app-frame {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgb(87 54 108 / 14%), transparent 25rem),
+    transparent;
+}
+.home-header h1 { font-size: clamp(2.3rem, 9.2vw, 2.85rem); }
+.home-header h1 em { color: #e8cba7; font-style: normal; }
+.home-moon, .page-brand__moon { color: #e5c49a; }
+.daily-card {
+  border-color: rgb(222 187 145 / 34%);
+  background:
+    linear-gradient(90deg, rgb(8 6 17 / 96%) 0%, rgb(13 8 22 / 76%) 48%, rgb(16 9 25 / 18%) 100%),
+    radial-gradient(ellipse at 78% 45%, rgb(126 83 147 / 42%), transparent 54%),
+    linear-gradient(145deg, #2b1b37 0%, #120c1d 76%);
+}
+.daily-card__eyebrow, .home-section-kicker, .eyebrow, .card-eyebrow {
+  color: #d7ad78;
+}
+.daily-card__action, .round-arrow { color: #f0d4ae; }
+.quick-tile {
+  border-color: rgb(215 173 120 / 18%);
+  background: linear-gradient(155deg, #241a31 0%, #130e1c 82%);
+}
+.quick-tile__icon, .streak-flame, .streak-value { color: #d7ad78; }
+.streak-card, .journal-intro-card, .birth-profile-card, .settings-group,
+.empty-state, .birth-edit-form, .premium-plan-note {
+  border-color: rgb(215 173 120 / 16%);
+  background: linear-gradient(145deg, #241a31 0%, #120d1b 100%);
+}
+.page-heading h1, .section-heading-row h2, .journal-section-title,
+.spread-card__body h2, .natal-highlight-card strong, .profile-identity h2 {
+  color: #f4eee5;
+}
+.back-button {
+  border-color: rgb(215 173 120 / 24%);
+  background: #171020;
+  color: #e2bd91;
+}
+.spread-card {
+  border-color: rgb(215 173 120 / 21%);
+  background: linear-gradient(145deg, #2a1d39 0%, #151020 72%);
+  box-shadow: 0 16px 40px rgb(0 0 0 / 30%);
+}
+.spread-card__art {
+  background:
+    radial-gradient(circle at 50% 45%, rgb(124 83 149 / 30%), transparent 65%),
+    linear-gradient(155deg, #30203e, #100b19);
+}
+.spread-artwork { color: #e0bd91; }
+.spread-artwork rect { stroke: #d8b17e; }
+.spread-artwork circle, .spread-artwork path { stroke: currentColor; }
+.spread-card__body .text-cta, .primary-button, .premium-plan-note .primary-button {
+  background: linear-gradient(100deg, #f2d8b5, #c99a62);
+  color: #25172a;
+  border-color: #e5c69e;
+}
+.tarot-result-card, .tarot-reading-summary, .natal-highlight-card,
+.placement-row, .ai-followup-card, .suggestion-block, .ai-history-panel {
+  border-color: rgb(215 173 120 / 17%);
+  background: linear-gradient(145deg, #251a32, #120d1b);
+}
+.natal-wheel, .natal-chart-wheel {
+  filter: drop-shadow(0 0 24px rgb(118 81 143 / 24%));
+}
+.astrologer-editorial-art {
+  border-color: rgb(215 173 120 / 24%);
+  box-shadow: 0 0 42px rgb(101 64 121 / 20%);
+}
+.chat-message--assistant > div, .chat-message.assistant > div {
+  background: linear-gradient(145deg, #261b34, #171020);
+  border-color: rgb(215 173 120 / 18%);
+}
+.chat-message--user > div, .chat-message.user > div {
+  background: linear-gradient(145deg, #44304c, #2b1d36);
+  border-color: rgb(215 173 120 / 25%);
+}
+.journal-intro-card {
+  background:
+    linear-gradient(100deg, rgb(11 8 18 / 86%), rgb(22 14 30 / 78%)),
+    url("/tarot/images/ai-astrologer-atmosphere.svg") center 52% / cover no-repeat;
+}
+.journal-entry, .journal-entry--button {
+  border-color: rgb(215 173 120 / 15%);
+  background: linear-gradient(145deg, #21172c, #120d1b);
+}
+.profile-identity, .premium-banner {
+  border-color: rgb(215 173 120 / 20%);
+  background: linear-gradient(135deg, #2c1d38 0%, #171020 72%);
+}
+.premium-banner {
+  background:
+    radial-gradient(ellipse at 86% 4%, rgb(139 91 150 / 30%), transparent 55%),
+    linear-gradient(125deg, #35213e 0%, #1b1226 56%, #100b18 100%);
+}
+.plan-pill, .journal-filters button.selected {
+  border-color: rgb(215 173 120 / 48%);
+  background: rgb(215 173 120 / 13%);
+  color: #f0d2aa;
+}
+.bottom-nav {
+  border-top-color: rgb(215 173 120 / 16%);
+  background: rgb(12 8 18 / 94%);
+  -webkit-backdrop-filter: blur(22px);
+  backdrop-filter: blur(22px);
+}
+@media (prefers-reduced-transparency: reduce) {
+  .bottom-nav { background: #100b18; -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
