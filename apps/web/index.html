@@ -30,7 +30,7 @@
           var root = document.getElementById("root");
           if (!root || root.dataset.pcjReactStarted === "true" || root.dataset.pcjBootFailed === "true") return;
           root.dataset.pcjBootFailed = "true";
-          root.replaceChildren();
+          while (root.firstChild) root.removeChild(root.firstChild);
           var screen = document.createElement("main");
           screen.className = "pcj-boot-screen";
           var panel = document.createElement("section");
@@ -53,7 +53,11 @@
           safari.target = "_blank";
           safari.rel = "noopener noreferrer";
           safari.textContent = "Открыть эту страницу в Safari";
-          panel.append(moon, heading, copy, retry, safari);
+          panel.appendChild(moon);
+          panel.appendChild(heading);
+          panel.appendChild(copy);
+          panel.appendChild(retry);
+          panel.appendChild(safari);
           screen.appendChild(panel);
           root.appendChild(screen);
         }
