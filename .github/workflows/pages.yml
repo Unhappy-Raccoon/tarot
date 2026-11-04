@@ -36,6 +36,7 @@ permissions:
   contents: read
 
 # Test publication is gated by the one-time PUBLISH_TO_TEST request marker.
+# Configure Pages explicitly in the build job so a first-time deployment can initialize the site.
 concurrency:
   group: github-pages-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
