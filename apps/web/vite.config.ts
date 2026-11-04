@@ -8,7 +8,7 @@ export default defineConfig({
   build: {
     // Telegram's embedded WebViews can lag behind desktop browsers.
     // ES2020 keeps the bundle compatible with a broader range of iOS/Android WebViews.
-    target: "es2020",
+    target: "es2017",
   },
   server: {
     host: "0.0.0.0",
