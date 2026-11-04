@@ -1224,3 +1224,80 @@ button { -webkit-tap-highlight-color: transparent; }
   .page-brand__wordmark small { font-size: .43rem; }
   .journal-intro-card { padding: .7rem; }
 }
+
+
+/* Fine detail pass for Tarot and AI screens */
+.astrologer-screen .page-heading {
+  justify-items: center;
+  text-align: center;
+  padding-top: .55rem;
+  padding-bottom: .35rem;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgb(109 90 230 / 16%), transparent 72%);
+}
+.astrologer-screen .page-heading .back-button {
+  justify-self: start;
+  position: absolute;
+  top: .25rem;
+  left: 0;
+}
+.astrologer-screen .page-heading h1 {
+  margin-top: .15rem;
+  font-size: clamp(1.85rem, 8vw, 2.2rem);
+}
+.astrologer-screen .page-description { max-width: 21rem; }
+.ai-chat-thread .chat-message--assistant > div {
+  border-color: rgb(217 185 143 / 25%);
+  border-radius: .95rem 1rem 1rem .35rem;
+  background:
+    radial-gradient(ellipse at 0% 0%, rgb(109 90 230 / 12%), transparent 46%),
+    linear-gradient(145deg, rgb(36 27 47 / 97%), rgb(18 15 27 / 97%));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 3%);
+}
+.ai-chat-thread .chat-message--assistant p {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: .91rem;
+  line-height: 1.55;
+}
+.ai-chat-thread .chat-message--user > div {
+  border-color: rgb(185 166 255 / 28%);
+  border-radius: 1rem .95rem .35rem 1rem;
+  background: linear-gradient(135deg, rgb(83 59 88 / 90%), rgb(48 34 59 / 96%));
+}
+.chat-usage-panel {
+  background:
+    radial-gradient(ellipse at 4% 50%, rgb(109 90 230 / 14%), transparent 52%),
+    linear-gradient(115deg, rgb(31 24 45 / 96%), rgb(17 14 25 / 98%));
+}
+.chat-usage-meter > span {
+  background: linear-gradient(90deg, #B9A6FF, #D9B98F);
+  box-shadow: 0 0 12px rgb(185 166 255 / 32%);
+}
+.spread-card__art {
+  background:
+    radial-gradient(circle at 50% 44%, rgb(217 185 143 / 16%), transparent 44%),
+    linear-gradient(145deg, #261B39, #100D1A);
+}
+.spread-card__orbit {
+  width: 4.2rem;
+  height: 4.2rem;
+  border-color: rgb(217 185 143 / 36%);
+  box-shadow: inset 0 0 18px rgb(109 90 230 / 14%), 0 0 18px rgb(109 90 230 / 12%);
+}
+.tarot-result-screen .revealed-card-wrap {
+  gap: .62rem;
+}
+.tarot-result-screen .revealed-card-position {
+  color: #D9B98F;
+  font-size: .58rem;
+}
+.interpretation-panel {
+  border-color: rgb(185 166 255 / 22%);
+  background: linear-gradient(145deg, rgb(34 25 53 / 92%), rgb(16 13 24 / 97%));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 3%);
+}
+@media (max-width: 600px) {
+  .astrologer-screen .page-heading { padding-top: .65rem; }
+  .astrologer-screen .page-heading .back-button { top: .12rem; }
+  .ai-chat-thread { min-height: 13rem; }
+}
