@@ -3143,3 +3143,55 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
+
+
+/* Screen-specific title art: profile and Premium intentionally omit the masthead */
+.profile-screen .page-heading--plain {
+  min-height: 6.6rem;
+  justify-content: end;
+  padding: .55rem .72rem .8rem;
+  margin: -.82rem -1.05rem -.05rem;
+  background:
+    linear-gradient(90deg, rgb(8 6 15 / 32%), rgb(8 6 15 / 7%)),
+    linear-gradient(0deg, rgb(8 6 15 / 96%) 0%, rgb(8 6 15 / 8%) 90%),
+    url("/tarot/images/premium-moon-phases.svg") right 24% / cover no-repeat;
+}
+.profile-screen .page-heading--plain .page-heading__title-row {
+  min-height: auto;
+  justify-content: flex-start;
+}
+.profile-screen .page-heading--plain .page-heading__titles {
+  justify-items: start;
+  padding: 0;
+}
+.profile-screen .page-heading--plain .page-heading__titles h1 {
+  font-size: clamp(2.5rem, 10vw, 3rem);
+  text-align: left;
+}
+.profile-screen .page-heading--plain .page-description { color: #e0d2e3; }
+
+.premium-screen .page-heading--plain {
+  min-height: 3.55rem;
+  margin: 0;
+  background: transparent;
+}
+.premium-screen .page-heading--plain .page-heading__title-row {
+  min-height: 3.5rem;
+  justify-content: center;
+  align-items: center;
+}
+.premium-screen .page-heading--plain .page-heading__titles {
+  justify-items: center;
+  padding: 0 2rem;
+}
+.premium-screen .page-heading--plain .page-heading__titles h1 {
+  font-size: 1.95rem;
+  text-align: center;
+}
+.premium-screen .page-heading--plain .page-description { margin-top: .12rem; text-align: center; }
+.premium-screen .page-heading--plain .back-button {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
