@@ -10,22 +10,28 @@ export function PageHeading({ eyebrow = "", title, description, onBack, hideBran
   return (
     <header className={`page-heading ${hideBrand ? "page-heading--plain" : ""}`}>
       {!hideBrand && (
-        <div className="page-brand">
-          <span className="page-brand__moon" aria-hidden="true">☾</span>
-          <span className="page-brand__wordmark">
-            <strong>Personal Cosmic Journal</strong>
-            <small>ТАРО · АСТРОЛОГИЯ · ГАРМОНИЯ</small>
-          </span>
+        <div className="page-heading__brand-row">
+          <div className="page-brand">
+            <span className="page-brand__moon" aria-hidden="true">☾</span>
+            <span className="page-brand__wordmark">
+              <strong>Personal Cosmic Journal</strong>
+              <small>ТАРО · АСТРОЛОГИЯ · ГАРМОНИЯ</small>
+            </span>
+          </div>
         </div>
       )}
-      {onBack && (
-        <button className="back-button" type="button" onClick={onBack} aria-label="Назад">
-          ←
-        </button>
-      )}
-      {eyebrow && <p className="eyebrow">{eyebrow}</p>}
-      <h1>{title}</h1>
-      {description && <p className="page-description">{description}</p>}
+      <div className="page-heading__title-row">
+        {onBack && (
+          <button className="back-button" type="button" onClick={onBack} aria-label="Назад">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m0 0 7-7m-7 7 7 7"/></svg>
+          </button>
+        )}
+        <div className="page-heading__titles">
+          {eyebrow && <p className="eyebrow">{eyebrow}</p>}
+          <h1>{title}</h1>
+          {description && <p className="page-description">{description}</p>}
+        </div>
+      </div>
     </header>
   );
 }
