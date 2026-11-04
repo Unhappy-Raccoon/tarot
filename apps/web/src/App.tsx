@@ -36,7 +36,8 @@ async function fetchWithTimeout(input: RequestInfo | URL, init: RequestInit = {}
 }
 
 function isTelegramHost(): boolean {
-  return /Telegram/i.test(navigator.userAgent) || Boolean(window.TelegramWebviewProxy);
+  const telegramQuery = /(?:^|[?&])tgWebApp(?:Data|Version|Platform|StartParam)=/i.test(window.location.search);
+  return telegramQuery || /Telegram/i.test(navigator.userAgent) || Boolean(window.TelegramWebviewProxy);
 }
 
 function readSessionToken(): string | null {
