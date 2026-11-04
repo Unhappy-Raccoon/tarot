@@ -57,7 +57,7 @@ export function ProfileScreen({ profile, displayName, onPremium, onSaveBirthProf
 
   return (
     <div className="page-screen profile-screen">
-      <PageHeading title="Твой профиль" description="Твои данные и настройки личного пространства." />
+      <PageHeading title="Профиль" description="Твоё личное пространство" />
       <section className="profile-identity">
         <div className="profile-avatar"><img src="/tarot/images/profile-statue.svg" alt="" /></div>
         <div><h2>{displayName}</h2><p>{profile.username ? `@${profile.username}` : "Личный космический журнал"}</p></div>
