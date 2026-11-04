@@ -92,7 +92,9 @@ jobs:
           fi
           grep -q '<script type="module"' "$index_file"
           test -s "apps/web/dist/images/home-card-clouds.webp"
+          test -s "apps/web/dist/images/ai-astrologer-atmosphere.svg"
           grep -Rql 'home-card-clouds.webp' apps/web/dist/assets/*.css
+          grep -Rql 'ai-astrologer-atmosphere.svg' apps/web/dist/assets/*.css
           if grep -q 'fonts.googleapis.com/css' "$index_file"; then
             echo "Google Fonts stylesheet must not block first paint."
             exit 1
