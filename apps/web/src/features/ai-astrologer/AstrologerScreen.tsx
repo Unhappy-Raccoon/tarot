@@ -236,17 +236,19 @@ export function AstrologerScreen({ onBack, accessToken }: Props) {
 
   return (
     <div className="page-screen astrologer-screen">
-      <PageHeading
-        eyebrow=""
-        title="AI-астролог"
-        hideBrand
-        description="Место для вопросов, наблюдений и бережного исследования себя."
-        onBack={onBack}
-      />
+      <header className="astrologer-editorial-header">
+        <button className="back-button" type="button" onClick={onBack} aria-label="Назад">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m0 0 7-7m-7 7 7 7"/></svg>
+        </button>
+        <div className="astrologer-editorial-art" aria-hidden="true"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="47" fill="none" stroke="currentColor" strokeOpacity=".2"/><circle cx="60" cy="60" r="37" fill="none" stroke="currentColor" strokeOpacity=".34" strokeDasharray="1 5"/><path d="M72 22C49 28 39 53 49 73c8 17 28 25 46 17-20 2-37-12-37-32 0-14 5-27 14-36Z" fill="none" stroke="currentColor" strokeWidth="2.2"/><path d="m88 23 2.2 5.5 5.8 2.2-5.8 2.2-2.2 5.6-2.2-5.6-5.8-2.2 5.8-2.2 2.2-5.5Z" fill="currentColor"/></svg><i>✧</i><b>✦</b></div>
+        <p className="eyebrow">ЛИЧНОЕ ПРОСТРАНСТВО ДЛЯ ДИАЛОГА</p>
+        <h1>Твой AI-астролог</h1>
+        <p>Исследуй свои вопросы через символы и астрологические образы. Без категоричных прогнозов — с вниманием к тебе.</p>
+      </header>
 
       {status && (
         <section className="chat-usage-panel">
-          <span className="chat-limit__moon" aria-hidden="true">☾</span>
+          <span className="chat-limit__moon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M16.8 3.5A8.5 8.5 0 1 0 20.5 17 8.6 8.6 0 0 1 16.8 3.5Z"/></svg></span>
           <div className="chat-usage-copy">
             <strong>Сообщения сегодня</strong>
             <span>{status.available ? `${status.usage.used} из ${status.usage.limit}` : "AI-провайдер временно недоступен"}</span>

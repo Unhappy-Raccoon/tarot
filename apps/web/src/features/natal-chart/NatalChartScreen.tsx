@@ -148,6 +148,10 @@ export function NatalChartScreen({ onBack, accessToken, previewMode }: Props) {
             "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,
           },
+          // The API expects a JSON request body even though birth data is read
+          // from the authenticated profile. Sending {} avoids an empty-body
+          // parser failure in Telegram WebView.
+          body: JSON.stringify({}),
         });
         const result = await response.json() as { chart?: NatalChartResult; message?: string };
         if (!response.ok || !result.chart) {
