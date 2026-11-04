@@ -629,3 +629,152 @@ button:active:not(:disabled) { transform: scale(.985); }
   background-position: center, center, center;
   background-repeat: no-repeat;
 }
+
+
+/* iPhone finishing pass: native type, real markup selectors and keyboard-safe layout. */
+:root {
+  --font-display: "Iowan Old Style", "Baskerville", "Palatino Linotype", "Book Antiqua", ui-serif, Georgia, serif;
+  --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+}
+html {
+  min-height: 100%;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  overscroll-behavior-y: none;
+}
+body {
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+}
+button, input, textarea, select { font: inherit; }
+button { -webkit-appearance: none; appearance: none; touch-action: manipulation; }
+.page-screen, .home-screen { overflow-wrap: anywhere; }
+.page-heading h1 { text-wrap: balance; }
+.page-description { text-wrap: pretty; }
+.daily-card {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  text-align: left;
+  color: var(--text-primary);
+}
+.daily-card__art { pointer-events: none; }
+.daily-card__content { width: 58%; text-align: left; }
+.daily-card__content .serif-title { text-wrap: balance; }
+.daily-card__copy { text-wrap: pretty; }
+.quick-tile { min-width: 0; }
+.quick-tile > span:last-child { overflow-wrap: anywhere; }
+.spread-card__art { min-width: 0; }
+.spread-card__body { min-width: 0; }
+.spread-card__body h2 { text-wrap: balance; }
+.tarot-selection-screen .disclaimer { margin-top: .2rem; }
+.tarot-flip-card { min-width: 0; }
+.tarot-flip-card__inner, .tarot-flip-card__front, .tarot-flip-card__back { width: 100%; }
+.tarot-card-illustration { display: block; height: auto; }
+.natal-wheel-heading span { text-align: right; }
+.natal-core-facts strong { overflow-wrap: anywhere; }
+.natal-highlight-card { min-width: 0; }
+.natal-highlight-card strong { overflow-wrap: anywhere; }
+.placement-row h3 { overflow-wrap: anywhere; }
+.journal-intro-card__arrow { color: var(--accent-champagne); font-size: 1.35rem; }
+.journal-filters {
+  display: flex;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.journal-filters::-webkit-scrollbar { display: none; }
+.journal-filters button { flex: 0 0 auto; white-space: nowrap; }
+.journal-entry--button {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  color: var(--text-primary);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.journal-entry__body { flex: 1; min-width: 0; }
+.journal-entry__meta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .25rem .5rem; }
+.journal-entry__body h2, .journal-entry__body p { overflow-wrap: anywhere; }
+.profile-identity { display: flex; align-items: center; min-width: 0; }
+.profile-identity > div:nth-child(2) { flex: 1; min-width: 0; }
+.profile-identity h2 { overflow-wrap: anywhere; }
+.profile-identity p { color: var(--text-secondary); overflow-wrap: anywhere; }
+.premium-banner { width: 100%; color: var(--text-primary); text-align: left; }
+.premium-banner > span:first-child { min-width: 0; }
+.premium-banner__ornament { color: #d6c39f; }
+.premium-banner > .subtle-arrow { position: absolute; right: 1.1rem; bottom: 1rem; }
+.premium-banner > span:first-child { padding-bottom: .9rem; }
+.settings-row { display: grid; grid-template-columns: 1.5rem minmax(0,1fr) auto; align-items: center; gap: .65rem; }
+.settings-row > span:nth-child(2) { display: grid; min-width: 0; gap: .18rem; }
+.settings-row strong, .settings-row small { overflow-wrap: anywhere; }
+.coordinate-fields > div { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .6rem; }
+.coordinate-fields label, .birth-edit-form label { display: grid; gap: .35rem; min-width: 0; color: #c9c5c0; font-size: .68rem; }
+.birth-edit-form input { width: 100%; min-width: 0; min-height: 2.8rem; padding: .65rem .75rem; }
+.birth-edit-actions { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+.premium-hero-art { isolation: isolate; }
+.premium-hero-art > * { position: relative; z-index: 1; }
+.premium-hero-art::before, .premium-hero-art::after { z-index: 0; }
+.premium-benefit { display: flex; gap: .8rem; }
+.premium-benefit > div { flex: 1; min-width: 0; }
+.astrologer-screen { min-height: 100%; }
+.astrologer-editorial-header { padding-top: .2rem; }
+.astrologer-editorial-header .back-button { z-index: 2; }
+.ai-chat-thread {
+  display: flex;
+  flex-direction: column;
+  gap: .9rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.chat-message { display: flex; align-items: flex-end; gap: .5rem; }
+.chat-message > div { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
+.chat-message p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.chat-message time { display: block; margin-top: .45rem; color: #858897; font-size: .55rem; text-align: right; }
+.chat-avatar { display: grid; place-items: center; flex: 0 0 1.8rem; width: 1.8rem; height: 1.8rem; border: 1px solid var(--hairline); border-radius: 50%; color: #d6bd91; }
+.ai-chat-composer {
+  position: sticky;
+  bottom: calc(5.35rem + env(safe-area-inset-bottom));
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  min-width: 0;
+}
+.ai-chat-composer textarea { flex: 1; width: 0; min-width: 0; resize: none; }
+.ai-chat-composer button { flex: 0 0 2.75rem; width: 2.75rem; height: 2.75rem; min-height: 2.75rem; }
+.ai-history-panel, .ai-followup-card, .suggestion-block { min-width: 0; }
+.ai-history-item { display: flex; align-items: center; gap: .5rem; min-width: 0; }
+.ai-history-open { flex: 1; min-width: 0; text-align: left; }
+.ai-history-open strong, .ai-history-open span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ai-chat-toolbar button { min-width: 0; }
+.bottom-nav { padding-bottom: max(.55rem, env(safe-area-inset-bottom)); }
+.nav-button { min-width: 0; }
+.nav-button small { white-space: nowrap; }
+:focus-visible { outline: 2px solid #d4bd91; outline-offset: 3px; }
+@media (max-width: 370px) {
+  .daily-card__content { width: 62%; }
+  .daily-card__content .serif-title { font-size: 2.05rem; }
+  .spread-card { grid-template-columns: 38% minmax(0,1fr); min-height: 10.8rem; }
+  .spread-card__art::before { width: 7rem; height: 7rem; }
+  .spread-card__art::after { width: 5.6rem; height: 5.6rem; }
+  .spread-card__body { padding: .8rem .7rem; }
+  .spread-card__body h2 { font-size: 1.28rem; }
+  .spread-card__body p { font-size: .61rem; }
+  .page-heading h1 { font-size: 2.2rem; }
+  .ai-chat-toolbar { gap: .35rem; }
+  .ai-toolbar-button { padding: .5rem .6rem; font-size: .61rem; }
+}
+@media (max-height: 700px) {
+  .astrologer-editorial-art { width: 5.3rem; height: 5.3rem; margin: 0 0 .65rem; }
+  .astrologer-editorial-art span { font-size: 3.4rem; }
+  .ai-chat-thread { min-height: 14rem; }
+}
+@supports (height: 100dvh) {
+  .app-frame { min-height: 100dvh; }
+}
