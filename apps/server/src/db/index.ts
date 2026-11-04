@@ -1,17 +1,19 @@
+import { getRuntimeEnv } from "../config/env.js";
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
 import * as schema from "./schema.js";
 
-const connectionString = process.env.DATABASE_URL;
-const configuredPoolMax = Number(process.env.DATABASE_POOL_MAX ?? 5);
+const connectionString = getRuntimeEnv("DATABASE_URL");
+const configuredPoolMax = Number(getRuntimeEnv("DATABASE_POOL_MAX") ?? 5);
 const poolMax = Number.isInteger(configuredPoolMax) && configuredPoolMax >= 1 && configuredPoolMax <= 10
   ? configuredPoolMax
   : 5;
 
 const sqlClient = connectionString
   ? postgres(connectionString, {
-      // Supabase Transaction pooler uses transaction pooling. Disabling prepared
-      // statements also works with a direct PostgreSQL connection.
+      // Supabase test deployment uses Session Pooler: postgres.js query pipelining
+      // and Drizzle transactions are not safe with the shared transaction-mode pooler.
+      // Keep DATABASE_POOL_MAX=1 per Edge isolate to limit held server connections.
       prepare: false,
       max: poolMax,
       connect_timeout: 5,
@@ -72,7 +74,15 @@ export async function checkDatabaseReadiness(): Promise<DatabaseReadiness> {
       ready: missingTables.length === 0,
       missingTables,
     };
-  } catch {
+  } catch (error) {
+    const errorName = error instanceof Error ? error.name : "unknown";
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const safeMessage = errorMessage
+      .replace(/postgres(?:ql)?:\/\/[^\s"']+/gi, "[redacted database URL]")
+      .replace(/Bearer\s+[^\s"']+/gi, "Bearer [redacted]")
+      .replace(/(password|token|secret|api[_-]?key)\s*[:=]\s*[^,\s]+/gi, "$1=[redacted]")
+      .slice(0, 500);
+    console.error("Database readiness check failed", errorName, safeMessage);
     return { configured: true, connected: false, ready: false, missingTables: [] };
   }
 }

@@ -1,4 +1,4 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, isNull, lt, ne, or } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import { dailyHoroscopes, horoscopePreferences, users } from "../../db/schema.js";
 import { getLocalDate } from "../astrology/transits.js";
@@ -196,6 +196,7 @@ export async function saveHoroscopePreferences(
 }
 
 export async function listDueHoroscopeNotifications(
+  limit = 3,
   now = new Date(),
 ): Promise<DueHoroscopeNotification[]> {
   if (!db) return [];
@@ -205,21 +206,87 @@ export async function listDueHoroscopeNotifications(
       timeZone: horoscopePreferences.timeZone,
       notificationTime: horoscopePreferences.notificationTime,
       lastSentLocalDate: horoscopePreferences.lastSentLocalDate,
+      notificationClaimDate: horoscopePreferences.notificationClaimDate,
+      notificationClaimedAt: horoscopePreferences.notificationClaimedAt,
     })
     .from(horoscopePreferences)
     .innerJoin(users, eq(horoscopePreferences.userId, users.id))
-    .where(eq(horoscopePreferences.notificationsEnabled, true));
+    .where(eq(horoscopePreferences.notificationsEnabled, true))
+    .orderBy(asc(horoscopePreferences.lastSentLocalDate), asc(horoscopePreferences.notificationTime));
 
   return rows.flatMap((row) => {
     try {
       const localDate = getLocalDate(now, row.timeZone);
       const currentTime = localClock(now, row.timeZone);
       if (currentTime < row.notificationTime || row.lastSentLocalDate === localDate) return [];
+      const activeClaim = row.notificationClaimDate === localDate &&
+        row.notificationClaimedAt !== null &&
+        row.notificationClaimedAt.getTime() >= now.getTime() - 10 * 60_000;
+      if (activeClaim) return [];
       return [{ telegramId: row.telegramId, timeZone: row.timeZone, localDate }];
     } catch {
       return [];
     }
-  });
+  }).slice(0, Math.max(1, Math.min(limit, 25)));
+}
+
+export async function claimHoroscopeNotification(
+  telegramId: string,
+  localDate: string,
+): Promise<boolean> {
+  if (!db) return false;
+  const [user] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.telegramId, telegramId))
+    .limit(1);
+  if (!user) return false;
+
+  // Atomic UPDATE is the cross-isolate lock: only one Cron invocation can claim
+  // this user's notification for this local date. A stale claim expires in 10 min.
+  const claimed = await db
+    .update(horoscopePreferences)
+    .set({
+      notificationClaimDate: localDate,
+      notificationClaimedAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .where(and(
+      eq(horoscopePreferences.userId, user.id),
+      eq(horoscopePreferences.notificationsEnabled, true),
+      or(isNull(horoscopePreferences.lastSentLocalDate), ne(horoscopePreferences.lastSentLocalDate, localDate)),
+      or(
+        isNull(horoscopePreferences.notificationClaimedAt),
+        lt(horoscopePreferences.notificationClaimedAt, new Date(Date.now() - 10 * 60_000)),
+        ne(horoscopePreferences.notificationClaimDate, localDate),
+      ),
+    ))
+    .returning({ id: horoscopePreferences.id });
+  return claimed.length > 0;
+}
+
+export async function releaseHoroscopeNotification(
+  telegramId: string,
+  localDate: string,
+): Promise<void> {
+  if (!db) return;
+  const [user] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.telegramId, telegramId))
+    .limit(1);
+  if (!user) return;
+  await db
+    .update(horoscopePreferences)
+    .set({
+      notificationClaimDate: null,
+      notificationClaimedAt: null,
+      updatedAt: new Date(),
+    })
+    .where(and(
+      eq(horoscopePreferences.userId, user.id),
+      eq(horoscopePreferences.notificationClaimDate, localDate),
+    ));
 }
 
 export async function markHoroscopeNotificationSent(
@@ -239,9 +306,14 @@ export async function markHoroscopeNotificationSent(
   if (!user) return;
   await db
     .update(horoscopePreferences)
-    .set({ lastSentLocalDate: localDate, updatedAt: new Date() })
+    .set({
+      lastSentLocalDate: localDate,
+      notificationClaimDate: null,
+      notificationClaimedAt: null,
+      updatedAt: new Date(),
+    })
     .where(and(
       eq(horoscopePreferences.userId, user.id),
-      eq(horoscopePreferences.notificationsEnabled, true),
+      eq(horoscopePreferences.notificationClaimDate, localDate),
     ));
 }

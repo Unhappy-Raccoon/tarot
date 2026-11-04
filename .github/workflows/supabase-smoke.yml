@@ -1,0 +1,388 @@
+name: Supabase hosted smoke test
+# Verify Edge API, PostgreSQL schema, RLS, Telegram setup guard, Cron delivery and readiness.
+# Re-run after a test Pages publication to confirm the live mobile bootstrap and assets.
+# This run verifies the current approved-reference styling release.
+
+on:
+  push:
+    branches:
+      - feat/supabase-edge-runtime
+    paths:
+      - ".github/workflows/supabase-smoke.yml"
+      - "apps/web/**"
+      - "supabase/functions/**"
+      - "apps/server/src/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supabase-hosted-smoke
+  cancel-in-progress: false
+
+jobs:
+  smoke:
+    if: github.ref == 'refs/heads/feat/supabase-edge-runtime'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SUPABASE_PROJECT_ID: ${{ vars.SUPABASE_PROJECT_ID }}
+    steps:
+      - name: Validate test target
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$SUPABASE_PROJECT_ID" != "uayoqicecdtcxouwsprh" ]]; then
+            echo "SUPABASE_PROJECT_ID is missing or does not match the approved test project."
+            exit 1
+          fi
+          echo "Smoke-testing the approved Supabase test project."
+
+      - name: Check published WebApp assets with desktop and mobile clients
+        shell: bash
+        run: |
+          set -euo pipefail
+          origin_url="https://unhappy-raccoon.github.io"
+          app_url="$origin_url/tarot"
+          body_file="$(mktemp)"
+          asset_file="$(mktemp)"
+          trap 'rm -f "$body_file" "$asset_file"' EXIT
+          for agent in desktop mobile; do
+            if [[ "$agent" == "mobile" ]]; then
+              user_agent="Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
+            else
+              user_agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130.0.0.0 Safari/537.36"
+            fi
+            status="$(curl --silent --show-error --max-time 20 --header 'Cache-Control: no-cache' --user-agent "$user_agent" --output "$body_file" --write-out '%{http_code}' "$app_url/")"
+            echo "Pages index ($agent) -> HTTP $status"
+            test "$status" = "200"
+            grep -q 'id="root"' "$body_file"
+            if grep -q '</script>ipt>' "$body_file"; then
+              echo "Published HTML still contains stray script suffix."
+              exit 1
+            fi
+            grep -q 'Загрузка заняла слишком много времени' "$body_file"
+            js_path="$(grep -oE 'src="[^"]+\.js"' "$body_file" | head -n1 | cut -d '"' -f2)"
+            css_path="$(grep -oE 'href="[^"]+\.css"' "$body_file" | head -n1 | cut -d '"' -f2)"
+            test -n "$js_path"
+            test -n "$css_path"
+            for asset in "$js_path" "$css_path"; do
+              asset_status="$(curl --silent --show-error --max-time 20 --user-agent "$user_agent" --output "$asset_file" --write-out '%{http_code}' "$origin_url$asset")"
+              echo "Pages asset ($agent) $asset -> HTTP $asset_status bytes=$(wc -c < "$asset_file")"
+              test "$asset_status" = "200"
+              test "$(wc -c < "$asset_file")" -gt 500
+            done
+            if [[ "$agent" == "mobile" ]]; then
+              grep -q 'onboarding-shell' "$asset_file"
+            fi
+          done
+          echo "PAGES_DESKTOP_MOBILE_ASSETS_OK"
+
+      - name: Check API liveness and tarot catalog
+        shell: bash
+        run: |
+          set -euo pipefail
+          base_url="https://${SUPABASE_PROJECT_ID}.supabase.co/functions/v1/api"
+          body_file="$(mktemp)"
+          trap 'rm -f "$body_file"' EXIT
+
+          health_status="$(curl --silent --show-error --retry 5 --retry-all-errors --retry-delay 3 --max-time 30 --output "$body_file" --write-out '%{http_code}' "$base_url/health")"
+          echo "GET /health -> HTTP $health_status"
+          cat "$body_file" | jq .
+          if [[ "$health_status" != "200" ]]; then
+            exit 1
+          fi
+          jq -e '.status == "ok" and .service == "personal-cosmic-journal-api"' "$body_file"
+
+          spreads_status="$(curl --silent --show-error --retry 5 --retry-all-errors --retry-delay 3 --max-time 30 --output "$body_file" --write-out '%{http_code}' "$base_url/api/tarot/spreads")"
+          echo "GET /api/tarot/spreads -> HTTP $spreads_status"
+          cat "$body_file" | jq .
+          if [[ "$spreads_status" != "200" ]]; then
+            exit 1
+          fi
+          jq -e '.spreads | type == "array" and length >= 3' "$body_file"
+
+      - name: Audit PostgreSQL schema and RLS
+        shell: bash
+        env:
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if ! command -v psql >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install --yes postgresql-client
+          fi
+          export PGPASSWORD="$SUPABASE_DB_PASSWORD"
+          export PGSSLMODE=require
+          psql \
+            --host aws-0-eu-north-1.pooler.supabase.com \
+            --port 5432 \
+            --username "postgres.$SUPABASE_PROJECT_ID" \
+            --dbname postgres \
+            --set ON_ERROR_STOP=1 \
+            --no-psqlrc \
+            --quiet \
+            --tuples-only \
+            --no-align <<'SQL'
+          DO $audit$
+          DECLARE
+            table_name text;
+          BEGIN
+            FOREACH table_name IN ARRAY ARRAY[
+              'users',
+              'birth_profiles',
+              'tarot_readings',
+              'natal_charts',
+              'ai_conversations',
+              'ai_messages',
+              'ai_daily_usage',
+              'daily_horoscopes',
+              'horoscope_preferences'
+            ] LOOP
+              IF to_regclass(format('public.%I', table_name)) IS NULL THEN
+                RAISE EXCEPTION 'Missing expected table: public.%', table_name;
+              END IF;
+              IF NOT EXISTS (
+                SELECT 1
+                FROM pg_class c
+                JOIN pg_namespace n ON n.oid = c.relnamespace
+                WHERE n.nspname = 'public'
+                  AND c.relname = table_name
+                  AND c.relrowsecurity = true
+              ) THEN
+                RAISE EXCEPTION 'RLS is not enabled on public.%', table_name;
+              END IF;
+            END LOOP;
+
+            IF EXISTS (
+              SELECT 1
+              FROM (VALUES
+                ('birth_profiles', 'birth_latitude'),
+                ('birth_profiles', 'birth_longitude'),
+                ('horoscope_preferences', 'notification_claim_date'),
+                ('horoscope_preferences', 'notification_claimed_at'),
+                ('users', 'telegram_id'),
+                ('tarot_readings', 'cards'),
+                ('natal_charts', 'chart_data'),
+                ('ai_daily_usage', 'usage_date'),
+                ('daily_horoscopes', 'local_date')
+              ) AS required(table_name, column_name)
+              LEFT JOIN information_schema.columns c
+                ON c.table_schema = 'public'
+               AND c.table_name = required.table_name
+               AND c.column_name = required.column_name
+              WHERE c.column_name IS NULL
+            ) THEN
+              RAISE EXCEPTION 'One or more required columns are missing';
+            END IF;
+
+            IF NOT EXISTS (
+              SELECT 1 FROM pg_indexes
+              WHERE schemaname = 'public'
+                AND indexname = 'horoscope_preferences_due_idx'
+            ) THEN
+              RAISE EXCEPTION 'Missing horoscope notification due index';
+            END IF;
+
+            IF NOT EXISTS (
+              SELECT 1 FROM pg_constraint
+              WHERE conname = 'birth_profiles_coordinates_pair_check'
+            ) THEN
+              RAISE EXCEPTION 'Missing birth profile coordinate constraint';
+            END IF;
+
+            IF EXISTS (
+              SELECT 1 FROM pg_policies
+              WHERE schemaname = 'public'
+                AND tablename = ANY (ARRAY[
+                  'users', 'birth_profiles', 'tarot_readings', 'natal_charts',
+                  'ai_conversations', 'ai_messages', 'ai_daily_usage',
+                  'daily_horoscopes', 'horoscope_preferences'
+                ])
+            ) THEN
+              RAISE EXCEPTION 'Unexpected public RLS policies exist; review before launch';
+            END IF;
+          END
+          $audit$;
+
+          SELECT
+            'DB_SCHEMA_AUDIT_OK tables=' ||
+            count(*) FILTER (WHERE c.relkind = 'r') ||
+            ' rls_enabled=' ||
+            count(*) FILTER (WHERE c.relkind = 'r' AND c.relrowsecurity)
+          FROM pg_class c
+          JOIN pg_namespace n ON n.oid = c.relnamespace
+          WHERE n.nspname = 'public'
+            AND c.relname IN (
+              'users', 'birth_profiles', 'tarot_readings', 'natal_charts',
+              'ai_conversations', 'ai_messages', 'ai_daily_usage',
+              'daily_horoscopes', 'horoscope_preferences'
+            );
+
+          SELECT
+            'RLS_POLICY_AUDIT_OK policies=' || count(*)
+          FROM pg_policies
+          WHERE schemaname = 'public'
+            AND tablename IN (
+              'users', 'birth_profiles', 'tarot_readings', 'natal_charts',
+              'ai_conversations', 'ai_messages', 'ai_daily_usage',
+              'daily_horoscopes', 'horoscope_preferences'
+            );
+
+          SELECT
+            'EXTENSIONS pg_cron=' ||
+            EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron') ||
+            ' pg_net=' ||
+            EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_net') ||
+            ' supabase_vault=' ||
+            EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'supabase_vault');
+
+          SELECT
+            'CRON_LAST_RUN status=' ||
+            coalesce((
+              SELECT d.status
+              FROM cron.job_run_details d
+              JOIN cron.job j ON j.jobid = d.jobid
+              WHERE j.jobname = 'pcj-horoscope-notifications'
+              ORDER BY d.start_time DESC
+              LIMIT 1
+            ), 'no_run') ||
+            ' return=' ||
+            coalesce((
+              SELECT left(d.return_message, 160)
+              FROM cron.job_run_details d
+              JOIN cron.job j ON j.jobid = d.jobid
+              WHERE j.jobname = 'pcj-horoscope-notifications'
+              ORDER BY d.start_time DESC
+              LIMIT 1
+            ), 'none');
+
+          SELECT
+            'CRON_HTTP_LAST status=' ||
+            coalesce(status_code::text, 'none') ||
+            ' timeout=' || coalesce(timed_out::text, 'none') ||
+            ' error=' || coalesce(left(error_msg, 120), 'none') ||
+            ' body=' || coalesce(left(content, 180), 'none')
+          FROM net._http_response
+          ORDER BY created DESC
+          LIMIT 1;
+
+          DO $runtime$
+          DECLARE
+            scheduled boolean := false;
+            vault_ready boolean := false;
+          BEGIN
+            IF to_regclass('cron.job') IS NOT NULL THEN
+              EXECUTE
+                'SELECT EXISTS (SELECT 1 FROM cron.job WHERE jobname = $1)'
+                INTO scheduled
+                USING 'pcj-horoscope-notifications';
+              RAISE WARNING 'CRON_JOB_STATE=%', CASE WHEN scheduled THEN 'scheduled' ELSE 'not_scheduled' END;
+            ELSE
+              RAISE WARNING 'CRON_JOB_STATE=pg_cron_missing';
+            END IF;
+
+            IF to_regclass('vault.decrypted_secrets') IS NOT NULL THEN
+              EXECUTE
+                'SELECT count(*) = 2 FROM vault.decrypted_secrets WHERE name IN ($1, $2)'
+                INTO vault_ready
+                USING 'pcj_project_url', 'pcj_horoscope_cron_secret';
+              RAISE WARNING 'CRON_VAULT_SECRETS=%', CASE WHEN vault_ready THEN 'present' ELSE 'missing' END;
+            ELSE
+              RAISE WARNING 'CRON_VAULT_SECRETS=vault_missing';
+            END IF;
+          END
+          $runtime$;
+          SQL
+          unset PGPASSWORD
+
+      - name: Verify authentication, CORS and secret guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          api_url="https://${SUPABASE_PROJECT_ID}.supabase.co/functions/v1/api"
+          webhook_url="https://${SUPABASE_PROJECT_ID}.supabase.co/functions/v1/telegram-webhook"
+          worker_url="https://${SUPABASE_PROJECT_ID}.supabase.co/functions/v1/process-horoscope-notifications"
+          body_file="$(mktemp)"
+          header_file="$(mktemp)"
+          trap 'rm -f "$body_file" "$header_file"' EXIT
+
+          assert_status() {
+            local expected="$1"
+            shift
+            local actual
+            actual="$(curl --silent --show-error --max-time 20 --output "$body_file" --write-out '%{http_code}' "$@")"
+            if [[ "$actual" != "$expected" ]]; then
+              echo "Expected HTTP $expected, received HTTP $actual"
+              cat "$body_file" | jq . || true
+              exit 1
+            fi
+          }
+
+          assert_status 401 "$api_url/api/me"
+          assert_status 401 "$api_url/api/ai/status"
+          assert_status 401 "$api_url/api/tarot/readings"
+          assert_status 401 --request POST --header 'content-type: application/json' --data '{"initData":"invalid"}' "$api_url/api/auth/telegram"
+
+          assert_status 401 --request POST --header 'content-type: application/json' --data '{"update_id":1}' "$webhook_url"
+          assert_status 401 --request POST --header 'content-type: application/json' --data '{}' "$worker_url"
+          assert_status 401 --request POST --header 'content-type: application/json' --data '{}' "$webhook_url/configure"
+
+          cors_status="$(curl --silent --show-error --max-time 20 --dump-header "$header_file" --output "$body_file" --write-out '%{http_code}' \
+            --request OPTIONS --header 'Origin: https://unhappy-raccoon.github.io' \
+            --header 'Access-Control-Request-Method: GET' "$api_url/health")"
+          if [[ "$cors_status" != "204" ]] || ! grep -qi '^access-control-allow-origin: https://unhappy-raccoon.github.io' "$header_file"; then
+            echo "Allowed WebApp CORS preflight failed (HTTP $cors_status)."
+            exit 1
+          fi
+
+          cors_status="$(curl --silent --show-error --max-time 20 --dump-header "$header_file" --output "$body_file" --write-out '%{http_code}' \
+            --request OPTIONS --header 'Origin: https://example.invalid' \
+            --header 'Access-Control-Request-Method: GET' "$api_url/health")"
+          if [[ "$cors_status" != "403" ]]; then
+            echo "Unexpected origin was not rejected (HTTP $cors_status)."
+            exit 1
+          fi
+
+          echo "AUTH_CORS_WEBHOOK_CRON_GUARDS_OK"
+
+      - name: Check application readiness
+        shell: bash
+        run: |
+          set -euo pipefail
+          base_url="https://${SUPABASE_PROJECT_ID}.supabase.co/functions/v1/api"
+          body_file="$(mktemp)"
+          trap 'rm -f "$body_file"' EXIT
+          status="$(curl --silent --show-error --retry 3 --retry-connrefused --retry-delay 3 --max-time 30 --output "$body_file" --write-out '%{http_code}' "$base_url/health/ready")"
+          echo "GET /health/ready -> HTTP $status"
+          cat "$body_file" | jq .
+          if [[ "$status" != "200" ]]; then
+            echo "Application readiness failed."
+            exit 1
+          fi
+          jq -e '.status == "ready" and .checks.database.ready == true and .checks.telegramBot == true and .checks.sessionAuth == true and .checks.webApp == true and .checks.aiProvider == true' "$body_file"
+
+      - name: Retrieve recent Supabase function diagnostics
+        if: always()
+        shell: bash
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$SUPABASE_ACCESS_TOKEN" ]]; then
+            echo "SUPABASE_ACCESS_TOKEN is unavailable to the smoke-test workflow."
+            exit 0
+          fi
+          start="$(date -u -d '120 minutes ago' +'%Y-%m-%dT%H:%M:%SZ')"
+          end="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          sql="SELECT timestamp, source, severity_text, event_message FROM logs WHERE source IN ('function_logs', 'function_edge_logs') AND timestamp >= now() - INTERVAL 120 MINUTE AND (severity_text IN ('ERROR','WARN','WARNING') OR event_message ILIKE '%AI provider request failed%' OR event_message ILIKE '%Unable to complete AI chat request%' OR event_message ILIKE '%Astrologer%' OR event_message ILIKE '%setTimeout%') ORDER BY timestamp DESC LIMIT 150"
+          body_file="$(mktemp)"
+          trap 'rm -f "$body_file"' EXIT
+          status="$(curl --silent --show-error --get --output "$body_file" --write-out '%{http_code}' "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_ID/analytics/endpoints/logs" --header "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" --data-urlencode "sql=$sql" --data-urlencode "iso_timestamp_start=$start" --data-urlencode "iso_timestamp_end=$end")"
+          echo "Supabase Logs API -> HTTP $status"
+          if [[ "$status" != "200" ]]; then
+            jq . "$body_file" || cat "$body_file"
+            exit 0
+          fi
+          jq -c '.result[]? | {timestamp, source, severity_text, event_message}' "$body_file"

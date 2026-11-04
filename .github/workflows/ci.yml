@@ -8,6 +8,7 @@ on:
       - feat/ai-astrologer
       - feat/daily-horoscope
       - feat/mvp-test-readiness
+      - feat/supabase-edge-runtime
   pull_request:
     branches:
       - main
@@ -16,6 +17,7 @@ on:
       - feat/ai-astrologer
       - feat/daily-horoscope
       - feat/mvp-test-readiness
+      - feat/supabase-edge-runtime
 
 jobs:
   verify:
@@ -35,6 +37,14 @@ jobs:
         run: npm run test:server
       - name: Build workspaces
         run: npm run build
+      - name: Stage server modules for Edge bundling
+        run: node scripts/prepare-supabase-functions.mjs
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+      - name: Type-check Supabase Edge Functions
+        run: deno check --config supabase/functions/deno.json supabase/functions/api/index.ts supabase/functions/telegram-webhook/index.ts supabase/functions/process-horoscope-notifications/index.ts
+      - name: Test Supabase Edge security helpers
+        run: deno test --config supabase/functions/deno.json supabase/functions/_shared/security.test.ts supabase/functions/api/path.test.ts
       - name: Build production API container
         run: docker build -f apps/server/Dockerfile -t pcj-api:ci .
       - name: Validate test deployment Compose file

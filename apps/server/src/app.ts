@@ -1,4 +1,5 @@
-import Fastify, { type FastifyRequest } from "fastify";
+import { getRuntimeEnv } from "./config/env.js";
+import Fastify, { type FastifyRequest, type FastifyServerFactory } from "fastify";
 import { checkDatabaseReadiness } from "./db/index.js";
 import { createSessionToken, verifySessionToken } from "./auth/session.js";
 import { validateTelegramInitData } from "./auth/telegram-init-data.js";
@@ -45,6 +46,7 @@ interface AppOptions {
   botToken?: string;
   sessionSecret?: string;
   webAppOrigin?: string;
+  serverFactory?: FastifyServerFactory;
   aiProvider?: AIChatProvider | null;
   aiFreeDailyLimit?: number;
   aiPremiumDailyLimit?: number;
@@ -119,8 +121,9 @@ function normalizeOptionalString(
 
 export function buildApp(options: AppOptions = {}) {
   const app = Fastify({
+    ...(options.serverFactory ? { serverFactory: options.serverFactory } : {}),
     logger: {
-      level: process.env.LOG_LEVEL ?? "info",
+      level: getRuntimeEnv("LOG_LEVEL") ?? "info",
       redact: [
         "req.headers.authorization",
         "req.headers.cookie",
@@ -179,7 +182,8 @@ export function buildApp(options: AppOptions = {}) {
     const database = await checkDatabaseReadiness();
     let webAppReady = false;
     try {
-      const webUrl = process.env.TELEGRAM_WEBAPP_URL ? new URL(process.env.TELEGRAM_WEBAPP_URL) : null;
+      const telegramWebAppUrl = getRuntimeEnv("TELEGRAM_WEBAPP_URL");
+      const webUrl = telegramWebAppUrl ? new URL(telegramWebAppUrl) : null;
       const origin = options.webAppOrigin ? new URL(options.webAppOrigin) : null;
       webAppReady = Boolean(
         webUrl && origin &&
@@ -443,7 +447,7 @@ export function buildApp(options: AppOptions = {}) {
     const query = request.query as { timeZone?: unknown };
     const timeZone = typeof query.timeZone === "string"
       ? query.timeZone
-      : process.env.HOROSCOPE_DEFAULT_TIME_ZONE ?? "Europe/Tallinn";
+      : getRuntimeEnv("HOROSCOPE_DEFAULT_TIME_ZONE") ?? "Europe/Tallinn";
 
     try {
       const horoscope = await generateDailyHoroscope(telegramId, timeZone, aiProvider);
@@ -489,7 +493,7 @@ export function buildApp(options: AppOptions = {}) {
     const suggestedTimeZone = typeof query.timeZone === "string" &&
       isValidTimeZone(query.timeZone)
       ? query.timeZone
-      : process.env.HOROSCOPE_DEFAULT_TIME_ZONE ?? "Europe/Tallinn";
+      : getRuntimeEnv("HOROSCOPE_DEFAULT_TIME_ZONE") ?? "Europe/Tallinn";
     try {
       const preferences = await getHoroscopePreferences(telegramId, suggestedTimeZone);
       return { preferences };
@@ -648,11 +652,22 @@ export function buildApp(options: AppOptions = {}) {
       if (error instanceof AIProviderError) {
         request.log.warn({
           aiErrorCode: error.code,
+          providerHttpStatus: error.httpStatus,
+          providerErrorCode: error.providerCode,
           providerRequestId: error.requestId,
         }, "AI provider request failed");
+        const message = error.providerCode === "invalid_api_key" || error.httpStatus === 401
+          ? "AI-сервис отклонил ключ доступа. Администратору нужно проверить подключение провайдера."
+          : error.providerCode === "insufficient_quota"
+            ? "У AI-сервиса закончилась доступная квота. Попробуй позже."
+            : error.providerCode === "model_not_found" || error.httpStatus === 404
+              ? "Выбранная AI-модель недоступна. Администратору нужно проверить её название и доступ."
+              : error.code === "timeout"
+                ? "Астролог не успел подготовить ответ. Попробуй отправить более короткий вопрос."
+                : "Астролог временно не может ответить. Попробуй ещё раз немного позже.";
         return reply.code(503).send({
           error: "ai_provider_unavailable",
-          message: "Астролог сейчас не может ответить. Попробуй ещё раз немного позже.",
+          message,
         });
       }
       request.log.error({ errorCode: "ai_chat_unavailable" }, "Unable to complete AI chat request");

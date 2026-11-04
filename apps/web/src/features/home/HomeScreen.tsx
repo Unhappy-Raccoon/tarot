@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { Screen, UserProfile } from "../../types";
 
 interface Props {
@@ -8,7 +9,7 @@ interface Props {
   busy?: boolean;
 }
 
-function QuickTile({ icon, label, onClick }: { icon: string; label: string; onClick: () => void }) {
+function QuickTile({ icon, label, onClick }: { icon: ReactNode; label: string; onClick: () => void }) {
   return (
     <button className="quick-tile" type="button" onClick={onClick}>
       <span className="quick-tile__icon" aria-hidden="true">{icon}</span>
@@ -43,15 +44,7 @@ export function HomeScreen({ profile, displayName, onNavigate, onDailyCard, busy
         </button>
       </section>
 
-      <button className="horoscope-card" type="button" onClick={() => onNavigate("daily-horoscope")}>
-        <span className="horoscope-art" aria-hidden="true"><span>☾</span></span>
-        <span className="horoscope-copy">
-          <span className="card-eyebrow">АСТРОЛОГИЯ</span>
-          <strong>Гороскоп дня</strong>
-          <small>Космическая погода и подсказка на сегодня</small>
-        </span>
-        <span className="subtle-arrow" aria-hidden="true">→</span>
-      </button>
+
 
       <section className="home-section quick-section">
         <div className="section-heading-row">
@@ -59,9 +52,9 @@ export function HomeScreen({ profile, displayName, onNavigate, onDailyCard, busy
           <span className="section-caption">ТВОИ РИТУАЛЫ</span>
         </div>
         <div className="quick-grid">
-          <QuickTile icon="♧" label="Таро" onClick={() => onNavigate("tarot")} />
-          <QuickTile icon="✧" label="Натальная карта" onClick={() => onNavigate("natal")} />
-          <QuickTile icon="☼" label="Астролог" onClick={() => onNavigate("astrologer")} />
+          <QuickTile icon={<svg viewBox="0 0 32 32" aria-hidden="true"><rect x="7" y="4" width="13" height="22" rx="2" transform="rotate(-9 13.5 15)"/><rect x="13" y="6" width="13" height="22" rx="2" transform="rotate(8 19.5 17)"/><path d="m19 12 1.2 3.2 3.2 1.2-3.2 1.2L19 21l-1.2-3.4-3.2-1.2 3.2-1.2z"/></svg>} label="Таро" onClick={() => onNavigate("tarot")} />
+          <QuickTile icon={<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="11"/><path d="M16 4v24M4 16h24M7.5 7.5l17 17m0-17-17 17M16 10l2.2 6-2.2 6-2.2-6z"/></svg>} label="Натальная карта" onClick={() => onNavigate("natal")} />
+          <QuickTile icon={<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3v26M3 16h26M6.8 6.8l18.4 18.4M25.2 6.8 6.8 25.2"/><circle cx="16" cy="16" r="5"/></svg>} label="Астролог" onClick={() => onNavigate("astrologer")} />
         </div>
       </section>
 
@@ -69,13 +62,12 @@ export function HomeScreen({ profile, displayName, onNavigate, onDailyCard, busy
         <span className="streak-flame" aria-hidden="true">✦</span>
         <span className="streak-text">
           <strong>Серия дней</strong>
-          <small>Создай свой первый ежедневный ритуал</small>
+          <small>Один маленький ритуал каждый день</small>
           <span className="streak-track" aria-hidden="true"><i /><i /><i /><i /><i /></span>
         </span>
-        <span className="streak-value">0 дней <span aria-hidden="true">→</span></span>
+        <span className="streak-value">Начать <span aria-hidden="true">→</span></span>
       </button>
 
-      <p className="home-footnote">ТВОЁ ПРОСТРАНСТВО · ТВОЙ РИТМ · ТВОЯ ВСЕЛЕННАЯ</p>
     </div>
   );
 }

@@ -164,5 +164,7 @@ export const horoscopePreferences = pgTable("horoscope_preferences", {
   notificationsEnabled: boolean("notifications_enabled").notNull().default(false),
   notificationTime: varchar("notification_time", { length: 5 }).notNull().default("09:00"),
   lastSentLocalDate: date("last_sent_local_date", { mode: "string" }),
+  notificationClaimDate: date("notification_claim_date", { mode: "string" }),
+  notificationClaimedAt: timestamp("notification_claimed_at", { withTimezone: true }),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });

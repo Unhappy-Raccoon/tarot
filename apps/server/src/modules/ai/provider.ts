@@ -1,3 +1,4 @@
+import { getRuntimeEnv } from "../../config/env.js";
 import {
   AIProviderError,
   type AIChatProvider,
@@ -21,6 +22,12 @@ interface ResponsesAPIResult {
     message?: string;
     code?: string;
   };
+}
+
+function safeProviderCode(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const normalized = value.trim().toLowerCase();
+  return /^[a-z0-9_.-]{1,64}$/.test(normalized) ? normalized : undefined;
 }
 
 export class OpenAIResponsesProvider implements AIChatProvider {
@@ -67,10 +74,23 @@ export class OpenAIResponsesProvider implements AIChatProvider {
     const payload = await response.json().catch(() => null) as ResponsesAPIResult | null;
 
     if (!response.ok) {
+      const providerCode = safeProviderCode(payload?.error?.code);
       if (response.status === 429) {
-        throw new AIProviderError("rate_limited", "AI provider rate limit reached", requestId);
+        throw new AIProviderError(
+          "rate_limited",
+          "AI provider rate limit reached",
+          requestId,
+          response.status,
+          providerCode,
+        );
       }
-      throw new AIProviderError("upstream", "AI provider returned an error", requestId);
+      throw new AIProviderError(
+        "upstream",
+        "AI provider returned an error",
+        requestId,
+        response.status,
+        providerCode,
+      );
     }
 
     if (!payload) {
@@ -105,13 +125,13 @@ export class OpenAIResponsesProvider implements AIChatProvider {
 }
 
 export function createAIProviderFromEnv(): AIChatProvider | null {
-  const provider = (process.env.AI_PROVIDER ?? "openai").trim().toLowerCase();
+  const provider = (getRuntimeEnv("AI_PROVIDER") ?? "openai").trim().toLowerCase();
   if (provider !== "openai") return null;
 
-  const apiKey = process.env.AI_API_KEY?.trim();
-  const model = process.env.AI_MODEL?.trim();
+  const apiKey = getRuntimeEnv("AI_API_KEY")?.trim();
+  const model = getRuntimeEnv("AI_MODEL")?.trim();
   if (!apiKey || !model) return null;
 
-  const baseUrl = process.env.AI_BASE_URL?.trim() || "https://api.openai.com/v1";
+  const baseUrl = getRuntimeEnv("AI_BASE_URL")?.trim() || "https://api.openai.com/v1";
   return new OpenAIResponsesProvider(apiKey, model, baseUrl);
 }

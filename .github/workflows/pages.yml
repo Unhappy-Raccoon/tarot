@@ -1,0 +1,265 @@
+name: Deploy WebApp to GitHub Pages
+
+on:
+  push:
+    branches:
+      - feat/supabase-edge-runtime
+    paths:
+      - "apps/web/**"
+      - "packages/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".nvmrc"
+      - ".github/workflows/pages.yml"
+      - ".github/deploy-requests/publish-pages.txt"
+  pull_request:
+    paths:
+      - "apps/web/**"
+      - "packages/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".nvmrc"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Publish to GitHub Pages (main or approved test branch)"
+        required: true
+        default: "no"
+        type: choice
+        options:
+          - "no"
+          - "yes"
+
+permissions:
+  contents: read
+
+# Test publication is gated by the one-time PUBLISH_TO_TEST request marker.
+concurrency:
+  group: github-pages-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    outputs:
+      artifact: ${{ steps.upload.outputs.artifact_id }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Build WebApp for GitHub Pages
+        env:
+          VITE_BASE_PATH: /tarot/
+          VITE_API_URL: ${{ vars.VITE_API_URL || 'https://uayoqicecdtcxouwsprh.supabase.co/functions/v1/api' }}
+        run: npm run build --workspace=@pcj/web
+      - name: Validate mobile-safe WebApp bootstrap
+        shell: bash
+        run: |
+          set -euo pipefail
+          index_file="apps/web/dist/index.html"
+          test -s "$index_file"
+          grep -q 'pcj-boot-screen' "$index_file"
+          grep -q '__pcjTelegramReady' "$index_file"
+          grep -q 'Загрузка заняла слишком много времени' "$index_file"
+          grep -q 'new URL("vendor/telegram-web-app.js", window.location.href)' "$index_file"
+          grep -q 'sdk.async = true' "$index_file"
+          grep -q 'finish(Boolean(window.Telegram && window.Telegram.WebApp))' "$index_file"
+          grep -q 'window.Telegram.WebApp.ready()' "$index_file"
+          test -s "apps/web/dist/vendor/telegram-web-app.js"
+          test -s "apps/web/dist/vendor/TELEGRAM-MINI-APP-SDK-LICENSE.txt"
+          if grep -q 'https://telegram.org/js/telegram-web-app.js' "$index_file"; then
+            echo "Telegram SDK must be served locally, not from an external CDN."
+            exit 1
+          fi
+          sdk_line="$(grep -n 'window.__pcjTelegramReady = new Promise' "$index_file" | cut -d: -f1)"
+          app_line="$(grep -n '<script type="module"' "$index_file" | cut -d: -f1)"
+          test -n "$sdk_line"
+          test -n "$app_line"
+          test "$sdk_line" -lt "$app_line"
+          if grep -q '</script>ipt>' "$index_file"; then
+            echo "Unexpected text found after the Telegram bootstrap script."
+            exit 1
+          fi
+          grep -q '<script type="module"' "$index_file"
+          test -s "apps/web/dist/images/home-card-clouds.webp"
+          test -s "apps/web/dist/images/ai-astrologer-atmosphere.svg"
+          test -s "apps/web/dist/images/profile-statue.svg"
+          test -s "apps/web/dist/images/premium-moon-phases.svg"
+          grep -Rql 'home-card-clouds.webp' apps/web/dist/assets/*.css
+          grep -Rql 'ai-astrologer-atmosphere.svg' apps/web/dist/assets/*.css
+          if grep -q 'fonts.googleapis.com/css' "$index_file"; then
+            echo "Google Fonts stylesheet must not block first paint."
+            exit 1
+          fi
+          echo "MOBILE_SAFE_BOOTSTRAP_OK"
+
+      - name: Validate published API URL
+        if: (github.event_name == 'workflow_dispatch' && inputs.publish == 'yes') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[publish-pages]'))
+        env:
+          VITE_API_URL: ${{ vars.VITE_API_URL || 'https://uayoqicecdtcxouwsprh.supabase.co/functions/v1/api' }}
+          SUPABASE_PROJECT_ID: ${{ vars.SUPABASE_PROJECT_ID }}
+        run: |
+          set -euo pipefail
+          expected_api_url="https://${SUPABASE_PROJECT_ID}.supabase.co/functions/v1/api"
+          if [[ "$SUPABASE_PROJECT_ID" != "uayoqicecdtcxouwsprh" || "$VITE_API_URL" != "$expected_api_url" ]]; then
+            echo "VITE_API_URL must match the approved Supabase test project's Edge Function API URL."
+            exit 1
+          fi
+      - name: Upload Pages artifact
+        id: upload
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: apps/web/dist
+
+  deploy:
+    if: (github.event_name == 'workflow_dispatch' && inputs.publish == 'yes' && github.ref == 'refs/heads/main') || (github.event_name == 'push' && github.ref == 'refs/heads/feat/supabase-edge-runtime' && contains(github.event.head_commit.message, '[publish-pages]'))
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    env:
+      SUPABASE_PROJECT_ID: ${{ vars.SUPABASE_PROJECT_ID }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout approved test branch
+        uses: actions/checkout@v4
+        if: github.event_name == 'push'
+      - name: Validate explicit test publication request
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$SUPABASE_PROJECT_ID" != "uayoqicecdtcxouwsprh" ]]; then
+            echo "Refusing Pages publication: Supabase project variable is not the approved test project."
+            exit 1
+          fi
+          if [[ ! -f .github/deploy-requests/publish-pages.txt ]] || [[ "$(tr -d '\r\n' < .github/deploy-requests/publish-pages.txt)" != "PUBLISH_TO_TEST" ]]; then
+            echo "Pages publication marker must contain exactly PUBLISH_TO_TEST."
+            exit 1
+          fi
+      - name: Inspect GitHub Pages configuration
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          body_file="$(mktemp)"
+          trap 'rm -f "$body_file"' EXIT
+          status="$(curl --silent --show-error --get --output "$body_file" --write-out '%{http_code}' \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/pages" \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header "Accept: application/vnd.github+json" \
+            --header "X-GitHub-Api-Version: 2022-11-28")"
+          echo "GitHub Pages configuration API -> HTTP $status"
+          if [[ "$status" == "200" ]]; then
+            jq '{status, build_type, source, html_url}' "$body_file"
+          else
+            jq '{message, documentation_url}' "$body_file" || true
+          fi
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Configure Telegram webhook and Mini App menu
+        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[configure-telegram]')
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$SUPABASE_PROJECT_ID" != "uayoqicecdtcxouwsprh" || -z "$SUPABASE_DB_PASSWORD" ]]; then
+            echo "Telegram setup requires the approved test project and repository DB password secret."
+            exit 1
+          fi
+          page_url="${{ steps.deployment.outputs.page_url }}"
+          curl --silent --show-error --retry 10 --retry-all-errors --retry-delay 5 --max-time 30 --output /dev/null "$page_url"
+
+          if ! command -v psql >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install --yes postgresql-client
+          fi
+          export PGPASSWORD="$SUPABASE_DB_PASSWORD"
+          export PGSSLMODE=require
+
+          psql \
+            --host aws-0-eu-north-1.pooler.supabase.com \
+            --port 5432 \
+            --username "postgres.$SUPABASE_PROJECT_ID" \
+            --dbname postgres \
+            --set ON_ERROR_STOP=1 \
+            --set "project_id=$SUPABASE_PROJECT_ID" \
+            --no-psqlrc <<'SQL'
+          SELECT
+            set_config('pcj.project_url', 'https://' || :'project_id' || '.supabase.co', false),
+            set_config(
+              'pcj.setup_secret',
+              coalesce((
+                SELECT decrypted_secret
+                FROM vault.decrypted_secrets
+                WHERE name = 'pcj_horoscope_cron_secret'
+              ), ''),
+              false
+            ) \gset
+
+          DO $telegram_setup$
+          DECLARE
+            request_id bigint;
+            response_row net._http_response%ROWTYPE;
+            attempt integer;
+            body jsonb;
+          BEGIN
+            IF coalesce(current_setting('pcj.setup_secret', true), '') = '' THEN
+              RAISE EXCEPTION 'Telegram setup secret is missing from Vault';
+            END IF;
+
+            SELECT net.http_post(
+              url := current_setting('pcj.project_url') || '/functions/v1/telegram-webhook/configure',
+              headers := jsonb_build_object(
+                'Content-Type', 'application/json',
+                'x-cron-secret', current_setting('pcj.setup_secret')
+              ),
+              body := '{}'::jsonb,
+              timeout_milliseconds := 45000
+            ) INTO request_id;
+
+            FOR attempt IN 1..240 LOOP
+              SELECT * INTO response_row
+              FROM net._http_response
+              WHERE id = request_id;
+              IF FOUND THEN
+                EXIT;
+              END IF;
+              PERFORM pg_sleep(0.25);
+            END LOOP;
+
+            IF response_row.id IS NULL THEN
+              RAISE EXCEPTION 'Telegram setup request did not produce an HTTP response';
+            END IF;
+
+            body := coalesce(response_row.content, '{}')::jsonb;
+            IF response_row.status_code <> 200 OR body->>'ok' <> 'true' THEN
+              RAISE EXCEPTION 'Telegram setup failed (HTTP %, timed_out %)',
+                response_row.status_code, response_row.timed_out;
+            END IF;
+
+            RAISE NOTICE 'TELEGRAM_SETUP_OK bot=% webhook_configured=%',
+              body #>> '{bot,username}',
+              body #>> '{webhook,configured}';
+          END
+          $telegram_setup$;
+          SQL
+          unset PGPASSWORD
+

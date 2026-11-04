@@ -1,85 +1,79 @@
 # Project status
 
+## Основные возможности
+
 | Workstream | Status |
 |---|---|
-| Этап 0 — Discovery / MVP scope | Approved |
-| Этап 1 — PRD / flows | Approved |
-| Этап 2 — UX/UI references | Approved |
-| Этап 3 — technical architecture | Approved |
-| Этап 4 — repository foundation | Approved |
-| Этап 5.1 — Bot, auth, onboarding foundation | Implemented and approved |
-| Этап 5.2 — WebApp screen implementation | Implemented and approved |
-| Этап 5.3 — Tarot reading engine and journal persistence | Implemented and user-approved |
-| Tarot catalog | 78 cards (22 Major + 56 Minor Arcana) |
-| Tarot spreads | Daily, Past–Present–Future, Love & Relationships |
-| Tarot draw | Server-side cryptographic random selection, no duplicates within a spread |
-| Tarot persistence | PostgreSQL migration + development in-memory adapter |
-| Natal planetary calculations | Implemented and user-approved; PR #2 ready for review |
-| Ascendant / Whole Sign houses | Implemented and user-approved, conditional on exact time, IANA timezone and coordinates |
-| Birth profile editor | Implemented and user-approved for date, time, timezone, place and manual coordinates |
-| AI astrologer API + UI | Implemented and user-approved; PR #3 ready for review |
-| AI conversation history / deletion | Implemented and user-approved |
-| AI provider live connection | Adapter implemented; server key and model configuration required |
-| Daily transit calculation | Implemented and user-approved; CI passing |
-| Personal daily horoscope API + WebApp | Implemented and user-approved; PR #4 ready for review |
-| Daily horoscope history | Implemented with PostgreSQL + development in-memory adapter |
-| Telegram daily horoscope notifications | Opt-in preference and single-process scheduler implemented; user-approved; live delivery not verified |
-| Telegram Stars payments | Not implemented |
-| MVP stabilization / test launch | Technical preparation user-approved (2026-11-02); VPS plan superseded by Supabase target |
-| Supabase test deployment adaptation | Supabase CLI config + DB migrations + RLS + runbook added; Edge API/Webhook/Cron port still required |
-| WebApp hosting target | GitHub Pages selected and user-approved (2026-11-02); deployment workflow not yet added |
-| Production deployment | Not configured; a real test deployment still requires operator secrets and domains |
+| Этапы 0–4 — discovery, PRD, UX/UI, architecture, repository foundation | Approved |
+| Telegram bot, auth and onboarding foundation | Implemented |
+| WebApp screens | Implemented |
+| Tarot catalogue and reading engine | 78 cards; Daily, Past–Present–Future, Love & Relationships |
+| Tarot draw and journal persistence | Server-side cryptographic draw; PostgreSQL persistence |
+| Natal charts | Implemented; Whole Sign houses when birth time and coordinates are exact |
+| AI astrologer API and UI | Implemented; provider configuration passes readiness |
+| AI conversation history and deletion | Implemented |
+| Daily transits and personal horoscope | Implemented with local-date persistence |
+| Telegram horoscope notifications | Supabase Cron worker deployed; job and HTTP callback verified; real user delivery remains untested |
+| Telegram Stars / paid plans | Disabled; not implemented |
+| Production deployment | Not configured |
 
-## Current constraints
+## Supabase test environment — status as of 2026-11-03
 
-- Apply migrations in order: `0001_core.sql`, `0002_tarot_readings.sql`, `0003_natal_charts.sql`, `0004_ai_astrologer.sql`, then `0005_daily_horoscope.sql`.
-- Development without DATABASE_URL uses in-memory data; it is lost when the server restarts. Notification scheduling requires PostgreSQL.
-- Automatic geocoding is not enabled; birth coordinates may be entered manually.
-- Natal chart without birth time is date-range based: no ASC, houses, or exact degrees are invented.
-- Current natal house system is Whole Sign.
-- Exact Free/Premium commercial limits and Premium entitlements are not approved or connected to payment.
-- Telegram bot live test requires secrets and a public HTTPS Mini App URL.
-- AI provider/model has not been selected/configured in the live server environment.
-- Daily horoscope generates one saved entry per user and local date, using a 12:00 local transit snapshot.
-- Transit-to-natal aspects require exact natal longitudes; date-only or ambiguous-time charts do not produce degree aspects.
-- Transit calculations have regression tests but still require validation against an independent ephemeris reference before production.
-- Telegram notification preferences default to off. The current one-process scheduler is not safe for multiple active API instances until a distributed claim/lock is added.
-- Real AI generation and Telegram delivery are not verified without live server credentials and deployment.
-- Behavior parity with `@my_first_tarot_test_bot` still needs a user-provided walkthrough or test account access.
-- Full end-to-end checks of Tarot, natal chart, AI chat and daily horoscope are intentionally deferred until the test environment has been launched successfully.
-- Technical test-launch preparation was explicitly approved by the user on 2026-11-02. No live deployment or end-to-end user scenario verification has yet been performed.
-- Supabase test deployment requires a Supabase project, database password/transaction-pooler URL, Telegram Bot Token, webhook secret, session secret, OpenAI API key/model, and GitHub Pages HTTPS URL. No production secrets are stored in the repository.
-- Supabase DB migrations are copied to `supabase/migrations/`; a final migration enables RLS on all application tables. Edge Function runtime conversion remains outstanding: Fastify listener, grammY long polling and in-process scheduler must be replaced by Edge Functions, Telegram Webhook and Supabase Cron.
-- User approved GitHub Pages as the static WebApp host alongside Supabase as the only server-side platform on 2026-11-02. The Pages deployment workflow and Vite base-path configuration have not yet been implemented; they require a separate user command.
-- A custom domain and VPS are not required for the initial Supabase test environment; Supabase provides the API project URL and GitHub Pages provides the project's `github.io` URL.
-- Final test-launch preparation commit `4b1d643dc992835a33d05ea79b834d9b9a29e35c` passed push and pull-request CI: TypeScript checks, server unit tests, workspace builds, API Docker image build and Docker Compose config validation. This does not mean the live environment has been deployed.
+Target project: `uayoqicecdtcxouwsprh` (North EU). This is a controlled test environment, not production.
 
-## Natal chart implementation constraints
+| Area | Verified result |
+|---|---|
+| PostgreSQL migrations | Seven migrations applied; latest CLI dry run reports no pending migrations |
+| Schema | All 9 expected application tables found |
+| RLS | Enabled on all 9 application tables; 0 public policies |
+| Database connection | Session Pooler works from Supabase Edge Runtime |
+| Edge Functions | `api`, `telegram-webhook`, `process-horoscope-notifications` deployed |
+| API liveness | `GET /health` → HTTP 200 |
+| Tarot catalogue | `GET /api/tarot/spreads` → HTTP 200 |
+| Runtime readiness | `GET /health/ready` → HTTP 200; database, Telegram configuration, session, WebApp and AI configuration checks pass |
+| Auth and CORS guards | Unauthorized requests rejected; expected WebApp origin allowed; unexpected origin rejected |
+| Supabase Cron | `pg_cron`, `pg_net` and Vault present; notification job scheduled |
+| Cron worker | Last observed run succeeded; Edge Function callback returned HTTP 200 and `sent=0, skipped=0, failed=0` (no due recipients) |
+| WebApp artifact | GitHub Pages production build and artifact upload pass |
+| GitHub Pages deployment | **Blocked:** build/artifact succeeds; deploy job is rejected before runner allocation (`runner_id=0`, no steps, no pending approvals). Check `github-pages` environment deployment-branch policy for `feat/supabase-edge-runtime`; workflow also logs Pages API source/build_type once the gate permits a runner |
+| Telegram webhook | Function and protected setup endpoint deployed; actual `getMe` / `setWebhook` / Mini App menu setup is pending successful Pages publication |
+| OpenAI | Runtime configuration is present; a real Responses API generation has not yet been performed |
+| End-to-end user flow | Pending: Telegram `/start`, Mini App authentication, Tarot, natal chart, AI chat and first opt-in notification |
 
-- Apply migration `0003_natal_charts.sql` after `0001_core.sql` and `0002_tarot_readings.sql`.
-- Date-only charts show only zodiac signs stable across the possible time window; no exact degree or Ascendant is invented.
-- Automatic city geocoding is not connected. Coordinates are optional fields in the birth profile.
-- Whole Sign is the initial house-system default; additional systems require separate review and validation.
+Evidence:
+- [Supabase function deployment, Cron and Vault setup — run #41669561604](https://github.com/Unhappy-Raccoon/tarot/actions/runs/41669561604)
+- [Full database, RLS, auth/CORS and runtime smoke test — run #41669991337](https://github.com/Unhappy-Raccoon/tarot/actions/runs/41669991337)
+- [Latest CI — run #41671460540](https://github.com/Unhappy-Raccoon/tarot/actions/runs/41671460540)
+- [Latest Pages publication attempt — run #41671460988](https://github.com/Unhappy-Raccoon/tarot/actions/runs/41671460988)
 
-## AI astrologer iteration constraints
+The database secret is assembled in GitHub Actions from the protected `SUPABASE_DB_PASSWORD` secret and sent to Supabase CLI as `DATABASE_URL`. The password is URL-encoded, is not written to repository files, and is not printed in workflow logs.
 
-- OpenAI Responses API adapter is implemented, but no provider is activated until `AI_API_KEY` and `AI_MODEL` are configured on the server.
-- Free default is 5 messages per UTC day and Premium default is 50; both are provisional environment-configurable values and require product approval.
-- Premium entitlements and payment are not connected; the user plan is currently provisioned separately.
-- Chat history is persisted in PostgreSQL and can be deleted per conversation.
-- AI inputs include conversation text and summarized calculated planet signs; raw birth date, time, birthplace and coordinates from the profile are not sent in the generated context.
-- AI output is not streamed in this iteration; requests use timeout, input length, history length and output token caps.
-- A live provider call was not performed because no API key/model has been configured in the server environment.
+## What must happen before the test launch is complete
 
-## Daily horoscope iteration constraints
+1. In GitHub repository **Settings → Pages → Build and deployment**, select **GitHub Actions** as the source. The Pages API currently returns 404 until this repository setting is enabled.
+2. After enabling Pages, re-create the one-time `.github/deploy-requests/publish-pages.txt` marker with `PUBLISH_TO_TEST` and push a commit gated by `[publish-pages]`. The previous marker was removed after the blocked 404 attempt. On successful publication, the workflow checks the public page and calls the protected Supabase Telegram setup endpoint. That endpoint calls Telegram `getMe`, configures the webhook, bot commands and Mini App menu, then verifies `getWebhookInfo`.
+3. Verify the bot from Telegram with `/start` and open the Mini App. This is the first end-to-end Telegram identity and WebApp authentication test.
+4. Submit one small AI chat request from the WebApp. Readiness currently proves that AI secrets/model configuration exist; it does not prove that the selected model accepts a live Responses API request.
+5. Only after the user flow passes, treat the test deployment as launched. Notification preferences remain opt-in and payments remain disabled.
 
-- Functional iteration approved by the user on 2026-11-02; PR #4 marked Ready for review and remains unmerged.
+Do not invite external testers until the privacy notice / terms and data-retention expectations are reviewed. The application stores birth profile details and conversation content in PostgreSQL; AI requests send conversation text and summarized calculated planetary positions to the configured provider. A live provider test and an end-to-end Telegram user test are still pending.
 
+## Technical constraints
 
-- New migration: `0005_daily_horoscope.sql`.
-- Transit snapshot: 10 tropical geocentric bodies at 12:00 local time, with a ±24-hour finite-difference motion flag for Mercury–Pluto.
-- Supported major aspects and orb limits are documented in `docs/ASTROLOGY-CALCULATIONS.md`; only precise natal longitudes are used.
-- Daily reading is cached per user/local calendar date; history is stored independently of the AI conversation history.
-- Notification timezone and local delivery time are editable in WebApp; notifications are opt-in and disabled by default.
-- Notification scheduler currently runs inside the Telegram Bot/API process, polls every 60 seconds and assumes a single active instance.
-- Live generation and delivery have not been tested because the server AI model/key and Telegram production environment are not configured.
+- The deployed database connection uses the Supabase Session Pooler with `DATABASE_POOL_MAX=1`. This is a low-load test arrangement for the current `postgres.js` / Drizzle transaction usage, not a high-concurrency production topology. Before inviting many testers, evaluate a driver compatible with Supabase shared Transaction Pooler and repeat transaction tests.
+- Supabase Edge Functions read runtime secrets directly from `Deno.env`; application code does not mutate `process.env`.
+- The API Edge Function reuses Fastify routes through in-memory `app.inject()` without starting a listener.
+- Telegram webhook requests are validated with Telegram's secret-token header. Horoscope Cron requests use a separate secret stored in Supabase Vault.
+- Horoscope notification preferences default to off. The worker uses atomic per-user/local-date claims. A Telegram network outcome can still be ambiguous if the send response is lost; the worker retains the claim lease to avoid immediate duplicate messages.
+- No automatic geocoding is enabled; birth coordinates can be entered manually.
+- A natal chart without a precise birth time does not invent an Ascendant, houses or exact degrees.
+- Daily transits use a 12:00 local snapshot. Transit-to-natal aspects are shown only when exact natal longitudes are available.
+- Transit calculations have regression tests but still require comparison against an independent ephemeris reference before production.
+- Exact Free/Premium entitlements and commercial limits are not approved. Monetization and Telegram Stars are off.
+- The test environment is not production. No production deployment, custom domain or VPS is configured.
+
+## Branch and review status
+
+- Active branch: `feat/supabase-edge-runtime`.
+- PR #7 remains open against `feat/supabase-test-environment`; PRs #1–#6 are also open in the stacked review chain.
+- No PR has been merged to `main`. The test Pages workflow is intentionally guarded to the approved test project and feature branch.

@@ -1,3 +1,4 @@
+import { getRuntimeEnvironment } from "./env.js";
 type Environment = Readonly<Record<string, string | undefined>>;
 
 function isHttpsUrl(value: string | undefined): URL | null {
@@ -12,7 +13,7 @@ function isHttpsUrl(value: string | undefined): URL | null {
 }
 
 /** Strict checks apply only to production; local preview remains optional. */
-export function getRuntimeConfigurationIssues(env: Environment = process.env): string[] {
+export function getRuntimeConfigurationIssues(env: Environment = getRuntimeEnvironment()): string[] {
   if (env.NODE_ENV !== "production") return [];
   const issues: string[] = [];
   const required = [
@@ -63,7 +64,7 @@ export function getRuntimeConfigurationIssues(env: Environment = process.env): s
   return issues;
 }
 
-export function assertRuntimeConfiguration(env: Environment = process.env): void {
+export function assertRuntimeConfiguration(env: Environment = getRuntimeEnvironment()): void {
   const issues = getRuntimeConfigurationIssues(env);
   if (issues.length) {
     throw new Error(`Invalid production configuration:\n${issues.map((issue) => `- ${issue}`).join("\n")}`);

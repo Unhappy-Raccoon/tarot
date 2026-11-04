@@ -1,3 +1,4 @@
+import { getRuntimeEnv } from "../../config/env.js";
 import { createHash } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { db } from "../../db/index.js";
@@ -28,7 +29,7 @@ export async function getOrCreateNatalChart(
   const inputHash = fingerprint(birthData);
 
   if (!db) {
-    if (process.env.NODE_ENV === "production") {
+    if (getRuntimeEnv("NODE_ENV") === "production") {
       throw new Error("DATABASE_URL is required in production");
     }
     const cached = memoryCharts.get(telegramId);

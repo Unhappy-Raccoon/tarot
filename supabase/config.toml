@@ -8,3 +8,12 @@ enabled = true
 schemas = ["public", "graphql_public"]
 extra_search_path = ["public", "extensions"]
 max_rows = 1000
+
+[functions.api]
+verify_jwt = false
+
+[functions.telegram-webhook]
+verify_jwt = false
+
+[functions.process-horoscope-notifications]
+verify_jwt = false

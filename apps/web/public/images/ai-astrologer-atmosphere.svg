@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 460" fill="none">
+  <defs>
+    <radialGradient id="nebulaA" cx="0" cy="0" r="1" gradientTransform="matrix(420 130 -210 670 790 145)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#76518F" stop-opacity=".56"/>
+      <stop offset=".52" stop-color="#39264F" stop-opacity=".23"/>
+      <stop offset="1" stop-color="#110B1C" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="nebulaB" cx="0" cy="0" r="1" gradientTransform="matrix(330 100 -170 560 350 330)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#59406D" stop-opacity=".34"/>
+      <stop offset="1" stop-color="#110B1C" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1200" y2="300" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#A77E57" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#E8C69D" stop-opacity=".72"/>
+      <stop offset="1" stop-color="#A77E57" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="460" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#090711" stop-opacity=".06"/>
+      <stop offset=".72" stop-color="#090711" stop-opacity=".35"/>
+      <stop offset="1" stop-color="#090711"/>
+    </linearGradient>
+    <filter id="blur"><feGaussianBlur stdDeviation="34"/></filter>
+  </defs>
+  <path fill="#0A0712" d="M0 0h1200v460H0z"/>
+  <ellipse cx="810" cy="130" fill="url(#nebulaA)" rx="420" ry="250"/>
+  <ellipse cx="350" cy="320" fill="url(#nebulaB)" rx="340" ry="190"/>
+  <path d="M120 274c145-152 274-207 435-176 132 25 196 110 327 88 72-12 135-46 205-105" stroke="url(#gold)" stroke-width="1.4" opacity=".5"/>
+  <path d="M185 311c160-142 276-188 403-158 147 34 204 95 322 71 71-14 127-46 179-88" stroke="#C9A47B" stroke-opacity=".24" stroke-width="1"/>
+  <circle cx="792" cy="143" r="94" stroke="#D9B983" stroke-opacity=".17"/>
+  <circle cx="792" cy="143" r="74" stroke="#D9B983" stroke-opacity=".1" stroke-dasharray="2 9"/>
+  <circle cx="792" cy="143" r="5" fill="#F0D4B0" fill-opacity=".62"/>
+  <g fill="#EED7B8">
+    <circle cx="95" cy="105" r="2.2" opacity=".65"/>
+    <circle cx="194" cy="220" r="1.4" opacity=".55"/>
+    <circle cx="288" cy="68" r="1.8" opacity=".58"/>
+    <circle cx="450" cy="166" r="1.5" opacity=".48"/>
+    <circle cx="596" cy="48" r="2" opacity=".68"/>
+    <circle cx="690" cy="240" r="1.6" opacity=".56"/>
+    <circle cx="902" cy="63" r="1.8" opacity=".6"/>
+    <circle cx="1018" cy="180" r="2.1" opacity=".62"/>
+    <circle cx="1112" cy="88" r="1.4" opacity=".45"/>
+    <circle cx="1088" cy="315" r="1.8" opacity=".48"/>
+    <circle cx="826" cy="338" r="1.4" opacity=".42"/>
+    <circle cx="550" cy="365" r="1.6" opacity=".46"/>
+    <circle cx="246" cy="385" r="1.8" opacity=".38"/>
+  </g>
+  <g stroke="#D9B983" stroke-linecap="round" opacity=".6">
+    <path d="M598 30v16m-8-8h16"/>
+    <path d="M1007 109v13m-6.5-6.5h13"/>
+    <path d="M162 338v13m-6.5-6.5h13"/>
+  </g>
+  <path fill="url(#fade)" d="M0 0h1200v460H0z"/>
+</svg>

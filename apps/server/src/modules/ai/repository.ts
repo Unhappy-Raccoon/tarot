@@ -1,3 +1,4 @@
+import { getRuntimeEnv } from "../../config/env.js";
 import { and, desc, eq, gt, lt, sql } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import { aiConversations, aiDailyUsage, aiMessages, users } from "../../db/schema.js";
@@ -75,7 +76,7 @@ export async function getAIUsage(
   const limit = plan === "premium" ? premiumLimit : freeLimit;
 
   if (!db) {
-    if (process.env.NODE_ENV === "production") throw new Error("DATABASE_URL is required in production");
+    if (getRuntimeEnv("NODE_ENV") === "production") throw new Error("DATABASE_URL is required in production");
     const used = memoryUsage.get(memoryKey(telegramId, date))?.used ?? 0;
     return {
       plan,
@@ -116,7 +117,7 @@ export async function reserveAIMessage(
   const date = utcDate(now);
 
   if (!db) {
-    if (process.env.NODE_ENV === "production") throw new Error("DATABASE_URL is required in production");
+    if (getRuntimeEnv("NODE_ENV") === "production") throw new Error("DATABASE_URL is required in production");
     const key = memoryKey(telegramId, date);
     const usage = memoryUsage.get(key) ?? { used: 0, inputTokens: 0, outputTokens: 0 };
     if (usage.used >= limit) return false;
@@ -208,7 +209,7 @@ export async function listAIConversations(
   limit = 20,
 ): Promise<AIConversationSummary[]> {
   if (!db) {
-    if (process.env.NODE_ENV === "production") throw new Error("DATABASE_URL is required in production");
+    if (getRuntimeEnv("NODE_ENV") === "production") throw new Error("DATABASE_URL is required in production");
     return (memoryConversations.get(telegramId) ?? [])
       .slice()
       .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt))
@@ -253,7 +254,7 @@ export async function getAIConversation(
   if (!/^\d+$/.test(conversationId)) return null;
 
   if (!db) {
-    if (process.env.NODE_ENV === "production") throw new Error("DATABASE_URL is required in production");
+    if (getRuntimeEnv("NODE_ENV") === "production") throw new Error("DATABASE_URL is required in production");
     const conversation = (memoryConversations.get(telegramId) ?? [])
       .find((item) => item.id === conversationId);
     if (!conversation) return null;
@@ -309,7 +310,7 @@ export async function saveAIExchange(
   outputTokens: number,
 ): Promise<{ conversationId: string; userMessage: { id: string; role: "user"; content: string; createdAt: string }; assistantMessage: { id: string; role: "assistant"; content: string; createdAt: string } }> {
   if (!db) {
-    if (process.env.NODE_ENV === "production") throw new Error("DATABASE_URL is required in production");
+    if (getRuntimeEnv("NODE_ENV") === "production") throw new Error("DATABASE_URL is required in production");
     const conversations = memoryConversations.get(telegramId) ?? [];
     let conversation = conversationId
       ? conversations.find((item) => item.id === conversationId)
@@ -430,7 +431,7 @@ export async function deleteAIConversation(
   if (!/^[0-9]+$/.test(conversationId)) return false;
 
   if (!db) {
-    if (process.env.NODE_ENV === "production") throw new Error("DATABASE_URL is required in production");
+    if (getRuntimeEnv("NODE_ENV") === "production") throw new Error("DATABASE_URL is required in production");
     const conversations = memoryConversations.get(telegramId) ?? [];
     const index = conversations.findIndex((item) => item.id === conversationId);
     if (index < 0) return false;
