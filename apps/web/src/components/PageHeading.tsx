@@ -12,7 +12,7 @@ export function PageHeading({ eyebrow = "", title, description, onBack, hideBran
       {!hideBrand && (
         <div className="page-heading__brand-row">
           <div className="page-brand">
-            <span className="page-brand__moon" aria-hidden="true">☾</span>
+            <span className="page-brand__moon" aria-hidden="true">✳</span>
             <span className="page-brand__wordmark">
               <strong>Personal Cosmic Journal</strong>
               <small>ТАРО · АСТРОЛОГИЯ · ГАРМОНИЯ</small>
