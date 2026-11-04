@@ -71,7 +71,12 @@ jobs:
           grep -q 'pcj-boot-screen' "$index_file"
           grep -q '__pcjTelegramReady' "$index_file"
           grep -q 'Загрузка заняла слишком много времени' "$index_file"
-          grep -q 'telegram.org/js/telegram-web-app.js' "$index_file"
+          grep -q 'telegram.org/js/telegram-web-app.js?64' "$index_file"
+          sdk_line="$(grep -n 'telegram.org/js/telegram-web-app.js?64' "$index_file" | cut -d: -f1)"
+          app_line="$(grep -n '<script type="module"' "$index_file" | cut -d: -f1)"
+          test -n "$sdk_line"
+          test -n "$app_line"
+          test "$sdk_line" -lt "$app_line"
           if grep -q '</script>ipt>' "$index_file"; then
             echo "Unexpected text found after the Telegram bootstrap script."
             exit 1
