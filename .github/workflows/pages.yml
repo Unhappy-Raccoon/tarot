@@ -72,6 +72,11 @@ jobs:
           grep -q '__pcjTelegramReady' "$index_file"
           grep -q 'Загрузка заняла слишком много времени' "$index_file"
           grep -q 'telegram.org/js/telegram-web-app.js' "$index_file"
+          if grep -q '</script>ipt>' "$index_file"; then
+            echo "Unexpected text found after the Telegram bootstrap script."
+            exit 1
+          fi
+          grep -q '<script type="module"' "$index_file"
           test -s "apps/web/dist/images/home-card-clouds.webp"
           grep -Rql 'home-card-clouds.webp' apps/web/dist/assets/*.css
           if grep -q 'fonts.googleapis.com/css' "$index_file"; then
