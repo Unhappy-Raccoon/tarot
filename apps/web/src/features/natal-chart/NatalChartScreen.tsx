@@ -68,6 +68,10 @@ function ZodiacWheel({ chart }: { chart: NatalChartResult }) {
           const angle = (index * Math.PI * 2) / 12 - Math.PI / 2;
           const x1 = cx + Math.cos(angle) * 118;
           const y1 = cy + Math.sin(angle) * 118;
+          const xInner = cx + Math.cos(angle) * 49;
+          const yInner = cy + Math.sin(angle) * 49;
+          const xMid = cx + Math.cos(angle) * 76;
+          const yMid = cy + Math.sin(angle) * 76;
           const x2 = cx + Math.cos(angle) * 143;
           const y2 = cy + Math.sin(angle) * 143;
           const tx = cx + Math.cos(angle + Math.PI / 12) * 130;
@@ -75,6 +79,8 @@ function ZodiacWheel({ chart }: { chart: NatalChartResult }) {
           return (
             <g key={index}>
               <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#d9b983" strokeOpacity=".35"/>
+              <line x1={xInner} y1={yInner} x2={xMid} y2={yMid} stroke="#b89bbf" strokeOpacity=".22"/>
+              <line x1={xMid} y1={yMid} x2={x1} y2={y1} stroke="#b89bbf" strokeOpacity=".22"/>
               <text x={tx} y={ty} fill="#f1dccb" fontSize="15" textAnchor="middle" dominantBaseline="middle">{SIGNS[index]}</text>
             </g>
           );
@@ -102,8 +108,11 @@ function ZodiacWheel({ chart }: { chart: NatalChartResult }) {
             </g>
           );
         })()}
-        <circle cx={cx} cy={cy} r="5" fill="#d9b983"/>
-        <text x={cx} y="194" textAnchor="middle" fill="#f1dccb" fontSize="9" letterSpacing="2">NATAL</text>
+        <circle cx={cx} cy={cy} r="36" fill="#171020" stroke="#d9b983" strokeOpacity=".24"/>
+        <path d="M160 130v60M130 160h60M139 139l42 42M181 139l-42 42" stroke="#d9b983" strokeOpacity=".25" strokeWidth="1"/>
+        <path d="m160 137 6 17 17 6-17 6-6 17-6-17-17-6 17-6z" fill="#d9b983" fillOpacity=".84"/>
+        <circle cx={cx} cy={cy} r="3" fill="#fff0d8"/>
+        <text x={cx} y="207" textAnchor="middle" fill="#d9b983" fontSize="8" letterSpacing="1.8">COSMIC MAP</text>
       </svg>
       <span className="wheel-caption">ТРОПИЧЕСКИЙ ЗОДИАК · {chart.houseSystem === "whole-sign" ? "WHOLE SIGN" : "ПЛАНЕТАРНЫЕ ПОЛОЖЕНИЯ"}</span>
     </div>
