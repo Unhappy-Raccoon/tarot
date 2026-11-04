@@ -21,11 +21,37 @@ const SESSION_KEY = "pcj.session.v1";
 
 function getTelegramApp() { return window.Telegram?.WebApp; }
 
+async function fetchWithTimeout(input: RequestInfo | URL, init: RequestInit = {}, timeoutMs = 15_000): Promise<Response> {
+  const controller = new AbortController();
+  const abortFromCaller = () => controller.abort();
+  if (init.signal?.aborted) controller.abort();
+  else init.signal?.addEventListener("abort", abortFromCaller, { once: true });
+  const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(input, { ...init, signal: controller.signal });
+  } finally {
+    window.clearTimeout(timeout);
+    init.signal?.removeEventListener("abort", abortFromCaller);
+  }
+}
+
+function isTelegramHost(): boolean {
+  return /Telegram/i.test(navigator.userAgent) || Boolean(window.TelegramWebviewProxy);
+}
+
+function readSessionToken(): string | null {
+  try { return sessionStorage.getItem(SESSION_KEY); } catch { return null; }
+}
+
+function storeSessionToken(value: string): void {
+  try { sessionStorage.setItem(SESSION_KEY, value); } catch { /* Session state remains in React memory. */ }
+}
+
 async function apiRequest<T>(path: string, token: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers);
   headers.set("Content-Type", "application/json");
   headers.set("Authorization", `Bearer ${token}`);
-  const response = await fetch(`${API_URL}${path}`, { ...init, headers });
+  const response = await fetchWithTimeout(`${API_URL}${path}`, { ...init, headers });
   if (!response.ok) {
     const result = await response.json().catch(() => ({})) as { message?: string };
     throw new Error(result.message ?? `Ошибка сервера: ${response.status}`);
@@ -110,51 +136,89 @@ export default function App() {
   const [journalError, setJournalError] = useState("");
 
   useEffect(() => {
-    const telegram = getTelegramApp();
-    telegram?.ready();
-    telegram?.expand();
-    telegram?.setHeaderColor?.("#0B0A14");
-    telegram?.setBackgroundColor?.("#0B0A14");
-
-    const initData = telegram?.initData ?? "";
-    if (!initData) {
-      setPreviewMode(true);
-      const previewProfile = getPreviewProfile();
-      setProfile(previewProfile);
-      setStatus(previewProfile?.birthProfile ? "ready" : "onboarding");
-      return;
-    }
-
-    const cachedToken = sessionStorage.getItem(SESSION_KEY);
-    const restoreSession = async () => {
+    let cancelled = false;
+    const initialize = async () => {
       try {
-        if (cachedToken && API_URL) {
+        if (!getTelegramApp() && window.__pcjTelegramReady) {
+          await window.__pcjTelegramReady;
+        }
+        if (cancelled) return;
+
+        const telegram = getTelegramApp();
+        const telegramHost = isTelegramHost();
+        if (!telegram) {
+          if (telegramHost) {
+            throw new Error("Не удалось загрузить компонент Telegram Mini App. Проверь интернет-соединение и нажми «Перезагрузить».");
+          }
+          setPreviewMode(true);
+          const previewProfile = getPreviewProfile();
+          setProfile(previewProfile);
+          setStatus(previewProfile?.birthProfile ? "ready" : "onboarding");
+          return;
+        }
+
+        try {
+          telegram.ready();
+          telegram.expand();
+          telegram.setHeaderColor?.("#0B0A12");
+          telegram.setBackgroundColor?.("#0B0A12");
+        } catch {
+          // Telegram host UI methods must not prevent the web application from rendering.
+        }
+
+        const initData = telegram.initData?.trim() ?? "";
+        if (!initData) {
+          if (telegramHost) {
+            throw new Error("Telegram не передал данные авторизации. Закрой Mini App и открой его заново через меню бота.");
+          }
+          setPreviewMode(true);
+          const previewProfile = getPreviewProfile();
+          setProfile(previewProfile);
+          setStatus(previewProfile?.birthProfile ? "ready" : "onboarding");
+          return;
+        }
+
+        if (!API_URL) throw new Error("Не задан VITE_API_URL для WebApp.");
+        const cachedToken = readSessionToken();
+        if (cachedToken) {
           try {
             const restored = await apiRequest<{ user: UserProfile }>("/api/me", cachedToken);
+            if (cancelled) return;
             setAccessToken(cachedToken);
             setProfile(restored.user);
             setStatus(restored.user.birthProfile ? "ready" : "onboarding");
             return;
-          } catch { sessionStorage.removeItem(SESSION_KEY); }
+          } catch {
+            try { sessionStorage.removeItem(SESSION_KEY); } catch { /* Storage may be unavailable in a private WebView. */ }
+          }
         }
-        if (!API_URL) throw new Error("Не задан VITE_API_URL для WebApp.");
-        const response = await fetch(`${API_URL}/api/auth/telegram`, {
+
+        const response = await fetchWithTimeout(`${API_URL}/api/auth/telegram`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ initData }),
-        });
+        }, 15_000);
         const result = await response.json() as AuthResponse & { message?: string };
-        if (!response.ok || !result.accessToken) throw new Error(result.message ?? "Не удалось подтвердить вход через Telegram.");
-        sessionStorage.setItem(SESSION_KEY, result.accessToken);
+        if (!response.ok || !result.accessToken) {
+          throw new Error(result.message ?? "Не удалось подтвердить вход через Telegram.");
+        }
+        if (cancelled) return;
+        storeSessionToken(result.accessToken);
         setAccessToken(result.accessToken);
         setProfile(result.user);
         setStatus(result.user.birthProfile ? "ready" : "onboarding");
       } catch (caught) {
-        setError(caught instanceof Error ? caught.message : "Не удалось открыть приложение.");
+        if (cancelled) return;
+        setError(caught instanceof Error
+          ? caught.name === "AbortError"
+            ? "Сервер не ответил за 15 секунд. Проверь соединение и попробуй снова."
+            : caught.message
+          : "Не удалось открыть приложение.");
         setStatus("error");
       }
     };
-    void restoreSession();
+    void initialize();
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {
@@ -304,7 +368,14 @@ function LoadingScreen() {
 }
 
 function MessageScreen({ title, message }: { title: string; message: string }) {
-  return <main className="message-screen"><div className="moon-mark" aria-hidden="true">☾</div><h1>{title}</h1><p>{message}</p></main>;
+  return (
+    <main className="message-screen">
+      <div className="moon-mark" aria-hidden="true">☾</div>
+      <h1>{title}</h1>
+      <p>{message}</p>
+      <button className="secondary-button" type="button" onClick={() => window.location.reload()}>Перезагрузить</button>
+    </main>
+  );
 }
 
 function OnboardingScreen({
