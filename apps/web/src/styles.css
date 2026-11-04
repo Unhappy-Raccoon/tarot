@@ -325,3 +325,52 @@ button:active:not(:disabled) { transform: scale(.985); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+
+/* Editorial home and universal premium interaction layer */
+.home-header__topline { display:flex; align-items:center; justify-content:space-between; width:100%; }
+.home-wordmark { color:#a4a2ad; font-size:.52rem; font-weight:600; letter-spacing:.19em; }
+.home-wordmark i { margin-right:.35rem; color:var(--accent-champagne); font-style:normal; }
+.home-date { margin:.9rem 0 .55rem !important; color:#9999a6 !important; font-size:.65rem !important; letter-spacing:.1em; text-transform:capitalize; }
+.home-header h1 { font-size:clamp(2.55rem,11vw,3.3rem); font-weight:400; line-height:.91; }
+.home-header h1 em { color:#d5c09b; font-style:italic; }
+.home-subtitle { max-width:19rem; margin:.7rem 0 0 !important; color:#a7a6b0 !important; font-size:.75rem !important; line-height:1.6; }
+.home-header__topline .home-settings { position:static; flex:none; }
+.home-settings svg { width:1.1rem; height:1.1rem; fill:none; stroke:currentColor; stroke-width:1.25; }
+.home-section-kicker { display:flex; justify-content:space-between; gap:.5rem; color:#8c8d9b; font-size:.5rem; letter-spacing:.17em; }
+.daily-card--editorial { display:grid; grid-template-columns:1fr .92fr; min-height:19rem; padding:0; }
+.daily-card--editorial::after { display:none; }
+.daily-card__art { position:absolute; top:0; right:0; bottom:0; width:58%; overflow:hidden; background:radial-gradient(ellipse at 58% 43%,rgb(148 130 181 / 24%),transparent 58%); }
+.daily-card__orb { position:absolute; display:block; top:50%; left:56%; border:1px solid rgb(213 192 155 / 42%); border-radius:50%; transform:translate(-50%,-50%); }
+.daily-card__orb--outer { width:14rem; height:14rem; box-shadow:0 0 55px rgb(151 133 179 / 14%),inset 0 0 35px rgb(151 133 179 / 7%); }
+.daily-card__orb--inner { width:10rem; height:10rem; border-style:dashed; border-color:rgb(213 192 155 / 25%); }
+.daily-card__moon { position:absolute; top:50%; left:56%; color:#e2d0ad; font:7.5rem/1 Georgia,serif; text-shadow:0 0 48px rgb(217 199 165 / 35%); transform:translate(-50%,-55%); }
+.daily-card__star { position:absolute; color:#e7d8bd; }
+.daily-card__star--one { top:23%; right:22%; font-size:1.1rem; }
+.daily-card__star--two { bottom:23%; left:25%; font-size:.85rem; }
+.daily-card__horizon { position:absolute; right:-12%; bottom:9%; left:5%; height:3.2rem; border-top:1px solid rgb(214 194 163 / 28%); border-radius:50%; transform:rotate(-10deg); }
+.daily-card__content { position:relative; z-index:1; display:flex; flex-direction:column; align-items:flex-start; justify-content:flex-end; gap:.8rem; min-height:19rem; padding:1.3rem 0 1.35rem 1.3rem; }
+.daily-card__content .daily-card__eyebrow { max-width:9rem; line-height:1.6; }
+.daily-card__content .serif-title { font-size:2.5rem; }
+.daily-card__content .daily-card__copy { max-width:10rem; font-size:.66rem; }
+.daily-card__action { display:flex; align-items:center; gap:.6rem; margin-top:.2rem; color:#e0c99e; font-size:.63rem; letter-spacing:.04em; }
+.daily-card__action i { display:grid; place-items:center; width:1.7rem; height:1.7rem; border:1px solid rgb(200 173 127 / 44%); border-radius:50%; font-style:normal; }
+.home-rituals .section-heading-row { align-items:flex-end; }
+.home-rituals .section-heading-row h2 { margin:.1rem 0 0; font-size:1.85rem; }
+.quick-tile { position:relative; align-content:space-between; justify-items:start; min-height:7.4rem; padding:.75rem .7rem; text-align:left; }
+.quick-tile__number { color:#777989; font-size:.5rem; letter-spacing:.1em; }
+.quick-tile__icon { width:1.9rem; height:1.9rem; }
+.quick-tile > span:last-child { font-family:var(--font-display); font-size:.98rem; line-height:1.05; }
+.home-journal-link { margin-top:.05rem; }
+.home-journal-link .streak-text { gap:.23rem; }
+.home-journal-link .streak-text strong { font-size:1.35rem; }
+.home-journal-link .streak-value { align-self:center; }
+.home-footnote { color:#666977; font-size:.48rem; letter-spacing:.12em; line-height:1.6; }
+@media (max-width:370px) {
+ .daily-card__content { padding-left:1rem; }
+ .daily-card__content .serif-title { font-size:2.2rem; }
+ .daily-card__art { width:60%; }
+ .daily-card__orb--outer { width:11.5rem; height:11.5rem; }
+ .daily-card__orb--inner { width:8rem; height:8rem; }
+ .daily-card__moon { font-size:6.2rem; }
+}
