@@ -25,7 +25,13 @@ export function JournalScreen({ onBack, readings, onOpenReading, loading = false
 
   return (
     <div className="page-screen journal-screen">
-      <PageHeading title="Твой журнал" description="Моменты, к которым захочется вернуться." onBack={onBack} />
+      <PageHeading title="Твой журнал" description="Все важные моменты твоего космического пути." onBack={onBack} />
+      <div className="journal-intro-card">
+        <span className="journal-intro-card__icon" aria-hidden="true">▤</span>
+        <span><strong>Твоя история в одном месте</strong><small>Расклады, прогнозы и сохранённые трактовки</small></span>
+        <span className="journal-intro-card__arrow" aria-hidden="true">›</span>
+      </div>
+      <h2 className="journal-section-title">История</h2>
       <div className="journal-filters" role="tablist" aria-label="Фильтр журнала">
         {filters.map((item) => (
           <button type="button" role="tab" aria-selected={filter === item} className={filter === item ? "selected" : ""} key={item} onClick={() => setFilter(item)}>{item}</button>
