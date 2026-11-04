@@ -460,3 +460,57 @@ button:active:not(:disabled) { transform: scale(.985); }
 .natal-status-panel { padding:1.35rem;border:1px solid var(--hairline);border-radius:1rem;background:linear-gradient(145deg,#1a1e30,#111522); }
 .natal-status-panel h2 { margin:.45rem 0;font-size:1.7rem; }
 .natal-status-panel p { color:#adaebb;font-size:.73rem;line-height:1.7; }
+
+
+/* Private astrologer consultation */
+.astrologer-editorial-header { position:relative;display:grid;justify-items:center;padding:.15rem .3rem .55rem;text-align:center; }
+.astrologer-editorial-header .back-button { position:absolute;top:.05rem;left:0; }
+.astrologer-editorial-art {
+  position:relative;display:grid;place-items:center;width:7.2rem;height:7.2rem;margin:.2rem 0 1rem;
+  border:1px solid rgb(200 173 127 / 23%);border-radius:50%;
+  background:radial-gradient(circle,rgb(139 121 174 / 22%),transparent 68%);
+  box-shadow:0 0 55px rgb(111 100 147 / 10%),inset 0 0 35px rgb(200 173 127 / 5%);
+}
+.astrologer-editorial-art::before,.astrologer-editorial-art::after { position:absolute;content:"";border:1px solid rgb(200 173 127 / 21%);border-radius:50%; }
+.astrologer-editorial-art::before { inset:.5rem; }
+.astrologer-editorial-art::after { inset:-.55rem;border-style:dashed;opacity:.55; }
+.astrologer-editorial-art span { color:#e0c99f;font:4.5rem/1 Georgia,serif;text-shadow:0 0 30px rgb(200 173 127 / 25%); }
+.astrologer-editorial-art i,.astrologer-editorial-art b { position:absolute;color:#e4d4b8;font-size:.9rem;font-style:normal; }
+.astrologer-editorial-art i { top:.2rem;right:.7rem; }
+.astrologer-editorial-art b { bottom:.5rem;left:.5rem; }
+.astrologer-editorial-header .eyebrow { margin-bottom:.55rem; }
+.astrologer-editorial-header h1 { margin:0;font:400 clamp(2.1rem,9vw,2.8rem)/.98 var(--font-display); }
+.astrologer-editorial-header > p:last-child { max-width:20rem;margin:.6rem auto 0;color:#a9a9b5;font-size:.72rem;line-height:1.65; }
+.chat-usage-panel { position:relative;display:grid;grid-template-columns:auto 1fr;column-gap:.8rem;align-items:center; }
+.chat-limit__moon { display:grid;place-items:center;width:2.5rem;height:2.5rem;border:1px solid var(--hairline);border-radius:50%;background:#252337;font:1.4rem Georgia,serif; }
+.chat-usage-copy { display:grid;gap:.12rem; }
+.chat-usage-copy strong { font-size:1.1rem; }
+.chat-usage-copy span { font-size:.61rem; }
+.chat-usage-meter { grid-column:1/-1;margin-top:.8rem;height:3px;border-radius:9px;overflow:hidden; }
+.chat-usage-meter > span { height:100%;display:block;border-radius:9px; }
+.ai-chat-toolbar { display:flex;justify-content:space-between; }
+.ai-toolbar-button { padding:.55rem .8rem; }
+.ai-chat-thread { padding:1rem .8rem; }
+.ai-chat-empty { min-height:19rem;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center; }
+.ai-welcome-orbit {
+  display:grid;place-items:center;width:4.8rem;height:4.8rem;margin-bottom:1rem;
+  border:1px solid rgb(200 173 127 / 27%);border-radius:50%;
+  background:radial-gradient(circle,rgb(138 119 173 / 21%),transparent 72%);
+  color:#ddc79f;font:2.8rem Georgia,serif;
+}
+.ai-chat-empty h2 { max-width:16rem;margin:.5rem 0;font-size:2rem;line-height:1; }
+.ai-chat-empty p { max-width:18rem;color:#a7a8b4;font-size:.71rem;line-height:1.7; }
+.chat-message { max-width:88%; }
+.chat-message > div { border-radius:1rem;padding:.85rem .95rem; }
+.chat-message--assistant > div { border-top-left-radius:.25rem; }
+.chat-message--user { margin-left:auto; }
+.chat-message--user > div { border-top-right-radius:.25rem; }
+.chat-message p { font-size:.76rem;line-height:1.72; }
+.chat-message small { color:#cbb58d;font-size:.5rem;letter-spacing:.14em; }
+.ai-scenario-list { display:grid;grid-template-columns:1fr;gap:.45rem; }
+.ai-scenario-list button { display:flex;justify-content:space-between;align-items:center;min-height:2.8rem;padding:.65rem .8rem;border:1px solid var(--hairline);border-radius:.7rem;background:#141a29;color:#d8d3ca;font-size:.7rem;text-align:left; }
+.ai-scenario-list button.selected { border-color:rgb(200 173 127 / 42%);background:#222137;color:#e3d2b2; }
+.ai-chat-composer { position:sticky;bottom:calc(5.1rem + env(safe-area-inset-bottom));z-index:4;gap:.5rem;padding:.55rem;border-radius:1rem;background:rgb(19 24 39 / 96%);backdrop-filter:blur(16px); }
+.ai-chat-composer textarea { min-height:3rem;max-height:8rem;padding:.6rem .5rem;border:0 !important;background:transparent !important;resize:vertical;font-size:.78rem; }
+.ai-chat-composer button { flex:0 0 2.45rem;width:2.45rem;height:2.45rem;border-radius:50%;background:linear-gradient(145deg,#d8c39d,#b99b6f);color:#14131a;font-size:1.25rem; }
+.ai-composer-hint { color:#777b8a;font-size:.55rem;line-height:1.5; }
