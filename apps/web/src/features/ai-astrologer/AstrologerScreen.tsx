@@ -236,13 +236,15 @@ export function AstrologerScreen({ onBack, accessToken }: Props) {
 
   return (
     <div className="page-screen astrologer-screen">
-      <PageHeading
-        eyebrow=""
-        title="AI-астролог"
-        hideBrand
-        description="Место для вопросов, наблюдений и бережного исследования себя."
-        onBack={onBack}
-      />
+      <header className="astrologer-editorial-header">
+        <button className="back-button" type="button" onClick={onBack} aria-label="Назад">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m0 0 7-7m-7 7 7 7"/></svg>
+        </button>
+        <div className="astrologer-editorial-art" aria-hidden="true"><span>☾</span><i>✧</i><b>✦</b></div>
+        <p className="eyebrow">ЛИЧНОЕ ПРОСТРАНСТВО ДЛЯ ДИАЛОГА</p>
+        <h1>Твой AI-астролог</h1>
+        <p>Исследуй свои вопросы через символы и астрологические образы. Без категоричных прогнозов — с вниманием к тебе.</p>
+      </header>
 
       {status && (
         <section className="chat-usage-panel">
