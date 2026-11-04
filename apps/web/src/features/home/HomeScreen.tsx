@@ -68,12 +68,6 @@ export function HomeScreen({ profile, displayName, onNavigate, onDailyCard, busy
         <span className="streak-value">Начать <span aria-hidden="true">→</span></span>
       </button>
 
-      <button className="horoscope-link" type="button" onClick={() => onNavigate("daily-horoscope")}>
-        <span className="horoscope-link__icon" aria-hidden="true">☾</span>
-        <span><strong>Гороскоп дня</strong><small>Космическая погода и подсказка на сегодня</small></span>
-        <span className="horoscope-link__arrow" aria-hidden="true">→</span>
-      </button>
-            <p className="home-footnote">ТВОЁ ПРОСТРАНСТВО · ТВОЙ РИТМ · ТВОЯ ВСЕЛЕННАЯ</p>
     </div>
   );
 }
