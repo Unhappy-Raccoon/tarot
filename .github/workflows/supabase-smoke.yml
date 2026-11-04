@@ -55,6 +55,13 @@ jobs:
             echo "Pages index ($agent) -> HTTP $status"
             test "$status" = "200"
             grep -q 'id="root"' "$body_file"
+            grep -q 'pcj-boot-screen' "$body_file"
+            grep -q '__pcjTelegramReady' "$body_file"
+            grep -q 'telegram.org/js/telegram-web-app.js' "$body_file"
+            if grep -q 'fonts.googleapis.com/css' "$body_file"; then
+              echo "Google Fonts stylesheet must not block initial mobile rendering."
+              exit 1
+            fi
             js_path="$(grep -oE 'src="[^"]+\.js"' "$body_file" | head -n1 | cut -d '"' -f2)"
             css_path="$(grep -oE 'href="[^"]+\.css"' "$body_file" | head -n1 | cut -d '"' -f2)"
             test -n "$js_path"
