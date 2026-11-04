@@ -62,6 +62,21 @@ jobs:
           VITE_BASE_PATH: /tarot/
           VITE_API_URL: ${{ vars.VITE_API_URL || 'https://uayoqicecdtcxouwsprh.supabase.co/functions/v1/api' }}
         run: npm run build --workspace=@pcj/web
+      - name: Validate mobile-safe WebApp bootstrap
+        shell: bash
+        run: |
+          set -euo pipefail
+          index_file="apps/web/dist/index.html"
+          test -s "$index_file"
+          grep -q 'pcj-boot-screen' "$index_file"
+          grep -q '__pcjTelegramReady' "$index_file"
+          grep -q 'telegram.org/js/telegram-web-app.js' "$index_file"
+          if grep -q 'fonts.googleapis.com/css' "$index_file"; then
+            echo "Google Fonts stylesheet must not block first paint."
+            exit 1
+          fi
+          echo "MOBILE_SAFE_BOOTSTRAP_OK"
+
       - name: Validate published API URL
         if: (github.event_name == 'workflow_dispatch' && inputs.publish == 'yes') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[publish-pages]'))
         env:
