@@ -33,8 +33,8 @@ export function HomeScreen({ profile, displayName, onNavigate, onDailyCard, busy
           </button>
         </div>
         <p className="home-date">{date}</p>
-        <h1>Добрый день,<br/><em>{firstName}.</em></h1>
-        <p className="home-subtitle">Твоё пространство для ясности, интуиции и маленьких открытий.</p>
+        <h1>Привет,<br/><em>{firstName}.</em></h1>
+        <p className="home-subtitle">Твой день начинается здесь.</p>
       </header>
 
       <section className="home-section home-feature-section" aria-label="Карта дня">
@@ -50,9 +50,9 @@ export function HomeScreen({ profile, displayName, onNavigate, onDailyCard, busy
           </span>
           <span className="daily-card__content">
             <span className="daily-card__eyebrow">ТВОЯ КАРТА НА СЕГОДНЯ</span>
-            <span className="serif-title">Открой<br/>свой день.</span>
-            <span className="daily-card__copy">{busy ? "Карты готовятся…" : "Один символ. Новая перспектива. Мягкая подсказка для себя."}</span>
-            <span className="daily-card__action">Открыть карту <i aria-hidden="true">↗</i></span>
+            <span className="serif-title">Карта<br/>дня.</span>
+            <span className="daily-card__copy">{busy ? "Карты готовятся…" : "Раскрой энергию сегодняшнего дня."}</span>
+            <span className="daily-card__action">Открыть <i aria-hidden="true">↗</i></span>
           </span>
         </button>
       </section>
