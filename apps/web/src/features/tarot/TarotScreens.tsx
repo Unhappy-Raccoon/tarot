@@ -10,22 +10,22 @@ interface SelectionProps {
 }
 
 const spreads: { id: SpreadId; number: string; title: string; subtitle: string; count: string; glyph: string }[] = [
-  { id: "daily", number: "01", title: "Карта дня", subtitle: "Одна карта · энергия и подсказка на сегодня", count: "1 КАРТА", glyph: "☾" },
-  { id: "past-present-future", number: "02", title: "Прошлое · настоящее · будущее", subtitle: "Три позиции · увидеть путь целиком", count: "3 КАРТЫ", glyph: "✧" },
-  { id: "love", number: "03", title: "Любовь и отношения", subtitle: "Три позиции · чувства, динамика и направление", count: "3 КАРТЫ", glyph: "♡" },
+  { id: "daily", number: "01", title: "Карта дня", subtitle: "Одна карта, чтобы настроиться на сегодняшний день.", count: "01 КАРТА", glyph: "☾" },
+  { id: "past-present-future", number: "02", title: "Путь и выбор", subtitle: "Три позиции: что привело сюда, где ты сейчас и куда ведёт дорога.", count: "03 КАРТЫ", glyph: "✧" },
+  { id: "love", number: "03", title: "Отношения", subtitle: "Взгляд на чувства, взаимность и пространство для диалога.", count: "03 КАРТЫ", glyph: "♡" },
 ];
 
 export function TarotSelectionScreen({ onSelect, onBack, busySpread = null, error }: SelectionProps) {
   return (
     <div className="page-screen tarot-selection-screen">
       <PageHeading title="Таро" description="Выбери расклад для себя" onBack={onBack} />
-      <p className="tarot-intro-copy">Прислушайся к вопросу — и открой карты.</p>
-      <div className="tarot-spread-heading"><span>ТВОИ РАСКЛАДЫ</span><small>3 практики</small></div>
+      <p className="tarot-intro-copy">Оставь суету за пределами этого момента. Выбери тему и позволь символам стать зеркалом твоих мыслей.</p>
+      <div className="tarot-spread-heading"><span>КОЛЛЕКЦИЯ АРКАНОВ</span><small>03 ПРАКТИКИ</small></div>
       <div className="tarot-spread-list">
         {spreads.map((spread) => (
-          <article className="spread-card" key={spread.id}>
+          <article className={`spread-card spread-card--${spread.id}`} key={spread.id}>
             <div className="spread-card__art" aria-hidden="true">
-              <span className="spread-card__number">{spread.number}</span>
+              <span className="spread-card__number">{spread.number}</span>\n              <span className="spread-card__art-label">ARCANA STUDY · {spread.number}</span>
               {spread.id === "daily" ? (
                 <svg className="spread-artwork spread-artwork--single" viewBox="0 0 120 150" aria-hidden="true">
                   <rect x="18" y="9" width="84" height="132" rx="8" />
