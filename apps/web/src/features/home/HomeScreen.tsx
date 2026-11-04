@@ -62,10 +62,10 @@ export function HomeScreen({ profile, displayName, onNavigate, onDailyCard, busy
         <span className="streak-flame" aria-hidden="true">✦</span>
         <span className="streak-text">
           <strong>Серия дней</strong>
-          <small>Создай свой первый ежедневный ритуал</small>
+          <small>Один маленький ритуал каждый день</small>
           <span className="streak-track" aria-hidden="true"><i /><i /><i /><i /><i /></span>
         </span>
-        <span className="streak-value">0 дней <span aria-hidden="true">→</span></span>
+        <span className="streak-value">Начать <span aria-hidden="true">→</span></span>
       </button>
 
       <button className="horoscope-link" type="button" onClick={() => onNavigate("daily-horoscope")}>
