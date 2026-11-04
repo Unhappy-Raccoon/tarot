@@ -71,6 +71,81 @@ interface ResultProps {
   onBack: () => void;
 }
 
+function TarotCardIllustration({ glyph, name, index }: { glyph: string; name: string; index: number }) {
+  const isMoon = glyph === "☾" || /луна/i.test(name);
+  const isSun = glyph === "☼" || /солнце/i.test(name);
+  const isStar = glyph === "✦" || /звезд/i.test(name);
+  const isHeart = glyph === "♡" || /люб|императр/i.test(name);
+  const motif = isMoon ? "moon" : isSun ? "sun" : isStar ? "star" : isHeart ? "heart" : "orbit";
+
+  return (
+    <svg className={`tarot-card-illustration tarot-card-illustration--${motif}`} viewBox="0 0 200 278" aria-hidden="true">
+      <defs>
+        <radialGradient id={`tarotGlow-${index}`} cx="50%" cy="42%" r="56%">
+          <stop offset="0%" stopColor="#e9cda9" stopOpacity=".24" />
+          <stop offset="100%" stopColor="#e9cda9" stopOpacity="0" />
+        </radialGradient>
+        <linearGradient id={`tarotInk-${index}`} x1="0" y1="0" x2="1" y2="1">
+          <stop stopColor="#f0d8b5" />
+          <stop offset="1" stopColor="#b88e64" />
+        </linearGradient>
+      </defs>
+      <rect x="7" y="7" width="186" height="264" rx="5" fill="#130d1c" stroke={`url(#tarotInk-${index})`} strokeWidth="1.4"/>
+      <rect x="14" y="14" width="172" height="250" rx="3" fill="none" stroke="#d9b983" strokeOpacity=".48"/>
+      <path d="M25 52V25h27M175 52V25h-27M25 226v27h27M175 226v27h-27" fill="none" stroke="#e8cfad" strokeOpacity=".75" strokeWidth="1.2"/>
+      <path d="M100 22v9m-4.5-4.5h9M100 247v9m-4.5-4.5h9M22 139h9m-4.5-4.5v9M169 139h9m-4.5-4.5v9" stroke="#d9b983" strokeOpacity=".8"/>
+      <circle cx="100" cy="133" r="70" fill={`url(#tarotGlow-${index})`}/>
+      <circle cx="100" cy="133" r="58" fill="none" stroke="#d9b983" strokeOpacity=".45"/>
+      <circle cx="100" cy="133" r="48" fill="none" stroke="#d9b983" strokeOpacity=".25" strokeDasharray="1.8 5"/>
+      {motif === "moon" && (
+        <g fill="none" stroke="#f0d8b5" strokeWidth="2">
+          <path d="M115 75c-31 8-43 43-25 68 17 23 49 23 67 3-28 5-52-14-52-40 0-13 4-23 10-31z" fill="#d8b48a" fillOpacity=".2"/>
+          <path d="M100 54v13m-6.5-6.5h13M60 134h12m-6-6v12M139 183v12m-6-6h12" strokeOpacity=".7"/>
+          <circle cx="138" cy="91" r="3" fill="#f0d8b5" stroke="none"/>
+          <circle cx="66" cy="174" r="2" fill="#f0d8b5" stroke="none"/>
+        </g>
+      )}
+      {motif === "sun" && (
+        <g fill="none" stroke="#f0d8b5" strokeWidth="1.7">
+          <circle cx="100" cy="133" r="26" fill="#d9b983" fillOpacity=".18"/>
+          <circle cx="100" cy="133" r="18"/>
+          {Array.from({length:12},(_,i)=>{
+            const a=i*Math.PI/6, x1=100+Math.cos(a)*35,y1=133+Math.sin(a)*35,x2=100+Math.cos(a)*47,y2=133+Math.sin(a)*47;
+            return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2}/>;
+          })}
+        </g>
+      )}
+      {motif === "star" && (
+        <g fill="none" stroke="#f0d8b5" strokeWidth="1.7" strokeLinejoin="round">
+          <path d="m100 75 13 42 42 16-42 14-13 42-14-42-42-14 42-16z" fill="#d9b983" fillOpacity=".12"/>
+          <path d="m100 93 8 29 29 11-29 9-8 29-9-29-29-9 29-11z"/>
+          <circle cx="100" cy="133" r="5" fill="#f0d8b5" stroke="none"/>
+        </g>
+      )}
+      {motif === "heart" && (
+        <g fill="none" stroke="#f0d8b5" strokeWidth="1.9" strokeLinecap="round">
+          <path d="M100 177 57 137c-27-27 8-62 35-37l8 8 8-8c27-25 62 10 35 37z" fill="#d9b983" fillOpacity=".1"/>
+          <path d="M100 62v15m-7.5-7.5h15M49 118l12 5m90-5-12 5M62 186l8-10m60 10-8-10"/>
+          <circle cx="100" cy="108" r="3" fill="#f0d8b5" stroke="none"/>
+        </g>
+      )}
+      {motif === "orbit" && (
+        <g fill="none" stroke="#f0d8b5" strokeWidth="1.6">
+          <ellipse cx="100" cy="133" rx="43" ry="18" transform="rotate(-42 100 133)"/>
+          <ellipse cx="100" cy="133" rx="43" ry="18" transform="rotate(42 100 133)"/>
+          <circle cx="100" cy="133" r="14" fill="#d9b983" fillOpacity=".18"/>
+          <circle cx="100" cy="133" r="5" fill="#f0d8b5" stroke="none"/>
+          <circle cx="62" cy="102" r="4" fill="#d9b983"/>
+          <circle cx="136" cy="163" r="4" fill="#d9b983"/>
+        </g>
+      )}
+      <path d="M49 216h102M65 223h70" stroke="#d9b983" strokeOpacity=".55"/>
+      <text x="100" y="239" fill="#e8cfad" fontSize="8" letterSpacing="2.2" textAnchor="middle">ARCANA · {String(index+1).padStart(2,"0")}</text>
+      <path d="m100 34 3 5 5 3-5 3-3 5-3-5-5-3 5-3zM100 261l2 3 3 2-3 2-2 3-2-3-3-2 3-2z" fill="#e9cda9"/>
+    </svg>
+  );
+}
+
 export function TarotResultScreen({ reading, onBack }: ResultProps) {
   const [revealed, setRevealed] = useState<string[]>(() => reading.cards.map((card) => card.cardId));
   const allRevealed = reading.cards.every((card) => revealed.includes(card.cardId));
@@ -114,7 +189,7 @@ export function TarotResultScreen({ reading, onBack }: ResultProps) {
                   </span>
                   <span className="tarot-flip-card__front">
                     <span className="revealed-card__corner">{index + 1}</span>
-                    <span className="revealed-card__symbol">{card.glyph}</span>
+                    <TarotCardIllustration glyph={card.glyph} name={card.name} index={index} />
                     <span className="revealed-card__title">{card.name}</span>
                     <span className="revealed-card__ornament">✧ · ✧</span>
                   </span>
