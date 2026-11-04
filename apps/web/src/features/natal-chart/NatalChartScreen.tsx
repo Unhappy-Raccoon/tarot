@@ -179,6 +179,11 @@ export function NatalChartScreen({ onBack, accessToken, previewMode }: Props) {
             <button type="button" role="tab" aria-selected={tab === "placements"} className={tab === "placements" ? "selected" : ""} onClick={() => setTab("placements")}>Положения</button>
           </div>
           {tab === "chart" ? (
+            <>
+            <div className="natal-wheel-heading">
+              <h2>Натальный круг</h2>
+              <span>{chart.precisionLabel}</span>
+            </div>
             <section className="natal-chart-panel">
               <ZodiacWheel chart={chart} />
               <div className="natal-core-facts">
@@ -187,8 +192,28 @@ export function NatalChartScreen({ onBack, accessToken, previewMode }: Props) {
                 <div><small>ASC</small><strong>{chart.ascendant?.sign ?? "Не рассчитан"}</strong></div>
               </div>
             </section>
+            <section className="natal-highlights">
+              <h2>Твои главные положения</h2>
+              <div className="natal-highlight-list">
+                {chart.placements.filter((placement) => placement.id === "sun" || placement.id === "moon").map((placement) => (
+                  <article className="natal-highlight-card" key={placement.id}>
+                    <span className="natal-highlight-icon">{placement.glyph}</span>
+                    <span><small>{placement.name.toUpperCase()}</small><strong>В {placement.sign ?? placement.possibleSigns.join(" / ") || "знаке уточнения"}</strong><em>{placement.degreeInSign !== null ? formatDegree(placement.degreeInSign) : "Требуется точное время"}</em></span>
+                    <span className="natal-highlight-arrow">›</span>
+                  </article>
+                ))}
+                <article className="natal-highlight-card">
+                  <span className="natal-highlight-icon">↗</span>
+                  <span><small>АСЦЕНДЕНТ</small><strong>{chart.ascendant ? `В ${chart.ascendant.sign}` : "Пока не рассчитан"}</strong><em>{chart.ascendant ? formatDegree(chart.ascendant.degreeInSign) : "Нужны время и координаты"}</em></span>
+                  <span className="natal-highlight-arrow">›</span>
+                </article>
+              </div>
+              <button className="natal-detail-link" type="button" onClick={() => setTab("placements")}>Подробнее о натальной карте <span aria-hidden="true">→</span></button>
+            </section>
+            </>
           ) : (
             <section className="placement-list">
+              <div className="natal-wheel-heading"><h2>Положения планет</h2><span>{chart.placements.length} объектов</span></div>
               {chart.placements.map((placement) => <PlanetPosition key={placement.id} placement={placement} />)}
             </section>
           )}
