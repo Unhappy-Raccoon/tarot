@@ -16,6 +16,8 @@ interface Window {
   Telegram?: {
     WebApp?: TelegramWebApp;
   };
+  TelegramWebviewProxy?: unknown;
+  __pcjTelegramReady?: Promise<boolean>;
 }
 
 interface ImportMetaEnv {
