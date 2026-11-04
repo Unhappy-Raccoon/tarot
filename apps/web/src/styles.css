@@ -540,3 +540,61 @@ button:active:not(:disabled) { transform: scale(.985); }
 .journal-entry__body h2 { margin:.35rem 0;font-size:1.45rem;line-height:1; }
 .journal-entry__body p { font-size:.62rem;line-height:1.5; }
 .empty-state { border-color:var(--hairline);background:linear-gradient(145deg,#181d2c,#101421); }
+
+
+/* Profile and membership — private members' salon */
+.profile-screen { gap:1.15rem; }
+.profile-identity { position:relative;gap:1rem;padding:1.15rem;border-radius:1rem; }
+.profile-avatar { width:4.4rem;height:4.4rem;flex-basis:4.4rem; }
+.profile-identity h2 { font-size:1.7rem;line-height:1; }
+.profile-identity p { margin-top:.3rem;font-size:.65rem; }
+.plan-pill { padding:.38rem .6rem;letter-spacing:.13em; }
+.premium-banner {
+  display:grid;grid-template-columns:1fr auto;gap:.65rem;align-items:start;
+  padding:1.25rem;overflow:hidden;
+  background:
+    radial-gradient(ellipse at 91% 8%,rgb(193 174 219 / 24%),transparent 52%),
+    linear-gradient(125deg,#302b42 0%,#1a1d30 54%,#111523 100%);
+}
+.premium-banner > span:first-child { display:grid;gap:.4rem; }
+.premium-banner small { font-size:.52rem;letter-spacing:.18em; }
+.premium-banner strong { font-size:2rem;line-height:.95; }
+.premium-banner em { max-width:15rem;font-size:.67rem;line-height:1.55; }
+.premium-banner b { color:#c9c6ce;font-size:.6rem;font-weight:400; }
+.premium-banner__ornament { font-size:2rem; }
+.birth-profile-section { display:grid;gap:.6rem; }
+.birth-profile-card { display:flex;align-items:center;gap:.85rem;width:100%;padding:1rem;border:1px solid var(--hairline);border-radius:.9rem;background:#141928;color:var(--text-primary);text-align:left; }
+.birth-profile-symbol { display:grid;place-items:center;flex:0 0 2.8rem;height:2.8rem;border:1px solid var(--hairline);border-radius:50%;background:#232337;color:#c9b48e; }
+.birth-profile-symbol svg { width:1.45rem;height:1.45rem;fill:none;stroke:currentColor;stroke-width:1; }
+.birth-profile-card > span:nth-child(2) { display:grid;flex:1;gap:.18rem;min-width:0; }
+.birth-profile-card strong { font:500 1.3rem var(--font-display); }
+.birth-profile-card small { color:#9698a6;font-size:.6rem;line-height:1.5; }
+.birth-profile-arrow { color:#c8ad7f; }
+.birth-profile-meta { display:grid;grid-template-columns:1fr 1fr;gap:.6rem; }
+.birth-profile-meta > span { display:grid;gap:.3rem;padding:.8rem;border:1px solid var(--hairline);border-radius:.7rem;background:#101522; }
+.birth-profile-meta small { color:#858897;font-size:.48rem;letter-spacing:.13em; }
+.birth-profile-meta strong { color:#d9d3c8;font-size:.66rem;font-weight:500;overflow-wrap:anywhere; }
+.birth-edit-form { display:grid;gap:.85rem;padding:1rem;border:1px solid var(--hairline);border-radius:.9rem;background:#121726; }
+.settings-group { gap:.6rem;padding:1.1rem;border-radius:1rem; }
+.settings-row { padding:.48rem 0;border-bottom:1px solid rgb(226 218 201 / 7%); }
+.settings-row:last-child { border-bottom:0; }
+.settings-icon { color:#c8ad7f; }
+.settings-chevron { color:#777b8a; }
+.premium-screen { gap:1.2rem; }
+.premium-hero-art { position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.1rem; }
+.premium-hero-art::before,.premium-hero-art::after { position:absolute;content:"";border:1px solid rgb(206 187 155 / 20%);border-radius:50%;pointer-events:none; }
+.premium-hero-art::before { width:15rem;height:15rem; }
+.premium-hero-art::after { width:12rem;height:12rem;border-style:dashed;opacity:.5; }
+.premium-hero-art > span:first-child { position:relative;z-index:1;color:#dbc69f;font-size:.52rem;letter-spacing:.2em; }
+.premium-hero-art h2 { position:relative;z-index:1;max-width:16rem;margin:0;font-size:2.8rem;line-height:.94; }
+.premium-hero-art p { position:relative;z-index:1;max-width:17rem;color:#c0bbc8;font-size:.73rem;line-height:1.7; }
+.premium-hero-art > span:last-child { position:relative;z-index:1;color:#8f8b9d;font-size:.47rem;letter-spacing:.18em; }
+.premium-benefits { gap:.6rem; }
+.premium-benefit { align-items:flex-start;padding:1rem;border-radius:.9rem; }
+.premium-benefit > span { display:grid;place-items:center;flex:0 0 2.3rem;height:2.3rem;border:1px solid var(--hairline);border-radius:50%;color:#d0b98e;font-size:.7rem; }
+.premium-benefit h2 { margin:0 0 .25rem;font-size:1.4rem; }
+.premium-benefit p { margin:0;font-size:.67rem;line-height:1.6; }
+.premium-plan-note { padding:1.2rem;border:1px solid var(--hairline);border-radius:1rem;background:#121726; }
+.premium-plan-note h2 { margin:.45rem 0;font-size:1.75rem; }
+.premium-plan-note p { color:#a6a7b2;font-size:.68rem;line-height:1.7; }
+.premium-plan-note .primary-button { margin-top:.3rem; }
