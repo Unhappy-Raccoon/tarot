@@ -248,8 +248,8 @@ export function AstrologerScreen({ onBack, accessToken }: Props) {
         <section className="chat-usage-panel">
           <span className="chat-limit__moon" aria-hidden="true">☾</span>
           <div className="chat-usage-copy">
-            <strong>{status.usage.plan === "premium" ? "Расширенный доступ" : "Твой дневной лимит"}</strong>
-            <span>{status.available ? `Осталось ${remaining} из ${status.usage.limit} сообщений` : "AI-провайдер временно недоступен"}</span>
+            <strong>Сообщения сегодня</strong>
+            <span>{status.available ? `${status.usage.used} из ${status.usage.limit}` : "AI-провайдер временно недоступен"}</span>
           </div>
           <div className="chat-usage-meter" aria-label={`Использовано ${status.usage.used} из ${status.usage.limit}`}>
             <span style={{ width: `${status.usage.limit > 0 ? Math.min(100, status.usage.used / status.usage.limit * 100) : 0}%` }} />
@@ -295,6 +295,7 @@ export function AstrologerScreen({ onBack, accessToken }: Props) {
       )}
 
       <section className="ai-chat-thread" aria-label="Переписка с астрологом" aria-live="polite">
+        {!loading && messages.length > 0 && <div className="chat-date">СЕГОДНЯ</div>}
         {loading || loadingConversation ? (
           <div className="ai-chat-empty"><span className="ai-welcome-orbit">✧</span><h2>Настраиваем диалог</h2><p>Загружаем твои переписки…</p></div>
         ) : messages.length === 0 ? (
@@ -319,6 +320,14 @@ export function AstrologerScreen({ onBack, accessToken }: Props) {
         )}
         <div ref={messagesEndRef} />
       </section>
+
+      {messages.length > 0 && messages[messages.length - 1]?.role === "assistant" && (
+        <button className="ai-followup-card" type="button" onClick={() => setDraft("Хочу подробнее разобрать эту тему.")}>
+          <span className="ai-followup-moon" aria-hidden="true">☾</span>
+          <span><strong>Продолжим исследование?</strong><small>Задай уточняющий вопрос и углуби разговор</small></span>
+          <span aria-hidden="true">›</span>
+        </button>
+      )}
 
       {messages.length === 0 && status?.scenarios?.length ? (
         <section className="suggestion-block">
