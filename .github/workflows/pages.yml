@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - feat/supabase-edge-runtime
+      - feat/premium-visual-redesign
     paths:
       - "apps/web/**"
       - "packages/**"
@@ -122,7 +123,7 @@ jobs:
           path: apps/web/dist
 
   deploy:
-    if: (github.event_name == 'workflow_dispatch' && inputs.publish == 'yes' && github.ref == 'refs/heads/main') || (github.event_name == 'push' && github.ref == 'refs/heads/feat/supabase-edge-runtime' && contains(github.event.head_commit.message, '[publish-pages]'))
+    if: (github.event_name == 'workflow_dispatch' && inputs.publish == 'yes' && github.ref == 'refs/heads/main') || (github.event_name == 'push' && (github.ref == 'refs/heads/feat/supabase-edge-runtime' || github.ref == 'refs/heads/feat/premium-visual-redesign') && contains(github.event.head_commit.message, '[publish-pages]'))
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 15
