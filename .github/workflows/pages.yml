@@ -71,7 +71,8 @@ jobs:
           grep -q 'pcj-boot-screen' "$index_file"
           grep -q '__pcjTelegramReady' "$index_file"
           grep -q 'Загрузка заняла слишком много времени' "$index_file"
-          grep -q 'id="telegram-web-app-sdk" defer src="/tarot/vendor/telegram-web-app.js"' "$index_file"
+          grep -q 'new URL("vendor/telegram-web-app.js", window.location.href)' "$index_file"
+          grep -q 'sdk.async = true' "$index_file"
           grep -q 'finish(Boolean(window.Telegram && window.Telegram.WebApp))' "$index_file"
           grep -q 'window.Telegram.WebApp.ready()' "$index_file"
           test -s "apps/web/dist/vendor/telegram-web-app.js"
@@ -80,7 +81,7 @@ jobs:
             echo "Telegram SDK must be served locally, not from an external CDN."
             exit 1
           fi
-          sdk_line="$(grep -n 'telegram-web-app-sdk' "$index_file" | cut -d: -f1)"
+          sdk_line="$(grep -n 'window.__pcjTelegramReady = new Promise' "$index_file" | cut -d: -f1)"
           app_line="$(grep -n '<script type="module"' "$index_file" | cut -d: -f1)"
           test -n "$sdk_line"
           test -n "$app_line"
