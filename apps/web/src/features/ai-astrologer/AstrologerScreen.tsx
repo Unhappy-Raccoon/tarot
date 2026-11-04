@@ -242,7 +242,6 @@ export function AstrologerScreen({ onBack, accessToken }: Props) {
         hideBrand
         description="Место для вопросов, наблюдений и бережного исследования себя."
         onBack={onBack}
-        hideBrand
       />
 
       {status && (
