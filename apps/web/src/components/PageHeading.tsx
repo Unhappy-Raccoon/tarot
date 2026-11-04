@@ -8,7 +8,7 @@ interface Props {
 
 export function PageHeading({ eyebrow = "PERSONAL COSMIC JOURNAL", title, description, onBack, hideBrand = false }: Props) {
   return (
-    <header className="page-heading">
+    <header className={`page-heading ${hideBrand ? "page-heading--plain" : ""}`}>
       {!hideBrand && (
         <div className="page-brand">
           <span className="page-brand__moon" aria-hidden="true">☾</span>
