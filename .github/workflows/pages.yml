@@ -190,7 +190,7 @@ jobs:
                 'x-cron-secret', current_setting('pcj.setup_secret')
               ),
               body := '{}'::jsonb,
-              timeout_milliseconds := 15000
+              timeout_milliseconds := 45000
             ) INTO request_id;
 
             FOR attempt IN 1..240 LOOP
