@@ -8,6 +8,7 @@ interface Props {
 const items: { screen: Screen; label: string; icon: string }[] = [
   { screen: "home", label: "Главная", icon: "⌂" },
   { screen: "tarot", label: "Таро", icon: "♧" },
+  { screen: "astrologer", label: "Астролог", icon: "✧" },
   { screen: "journal", label: "Журнал", icon: "▤" },
   { screen: "profile", label: "Профиль", icon: "♙" },
 ];
@@ -19,7 +20,8 @@ export function BottomNavigation({ activeScreen, onNavigate }: Props) {
         const active =
           activeScreen === item.screen ||
           (item.screen === "profile" && activeScreen === "premium") ||
-          (item.screen === "tarot" && activeScreen === "tarot-result");
+          (item.screen === "tarot" && activeScreen === "tarot-result") ||
+          (item.screen === "astrologer" && activeScreen === "astrologer");
         return (
           <button
             className={`nav-button ${active ? "active" : ""}`}
