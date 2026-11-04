@@ -6,7 +6,7 @@ interface Props {
   hideBrand?: boolean;
 }
 
-export function PageHeading({ eyebrow = "PERSONAL COSMIC JOURNAL", title, description, onBack, hideBrand = false }: Props) {
+export function PageHeading({ eyebrow = "", title, description, onBack, hideBrand = false }: Props) {
   return (
     <header className={`page-heading ${hideBrand ? "page-heading--plain" : ""}`}>
       {!hideBrand && (
@@ -23,7 +23,7 @@ export function PageHeading({ eyebrow = "PERSONAL COSMIC JOURNAL", title, descri
           ←
         </button>
       )}
-      <p className="eyebrow">{eyebrow}</p>
+      {eyebrow && <p className="eyebrow">{eyebrow}</p>}
       <h1>{title}</h1>
       {description && <p className="page-description">{description}</p>}
     </header>
