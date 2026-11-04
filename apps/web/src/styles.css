@@ -1509,3 +1509,5 @@ button { color: inherit; }
 @media (prefers-reduced-motion: reduce) {
   .tarot-flip-card__inner, .spread-card, .daily-card__orb { transition: none !important; animation: none !important; }
 }
+
+/* Approved test publication for the corrected WebView layout. */
