@@ -13,7 +13,12 @@ export function PremiumScreen({ onBack }: Props) {
   return (
     <div className="page-screen premium-screen">
       <PageHeading eyebrow="ТВОЁ ЛИЧНОЕ ПРОСТРАНСТВО" title="Premium" description="Больше глубины, времени и возможностей для ежедневных ритуалов." onBack={onBack} />
-      <div className="premium-hero-art" aria-hidden="true"><span>☾</span><i>✦</i></div>
+      <div className="premium-hero-art">
+        <div className="premium-phase-row" aria-hidden="true"><i>☽</i><i>◔</i><i>●</i><i>◕</i><i>☾</i></div>
+        <span className="premium-hero-star" aria-hidden="true">✦</span>
+        <h2>Раскрой больше<br/>возможностей</h2>
+        <p>Глубокие разборы, персональные прогнозы и больше пространства для себя.</p>
+      </div>
       <section className="premium-benefits">
         {benefits.map(([icon, title, description]) => (
           <article className="premium-benefit" key={title}>
