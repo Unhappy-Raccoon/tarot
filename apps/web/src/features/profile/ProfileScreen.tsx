@@ -121,10 +121,10 @@ export function ProfileScreen({ profile, displayName, onPremium, onSaveBirthProf
       </section>
       <section className="settings-group">
         <span className="card-eyebrow">НАСТРОЙКИ</span>
-        <div className="settings-row"><span className="settings-icon">♧</span><span><strong>Уведомления</strong><small>Ежедневный гороскоп и напоминания</small></span><span className="settings-chevron">›</span></div>
-        <div className="settings-row"><span className="settings-icon">☷</span><span><strong>Предпочтения и контент</strong><small>Твои темы и формат подсказок</small></span><span className="settings-chevron">›</span></div>
-        <div className="settings-row"><span className="settings-icon">◇</span><span><strong>Конфиденциальность</strong><small>Управление данными и удаление профиля</small></span><span className="settings-chevron">›</span></div>
-        <div className="settings-row"><span className="settings-icon">?</span><span><strong>Поддержка</strong><small>Помощь и вопросы по сервису</small></span><span className="settings-chevron">›</span></div>
+        <div className="settings-row"><span className="settings-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v18M5 8h14M5 16h14"/><circle cx="12" cy="12" r="8.5"/></svg></span><span><strong>Уведомления</strong><small>Ежедневный гороскоп и напоминания</small></span><span className="settings-chevron">›</span></div>
+        <div className="settings-row"><span className="settings-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="10" cy="18" r="1.5"/></svg></span><span><strong>Предпочтения и контент</strong><small>Твои темы и формат подсказок</small></span><span className="settings-chevron">›</span></div>
+        <div className="settings-row"><span className="settings-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2.8 20 6v5.2c0 5-3.4 8.2-8 10-4.6-1.8-8-5-8-10V6l8-3.2Z"/><path d="m8.5 12 2.2 2.2 4.8-5"/></svg></span><span><strong>Конфиденциальность</strong><small>Управление данными и удаление профиля</small></span><span className="settings-chevron">›</span></div>
+        <div className="settings-row"><span className="settings-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.6 2.6 0 1 1 4.4 1.9c-1.1 1-1.9 1.4-1.9 3"/><path d="M12 17.5h.01"/></svg></span><span><strong>Поддержка</strong><small>Помощь и вопросы по сервису</small></span><span className="settings-chevron">›</span></div>
       </section>
       <p className="demo-disclaimer">Изменение данных рождения сохраняет новую версию профиля. Натальная карта пересчитается при следующем открытии.</p>
     </div>
