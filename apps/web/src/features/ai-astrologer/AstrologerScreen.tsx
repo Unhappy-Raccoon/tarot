@@ -237,8 +237,9 @@ export function AstrologerScreen({ onBack, accessToken }: Props) {
   return (
     <div className="page-screen astrologer-screen">
       <PageHeading
-        eyebrow="ТВОЙ ЛИЧНЫЙ ПРОВОДНИК"
+        eyebrow=""
         title="AI-астролог"
+        hideBrand
         description="Место для вопросов, наблюдений и бережного исследования себя."
         onBack={onBack}
         hideBrand
