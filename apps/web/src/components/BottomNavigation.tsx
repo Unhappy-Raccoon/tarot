@@ -5,7 +5,14 @@ interface Props {
   onNavigate: (screen: Screen) => void;
 }
 
-const items: { screen: Screen; label: string; icon: string }[] = [
+const standardItems: { screen: Screen; label: string; icon: string }[] = [
+  { screen: "home", label: "Главная", icon: "⌂" },
+  { screen: "tarot", label: "Таро", icon: "♧" },
+  { screen: "journal", label: "Журнал", icon: "▤" },
+  { screen: "profile", label: "Профиль", icon: "♙" },
+];
+
+const astrologerItems: { screen: Screen; label: string; icon: string }[] = [
   { screen: "home", label: "Главная", icon: "⌂" },
   { screen: "tarot", label: "Таро", icon: "♧" },
   { screen: "astrologer", label: "Астролог", icon: "✧" },
@@ -14,14 +21,17 @@ const items: { screen: Screen; label: string; icon: string }[] = [
 ];
 
 export function BottomNavigation({ activeScreen, onNavigate }: Props) {
+  // The approved home/navigation render uses four destinations. The AI chat
+  // reference explicitly includes Astrologer as a fifth destination.
+  const items = activeScreen === "astrologer" ? astrologerItems : standardItems;
+
   return (
-    <nav className="bottom-nav" aria-label="Основная навигация">
+    <nav className={`bottom-nav bottom-nav--${items.length}`} aria-label="Основная навигация">
       {items.map((item) => {
         const active =
           activeScreen === item.screen ||
           (item.screen === "profile" && activeScreen === "premium") ||
-          (item.screen === "tarot" && activeScreen === "tarot-result") ||
-          (item.screen === "astrologer" && activeScreen === "astrologer");
+          (item.screen === "tarot" && activeScreen === "tarot-result");
         return (
           <button
             className={`nav-button ${active ? "active" : ""}`}
