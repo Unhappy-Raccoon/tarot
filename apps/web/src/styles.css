@@ -514,3 +514,29 @@ button:active:not(:disabled) { transform: scale(.985); }
 .ai-chat-composer textarea { min-height:3rem;max-height:8rem;padding:.6rem .5rem;border:0 !important;background:transparent !important;resize:vertical;font-size:.78rem; }
 .ai-chat-composer button { flex:0 0 2.45rem;width:2.45rem;height:2.45rem;border-radius:50%;background:linear-gradient(145deg,#d8c39d,#b99b6f);color:#14131a;font-size:1.25rem; }
 .ai-composer-hint { color:#777b8a;font-size:.55rem;line-height:1.5; }
+
+
+/* Journal as a quiet editorial archive */
+.journal-screen { gap:1.15rem; }
+.journal-intro-card {
+  position:relative;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:.8rem;
+  min-height:6.2rem;padding:1rem;border-radius:1rem;
+}
+.journal-intro-card__icon { display:grid;place-items:center;width:3rem;height:3rem;border:1px solid rgb(200 173 127 / 22%);border-radius:50%;background:#242338;color:#d2bd96;font:1.4rem Georgia,serif; }
+.journal-intro-card > span:nth-child(2) { display:grid;gap:.28rem; }
+.journal-intro-card strong { font:500 1.35rem/1 var(--font-display); }
+.journal-intro-card small { color:#a7a8b4;font-size:.62rem;line-height:1.5; }
+.journal-section-title { margin:.15rem 0 -.3rem;font-size:1.8rem; }
+.journal-filters { gap:.5rem;padding-bottom:.35rem; }
+.journal-filters button { min-height:2.4rem;padding:.55rem .9rem;border-color:var(--hairline);background:#121725;color:#a3a4b0;font-size:.65rem; }
+.journal-filters button.selected { border-color:rgb(200 173 127 / 44%);background:#272438;color:#e0c99f; }
+.journal-day-group { display:grid;gap:.65rem; }
+.journal-day-heading { display:flex;align-items:center;gap:.7rem;margin:.35rem 0 .1rem; }
+.journal-day-heading i { flex:1;height:1px;background:var(--hairline); }
+.journal-entry { gap:.85rem;padding:.9rem;border-radius:.85rem; }
+.journal-entry__icon { flex-basis:3rem;height:3.7rem;border:1px solid rgb(200 173 127 / 19%);border-radius:.35rem;background:linear-gradient(145deg,#2a2639,#151827); }
+.journal-entry__icon svg { width:2rem;height:2.5rem;fill:none;stroke:currentColor;stroke-width:1; }
+.journal-entry__meta { color:#9294a2;font-size:.5rem;letter-spacing:.08em; }
+.journal-entry__body h2 { margin:.35rem 0;font-size:1.45rem;line-height:1; }
+.journal-entry__body p { font-size:.62rem;line-height:1.5; }
+.empty-state { border-color:var(--hairline);background:linear-gradient(145deg,#181d2c,#101421); }
