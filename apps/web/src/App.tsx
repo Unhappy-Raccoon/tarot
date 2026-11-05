@@ -9,6 +9,7 @@ import { JournalScreen } from "./features/journal/JournalScreen";
 import { PremiumScreen } from "./features/profile/PremiumScreen";
 import { ProfileScreen } from "./features/profile/ProfileScreen";
 import type { BirthProfile, Screen, SpreadId, TarotReading, UserProfile } from "./types";
+import { getDeviceTimeZone, invalidTimeZoneMessage, isValidIanaTimeZone } from "./utils/timezone";
 import "./styles.css";
 
 type AuthResponse = { accessToken: string; user: UserProfile };
@@ -54,8 +55,11 @@ async function apiRequest<T>(path: string, token: string, init: RequestInit = {}
   headers.set("Authorization", `Bearer ${token}`);
   const response = await fetchWithTimeout(`${API_URL}${path}`, { ...init, headers });
   if (!response.ok) {
-    const result = await response.json().catch(() => ({})) as { message?: string };
-    throw new Error(result.message ?? `Ошибка сервера: ${response.status}`);
+    const result = await response.json().catch(() => ({})) as { error?: string; message?: string };
+    const message = result.error === "invalid_time_zone"
+      ? "Проверь часовой пояс места рождения. Нужен формат IANA, например Europe/Tallinn."
+      : result.message;
+    throw new Error(message ?? `Ошибка сервера: ${response.status}`);
   }
   return response.json() as Promise<T>;
 }
@@ -393,6 +397,7 @@ function OnboardingScreen({
   const [birthTime, setBirthTime] = useState("");
   const [birthPlace, setBirthPlace] = useState("");
   const [birthTimeZone, setBirthTimeZone] = useState("");
+  const [deviceTimeZone] = useState(() => getDeviceTimeZone());
   const [birthLatitude, setBirthLatitude] = useState("");
   const [birthLongitude, setBirthLongitude] = useState("");
   const [saving, setSaving] = useState(false);
@@ -403,6 +408,10 @@ function OnboardingScreen({
     setError("");
     if (name.trim().length < 2 || !birthDate) {
       setError("Укажи имя и дату рождения.");
+      return;
+    }
+    if (birthTimeZone.trim() && !isValidIanaTimeZone(birthTimeZone)) {
+      setError(invalidTimeZoneMessage(birthTimeZone));
       return;
     }
     setSaving(true);
@@ -450,10 +459,27 @@ function OnboardingScreen({
           <span className="onboarding-field__label">Место рождения <span className="optional">необязательно</span></span>
           <input maxLength={160} placeholder="Город, страна" value={birthPlace} onChange={(event) => setBirthPlace(event.target.value)} />
         </label>
-        <label className="onboarding-field">
-          <span className="onboarding-field__label">Часовой пояс места рождения <span className="optional">необязательно</span></span>
-          <input maxLength={64} placeholder="Например, Europe/Tallinn" value={birthTimeZone} onChange={(event) => setBirthTimeZone(event.target.value)} />
-        </label>
+        <div className="onboarding-timezone-group">
+          <label className="onboarding-field">
+            <span className="onboarding-field__label">Часовой пояс места рождения <span className="optional">необязательно</span></span>
+            <input
+              maxLength={64}
+              autoCapitalize="off"
+              autoCorrect="off"
+              spellCheck={false}
+              aria-invalid={Boolean(birthTimeZone.trim() && !isValidIanaTimeZone(birthTimeZone))}
+              placeholder="Например, Europe/Tallinn"
+              value={birthTimeZone}
+              onChange={(event) => setBirthTimeZone(event.target.value)}
+            />
+          </label>
+          {deviceTimeZone && (
+            <button className="timezone-suggestion" type="button" onClick={() => { setBirthTimeZone(deviceTimeZone); setError(""); }}>
+              Подставить часовой пояс устройства <strong>{deviceTimeZone}</strong>
+            </button>
+          )}
+          <small className="timezone-help">Используй часовой пояс города рождения. Можно оставить поле пустым, если не знаешь точное значение.</small>
+        </div>
         <div className="coordinate-fields">
           <p><span>Координаты места рождения</span> <span className="optional">для Асцендента и домов</span></p>
           <div>

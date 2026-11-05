@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import type { BirthProfile, UserProfile } from "../../types";
 import { PageHeading } from "../../components/PageHeading";
+import { getDeviceTimeZone, invalidTimeZoneMessage, isValidIanaTimeZone } from "../../utils/timezone";
 
 interface Props {
   profile: UserProfile;
@@ -18,6 +19,7 @@ export function ProfileScreen({ profile, displayName, onBack, onPremium, onSaveB
   const [birthTime, setBirthTime] = useState(birth?.birthTime ?? "");
   const [birthPlace, setBirthPlace] = useState(birth?.birthPlace ?? "");
   const [birthTimeZone, setBirthTimeZone] = useState(birth?.birthTimeZone ?? "");
+  const [deviceTimeZone] = useState(() => getDeviceTimeZone());
   const [birthLatitude, setBirthLatitude] = useState(birth?.birthLatitude !== undefined ? String(birth.birthLatitude) : "");
   const [birthLongitude, setBirthLongitude] = useState(birth?.birthLongitude !== undefined ? String(birth.birthLongitude) : "");
   const [saving, setSaving] = useState(false);
@@ -34,6 +36,10 @@ export function ProfileScreen({ profile, displayName, onBack, onPremium, onSaveB
     const hasLongitude = birthLongitude.trim() !== "";
     if (hasLatitude !== hasLongitude) {
       setError("Укажи обе координаты или оставь оба поля пустыми.");
+      return;
+    }
+    if (birthTimeZone.trim() && !isValidIanaTimeZone(birthTimeZone)) {
+      setError(invalidTimeZoneMessage(birthTimeZone));
       return;
     }
 
@@ -97,9 +103,26 @@ export function ProfileScreen({ profile, displayName, onBack, onPremium, onSaveB
             <label>Место рождения <span className="optional">необязательно</span>
               <input value={birthPlace} maxLength={160} placeholder="Город, страна" onChange={(event) => setBirthPlace(event.target.value)} />
             </label>
-            <label>Часовой пояс места рождения
-              <input value={birthTimeZone} maxLength={64} placeholder="Например, Europe/Tallinn" onChange={(event) => setBirthTimeZone(event.target.value)} />
-            </label>
+            <div className="profile-timezone-group">
+              <label>Часовой пояс места рождения <span className="optional">необязательно</span>
+                <input
+                  value={birthTimeZone}
+                  maxLength={64}
+                  autoCapitalize="off"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  aria-invalid={Boolean(birthTimeZone.trim() && !isValidIanaTimeZone(birthTimeZone))}
+                  placeholder="Например, Europe/Tallinn"
+                  onChange={(event) => setBirthTimeZone(event.target.value)}
+                />
+              </label>
+              {deviceTimeZone && (
+                <button className="timezone-suggestion" type="button" onClick={() => { setBirthTimeZone(deviceTimeZone); setError(""); }}>
+                  Подставить часовой пояс устройства <strong>{deviceTimeZone}</strong>
+                </button>
+              )}
+              <small className="timezone-help">Укажи часовой пояс места рождения, а не обязательно текущего местоположения. Можно оставить пустым, если точный пояс неизвестен.</small>
+            </div>
             <div className="coordinate-fields">
               <p>Координаты места рождения <span className="optional">для Асцендента и домов</span></p>
               <div>

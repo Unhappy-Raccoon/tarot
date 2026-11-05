@@ -1772,3 +1772,43 @@ button { color: inherit; }
 @media (prefers-reduced-motion: reduce) {
   .onboarding-orbit { animation: none !important; }
 }
+
+
+/* Time-zone input: guard against invalid free text before the API request. */
+.onboarding-timezone-group, .profile-timezone-group {
+  display: grid;
+  min-width: 0;
+  gap: .45rem;
+}
+.onboarding-card input[aria-invalid="true"], .birth-edit-form input[aria-invalid="true"] {
+  border-color: rgba(226,125,125,.72) !important;
+  box-shadow: 0 0 0 3px rgba(226,125,125,.1);
+}
+.timezone-suggestion {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .25rem .4rem;
+  max-width: 100%;
+  min-height: 2.25rem;
+  padding: .45rem .7rem;
+  border: 1px solid rgba(215,173,120,.24);
+  border-radius: 999px;
+  background: rgba(215,173,120,.07);
+  color: #d9c4a8;
+  font-size: .65rem;
+  line-height: 1.4;
+  text-align: left;
+}
+.timezone-suggestion strong {
+  color: #f0d6ae;
+  font-weight: 650;
+}
+.timezone-suggestion:active { transform: translateY(1px); }
+.timezone-help {
+  display: block;
+  color: #978a9c;
+  font-size: .65rem;
+  line-height: 1.5;
+}
