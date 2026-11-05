@@ -2320,3 +2320,5 @@ h1, h2, h3, .serif-title, .spread-card__title, .revealed-card__title,
 @media (max-width: 370px) {
   .daily-card__moon { width: 6.5rem; height: 6.5rem; }
 }
+
+/* Celestial Archive test release marker — shared card, icon and typography system. */
