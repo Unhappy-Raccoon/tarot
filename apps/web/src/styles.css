@@ -1873,6 +1873,7 @@ h1, h2, h3, .serif-title, .spread-card__title, .revealed-card__title,
 .tarot-back-art { display: block; width: 100%; height: 100%; }
 .back-frame { fill: none; stroke: url(#pcj-card-back-gold); stroke-width: 1.15; }
 .back-frame--inner { stroke: rgba(224,189,140,.48); stroke-width: .7; }
+.back-frame--fine { stroke: rgba(224,189,140,.24); stroke-width: .45; }
 .back-corner, .back-axis, .back-orbit, .back-ring, .back-caption-line {
   fill: none;
   stroke: rgba(224,189,140,.72);
@@ -2185,4 +2186,137 @@ h1, h2, h3, .serif-title, .spread-card__title, .revealed-card__title,
   font-display: swap;
   src: url("/tarot/fonts/manrope-latin-ext-600-normal.woff2") format("woff2");
   unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+
+
+/* Celestial Archive — precise, shared line-icon language. */
+.home-wordmark__mark {
+  display: inline-grid;
+  place-items: center;
+  width: 1.05rem;
+  height: 1.05rem;
+  margin-right: .28rem;
+  color: #e0bd8c;
+  vertical-align: -2px;
+}
+.home-wordmark__mark svg { display: block; width: 100%; height: 100%; }
+.home-wordmark i { display: none; }
+.home-settings svg { width: 1.25rem; height: 1.25rem; }
+.daily-card__moon {
+  display: grid;
+  place-items: center;
+  width: 8rem;
+  height: 8rem;
+  font-size: 0;
+  line-height: 0;
+  color: #ecd2a8;
+}
+.daily-card__moon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.05;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 18px rgba(224,189,140,.32));
+}
+.streak-flame {
+  display: grid;
+  place-items: center;
+  flex: 0 0 2.6rem;
+  width: 2.6rem;
+  height: 2.6rem;
+  border: 1px solid rgba(224,189,140,.23);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(117,81,143,.22), rgba(16,11,25,.35));
+}
+.streak-flame svg {
+  display: block;
+  width: 1.45rem;
+  height: 1.45rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.quick-tile__icon svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.nav-icon svg {
+  width: 1.45rem;
+  height: 1.45rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.nav-button.active .nav-icon {
+  filter: drop-shadow(0 0 8px rgba(224,189,140,.28));
+}
+.tarot-flip-card__front {
+  position: relative;
+  isolation: isolate;
+}
+.tarot-flip-card__front::before {
+  position: absolute;
+  z-index: 0;
+  inset: .34rem;
+  border: 1px solid rgba(224,189,140,.28);
+  border-radius: .48rem;
+  content: "";
+  pointer-events: none;
+}
+.tarot-flip-card__front::after {
+  position: absolute;
+  z-index: 0;
+  top: .54rem;
+  right: .54rem;
+  bottom: .54rem;
+  left: .54rem;
+  border: 1px solid rgba(224,189,140,.12);
+  border-radius: .34rem;
+  content: "";
+  pointer-events: none;
+}
+.tarot-flip-card__front > * { position: relative; z-index: 1; }
+.revealed-card__title {
+  width: min(100%, 94%);
+  padding: .22rem .3rem .28rem;
+  border-top: 1px solid rgba(224,189,140,.56);
+  border-bottom: 1px solid rgba(224,189,140,.3);
+  background: linear-gradient(90deg, transparent, rgba(224,189,140,.08), transparent);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.revealed-card__taxonomy {
+  letter-spacing: .15em;
+  color: rgba(232,207,173,.86);
+}
+.revealed-card__ornament {
+  display: block;
+  color: #e0bd8c;
+  line-height: 1;
+}
+.back-corner { stroke-width: 1.3; }
+.back-star { filter: drop-shadow(0 0 2px rgba(224,189,140,.25)); }
+.arcana-scene .scene-line { stroke-width: 1.22; }
+.arcana-scene .scene-line--muted { stroke-width: .78; }
+.arcana-scene .scene-fill { fill: rgba(224,189,140,.12); }
+.meaning-row {
+  padding-top: 1rem;
+  border-top-color: rgba(224,189,140,.18);
+}
+.meaning-overline { color: #c19e73; }
+@media (max-width: 370px) {
+  .daily-card__moon { width: 6.5rem; height: 6.5rem; }
 }

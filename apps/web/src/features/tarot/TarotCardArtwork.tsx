@@ -114,43 +114,63 @@ function MajorArcanaScene({ cardId }: { cardId: string }): ReactNode {
   if (cardId === "major-moon") {
     return (
       <g className="arcana-scene arcana-scene--moon">
-        <path d="M34 155Q57 128 79 153T126 151T168 151" className="scene-line scene-line--muted"/>
-        <path d="M30 177Q61 158 90 178T170 177" className="scene-line scene-line--muted"/>
-        <path d="M52 130V88l18-19 18 19v42M112 130V88l18-19 18 19v42" className="scene-line"/>
-        <path d="M99 48c-24 6-36 34-23 54 12 18 36 19 51 4-21 2-37-12-37-31 0-11 3-20 9-27Z" className="scene-fill"/>
-        <path d="M100 31v10m-5-5h10M38 98l3 6 6 3-6 3-3 6-3-6-6-3 6-3zM161 112l2 4 4 2-4 2-2 4-2-4-4-2 4-2z" className="scene-line"/>
-        <circle cx="100" cy="151" r="3" className="scene-dot"/>
+        <circle cx="100" cy="77" r="38" className="scene-line scene-line--muted"/>
+        <circle cx="100" cy="77" r="32" className="scene-line scene-line--muted"/>
+        <path d="M112 42c-24 6-35 32-22 52 10 16 31 20 47 7-19 2-33-12-33-30 0-11 3-21 8-29Z" className="scene-fill"/>
+        <path d="M100 26v12m-5-6h10m-64 34 3 6 7 3-7 3-3 6-3-6-7-3 7-3zM157 53l3 5 6 3-6 3-3 5-3-5-6-3 6-3zM157 104l2 4 5 2-5 2-2 4-2-4-5-2 5-2z" className="scene-line"/>
+        <circle cx="57" cy="96" r="2.2" className="scene-dot"/>
+        <circle cx="143" cy="33" r="2" className="scene-dot"/>
+        <path d="M22 164 49 130 67 148 96 112 128 150 151 128 178 164" className="scene-line scene-line--muted"/>
+        <path d="M21 165h158v28H21z" className="scene-fill"/>
+        <path d="M31 164V115l14-14 14 14v49M36 115v-13h18v13M141 164v-49l14-14 14 14v49M146 115v-13h18v13" className="scene-line"/>
+        <path d="M39 126h12m-12 9h12m96-9h12m-12 9h12" className="scene-line scene-line--muted"/>
+        <path d="M25 174q18-6 36 0t36 0 36 0 36 0M25 184q18-6 36 0t36 0 36 0 36 0" className="scene-line scene-line--muted"/>
+        <path d="M58 161q-3-12 8-15l8 3 7-3q7 1 8 10l-5 5H63zM122 161q-3-12 8-15l8 3 7-3q7 1 8 10l-5 5h-21z" className="scene-fill"/>
+        <path d="M72 156v-7m-3 2 3-4 3 4m60 5v-7m-3 2 3-4 3 4" className="scene-line scene-line--muted"/>
+        <path d="M100 145v7m-5-3h10" className="scene-line"/>
       </g>
     );
   }
   if (cardId === "major-sun") {
     return (
       <g className="arcana-scene arcana-scene--sun">
-        <circle cx="100" cy="103" r="32" className="scene-fill"/>
-        <circle cx="100" cy="103" r="23" className="scene-line"/>
-        {Array.from({ length: 16 }, (_, index) => {
-          const angle = (index * Math.PI) / 8;
-          const x1 = 100 + Math.cos(angle) * 39;
-          const y1 = 103 + Math.sin(angle) * 39;
-          const x2 = 100 + Math.cos(angle) * 53;
-          const y2 = 103 + Math.sin(angle) * 53;
-          return <line key={index} x1={x1} y1={y1} x2={x2} y2={y2} className="scene-line"/>;
+        {Array.from({ length: 20 }, (_, index) => {
+          const angle = (index * Math.PI) / 10;
+          const inner = index % 2 === 0 ? 38 : 42;
+          const outer = index % 2 === 0 ? 56 : 51;
+          return <line key={index} x1={100 + Math.cos(angle) * inner} y1={72 + Math.sin(angle) * inner} x2={100 + Math.cos(angle) * outer} y2={72 + Math.sin(angle) * outer} className="scene-line"/>;
         })}
-        <path d="M42 161Q69 139 100 161Q131 139 158 161M55 177Q100 163 145 177" className="scene-line"/>
-        <path d="M100 136v39m-10-18 10-10 10 10" className="scene-line"/>
-        <path d="M46 129q-9-11 0-21 9 10 0 21ZM154 129q-9-11 0-21 9 10 0 21Z" className="scene-fill"/>
+        <circle cx="100" cy="72" r="34" className="scene-fill"/>
+        <circle cx="100" cy="72" r="27" className="scene-line"/>
+        <circle cx="100" cy="72" r="20" className="scene-line scene-line--muted"/>
+        <path d="M91 65q9-8 18 0m-18 13q9 8 18 0M95 71h10" className="scene-line scene-line--muted"/>
+        <path d="M20 157 52 126 72 144 100 111 127 144 148 125 180 157" className="scene-line"/>
+        <path d="M20 158h160v34H20z" className="scene-fill"/>
+        <path d="M77 157v-20q23-26 46 0v20M87 157v-13q13-16 26 0v13M100 132v25" className="scene-line"/>
+        <path d="M36 172q16-8 32 0t32 0 32 0 32 0M36 183q16-7 32 0t32 0 32 0 32 0" className="scene-line scene-line--muted"/>
+        <path d="M45 151q-7-13 2-20 9 8 2 20m104 0q-7-13 2-20 9 8 2 20" className="scene-line"/>
+        <path d="M47 131q-7-8-7-16m114 16q7-8 7-16M54 190h92" className="scene-line scene-line--muted"/>
+        <path d="M100 111v-12m-5 6h10" className="scene-line"/>
+        <circle cx="45" cy="92" r="2" className="scene-dot"/><circle cx="154" cy="91" r="2" className="scene-dot"/>
       </g>
     );
   }
   if (cardId === "major-star") {
     return (
       <g className="arcana-scene arcana-scene--star">
-        <path d="m100 46 11 38 39 15-39 14-11 39-14-39-39-14 39-15z" className="scene-line"/>
-        <path d="m100 67 7 26 26 6-26 9-7 27-9-27-26-9 26-6z" className="scene-fill"/>
-        <circle cx="100" cy="100" r="5" className="scene-dot"/>
-        <path d="M48 158q25-15 52 0t52 0M56 175q20-11 44 0t44 0" className="scene-line scene-line--muted"/>
-        <path d="M57 126l-7 22 22-7m71-15 7 22-22-7" className="scene-line"/>
-        <circle cx="48" cy="83" r="3" className="scene-dot"/><circle cx="153" cy="77" r="2.5" className="scene-dot"/>
+        <circle cx="100" cy="72" r="39" className="scene-line scene-line--muted"/>
+        <circle cx="100" cy="72" r="32" className="scene-line scene-line--muted"/>
+        <path d="m100 24 9 29 29 11-29 10-9 29-10-29-29-10 29-11z" className="scene-line"/>
+        <path d="m100 40 7 22 22 8-22 7-7 22-7-22-22-7 22-8z" className="scene-fill"/>
+        <circle cx="100" cy="70" r="4" className="scene-dot"/>
+        <path d="m42 51 3 6 7 3-7 3-3 6-3-6-7-3 7-3zM158 47l2 5 5 2-5 2-2 5-2-5-5-2 5-2zM47 106l2 4 4 2-4 2-2 4-2-4-4-2 4-2zM153 111l2 4 4 2-4 2-2 4-2-4-4-2 4-2z" className="scene-line"/>
+        <path d="M20 158 52 137 75 151 100 132 126 151 149 137 180 158" className="scene-line scene-line--muted"/>
+        <path d="M23 160h154v31H23z" className="scene-fill"/>
+        <path d="M47 139v18m-10-13 10-5 10 5M153 139v18m-10-13 10-5 10 5" className="scene-line"/>
+        <path d="M35 157q6 10 15 0m-11-1h21m93 1q6 10 15 0m-11-1h21" className="scene-line"/>
+        <path d="M52 168q24-7 48 0t48 0M52 179q24-7 48 0t48 0M67 188q16-4 33 0t33 0" className="scene-line scene-line--muted"/>
+        <path d="M100 111v16m-6-8h12" className="scene-line"/>
+        <circle cx="67" cy="119" r="2" className="scene-dot"/><circle cx="134" cy="112" r="2" className="scene-dot"/>
       </g>
     );
   }
@@ -329,17 +349,23 @@ export function TarotCardBackArtwork() {
       </defs>
       <rect x="7" y="7" width="186" height="264" rx="5" className="back-frame"/>
       <rect x="14" y="14" width="172" height="250" rx="3" className="back-frame back-frame--inner"/>
+      <rect x="20" y="20" width="160" height="238" rx="2" className="back-frame back-frame--fine"/>
       <path d="M24 60V24h36M176 60V24h-36M24 218v36h36M176 218v36h-36" className="back-corner"/>
+      <path d="M33 34h15m-7-7v15M167 34h-15m7-7v15M33 244h15m-7-7v15M167 244h-15m7-7v15" className="back-axis"/>
       <path d="M100 29v16m-8-8h16M100 233v16m-8-8h16M23 139h16m-8-8v16m130-8h16m-8-8v16" className="back-axis"/>
-      <ellipse cx="100" cy="135" rx="48" ry="78" className="back-orbit" transform="rotate(-36 100 135)"/>
-      <ellipse cx="100" cy="135" rx="48" ry="78" className="back-orbit" transform="rotate(36 100 135)"/>
-      <circle cx="100" cy="135" r="51" className="back-ring"/>
-      <circle cx="100" cy="135" r="39" className="back-ring back-ring--fine"/>
-      <circle cx="100" cy="135" r="26" className="back-ring back-ring--fine"/>
-      <path d="M100 85c-18 6-25 25-14 40 10 13 27 13 39 1-18 2-30-10-30-24 0-7 2-12 5-17Z" className="back-moon"/>
-      <path d="m100 103 5 9 10 5-10 5-5 10-5-10-10-5 10-5z" className="back-star"/>
-      <path d="m51 85 3 6 6 3-6 3-3 6-3-6-6-3 6-3zM149 166l3 6 6 3-6 3-3 6-3-6-6-3 6-3z" className="back-star back-star--small"/>
-      <circle cx="57" cy="164" r="2.2" className="back-dot"/><circle cx="143" cy="100" r="2.2" className="back-dot"/>
+      <ellipse cx="100" cy="132" rx="58" ry="82" className="back-orbit" transform="rotate(-34 100 132)"/>
+      <ellipse cx="100" cy="132" rx="58" ry="82" className="back-orbit" transform="rotate(34 100 132)"/>
+      <ellipse cx="100" cy="132" rx="42" ry="67" className="back-orbit" transform="rotate(90 100 132)"/>
+      <circle cx="100" cy="132" r="57" className="back-ring"/>
+      <circle cx="100" cy="132" r="48" className="back-ring back-ring--fine"/>
+      <circle cx="100" cy="132" r="37" className="back-ring"/>
+      <circle cx="100" cy="132" r="28" className="back-ring back-ring--fine"/>
+      <path d="M111 103c-20 6-28 27-16 43 11 14 30 15 43 1-20 2-34-11-34-27 0-6 2-12 7-17Z" className="back-moon"/>
+      <path d="m100 105 5 9 10 5-10 5-5 10-5-10-10-5 10-5z" className="back-star"/>
+      <path d="m100 71 4 8 8 4-8 4-4 8-4-8-8-4 8-4zM100 169l3 6 6 3-6 3-3 6-3-6-6-3 6-3z" className="back-star"/>
+      <path d="m47 91 3 6 6 3-6 3-3 6-3-6-6-3 6-3zM153 91l3 6 6 3-6 3-3 6-3-6-6-3 6-3zM47 172l3 6 6 3-6 3-3 6-3-6-6-3 6-3zM153 172l3 6 6 3-6 3-3 6-3-6-6-3 6-3z" className="back-star back-star--small"/>
+      <circle cx="57" cy="132" r="2.2" className="back-dot"/><circle cx="143" cy="132" r="2.2" className="back-dot"/>
+      <circle cx="100" cy="75" r="2" className="back-dot"/><circle cx="100" cy="189" r="2" className="back-dot"/>
       <path d="M61 209h78M72 216h56" className="back-caption-line"/>
       <text x="100" y="229" textAnchor="middle" className="back-caption">PERSONAL COSMIC</text>
       <text x="100" y="239" textAnchor="middle" className="back-caption back-caption--small">JOURNAL</text>
