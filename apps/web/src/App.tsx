@@ -434,28 +434,35 @@ function OnboardingScreen({
       </header>
       <form className="onboarding-card" onSubmit={submit}>
         {previewMode && <p className="preview-note">Предварительный просмотр · данные сохраняются только в этом браузере</p>}
-        <label>Как к тебе обращаться?
+        <label className="onboarding-field">
+          <span className="onboarding-field__label">Как к тебе обращаться?</span>
           <input autoComplete="nickname" maxLength={48} placeholder="Имя или псевдоним" value={name} onChange={(event) => setName(event.target.value)} required />
         </label>
-        <label>Дата рождения
+        <label className="onboarding-field">
+          <span className="onboarding-field__label">Дата рождения</span>
           <input type="date" value={birthDate} onChange={(event) => setBirthDate(event.target.value)} required />
         </label>
-        <label>Время рождения <span className="optional">необязательно</span>
+        <label className="onboarding-field">
+          <span className="onboarding-field__label">Время рождения <span className="optional">необязательно</span></span>
           <input type="time" value={birthTime} onChange={(event) => setBirthTime(event.target.value)} />
         </label>
-        <label>Место рождения <span className="optional">необязательно</span>
+        <label className="onboarding-field">
+          <span className="onboarding-field__label">Место рождения <span className="optional">необязательно</span></span>
           <input maxLength={160} placeholder="Город, страна" value={birthPlace} onChange={(event) => setBirthPlace(event.target.value)} />
         </label>
-        <label>Часовой пояс места рождения <span className="optional">необязательно</span>
+        <label className="onboarding-field">
+          <span className="onboarding-field__label">Часовой пояс места рождения <span className="optional">необязательно</span></span>
           <input maxLength={64} placeholder="Например, Europe/Tallinn" value={birthTimeZone} onChange={(event) => setBirthTimeZone(event.target.value)} />
         </label>
         <div className="coordinate-fields">
-          <p>Координаты места рождения <span className="optional">для Асцендента и домов</span></p>
+          <p><span>Координаты места рождения</span> <span className="optional">для Асцендента и домов</span></p>
           <div>
-            <label>Широта
+            <label className="onboarding-field onboarding-coordinate-field">
+              <span className="onboarding-field__label">Широта</span>
               <input type="number" inputMode="decimal" min="-90" max="90" step="any" placeholder="59.4370" value={birthLatitude} onChange={(event) => setBirthLatitude(event.target.value)} />
             </label>
-            <label>Долгота
+            <label className="onboarding-field onboarding-coordinate-field">
+              <span className="onboarding-field__label">Долгота</span>
               <input type="number" inputMode="decimal" min="-180" max="180" step="any" placeholder="24.7536" value={birthLongitude} onChange={(event) => setBirthLongitude(event.target.value)} />
             </label>
           </div>
