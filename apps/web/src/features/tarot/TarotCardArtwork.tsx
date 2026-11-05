@@ -385,7 +385,7 @@ export function TarotCardIllustration({ cardId, arcana, suit }: CardArtProps) {
         <MajorArcanaScene cardId={cardId}/>
       ) : (
         <>
-          <MinorArcanaScene suit={suit} cardId={cardId}/>
+          <MinorArcanaScene suit={suit}/>
           <g className={isCourtCard ? "minor-pips minor-pips--court" : "minor-pips"} aria-hidden="true">
             {pips.map((pip, index) => (
               <circle key={index} cx={pip.x} cy={pip.y} r={isCourtCard ? 3.1 : 2.3} className="scene-dot"/>
