@@ -7,6 +7,110 @@ interface CardArtProps {
 }
 
 function MajorArcanaScene({ cardId }: { cardId: string }): ReactNode {
+  if (cardId === "major-magician") {
+    return (
+      <g className="arcana-scene arcana-scene--magician">
+        <path d="M55 162h90M65 171h70M76 180h48M72 160v-33h56v33" className="scene-line"/>
+        <path d="M100 40c-17 0-27 13-27 26 0 14 12 25 27 25s27-11 27-25c0-13-10-26-27-26Z" className="scene-line"/>
+        <path d="M78 56q22-21 44 0M100 49v31m-8-16h16" className="scene-line scene-line--muted"/>
+        <path d="m100 23 4 8 8 4-8 4-4 8-4-8-8-4 8-4z" className="scene-fill"/>
+        <circle cx="62" cy="106" r="10" className="scene-line"/><path d="M62 97v18m-6-9h12" className="scene-line"/>
+        <path d="M138 96h14v20h-14zM145 96V82m-6 7 6-7 6 7" className="scene-line"/>
+        <path d="m100 125 12 14-12 14-12-14z" className="scene-fill"/>
+      </g>
+    );
+  }
+  if (cardId === "major-hierophant") {
+    return (
+      <g className="arcana-scene arcana-scene--hierophant">
+        <path d="M48 176V83q52-58 104 0v93M62 176V91q38-42 76 0v85" className="scene-line"/>
+        <path d="M75 176V106h50v70M86 106V91h28v15M100 91V70m-12 11h24" className="scene-line"/>
+        <circle cx="100" cy="65" r="8" className="scene-fill"/>
+        <path d="M58 183h84M71 191h58M82 199h36" className="scene-line scene-line--muted"/>
+        <path d="M70 139q-13 10-13 24m73-24q13 10 13 24M88 130h24" className="scene-line"/>
+        <circle cx="100" cy="144" r="4" className="scene-dot"/>
+      </g>
+    );
+  }
+  if (cardId === "major-chariot") {
+    return (
+      <g className="arcana-scene arcana-scene--chariot">
+        <path d="M53 153V86h94v67M45 86h110M64 86V69h72v17" className="scene-line"/>
+        <path d="M100 69V48m-7 10 7-10 7 10M68 153v-26h64v26" className="scene-line"/>
+        <circle cx="68" cy="164" r="15" className="scene-line"/><circle cx="132" cy="164" r="15" className="scene-line"/>
+        <path d="M68 149v30m-15-15h30M132 149v30m-15-15h30" className="scene-line scene-line--muted"/>
+        <path d="M69 108q-17-19-29-4 12 21 29 4ZM131 108q17-19 29-4-12 21-29 4Z" className="scene-fill"/>
+        <path d="M100 40 106 51 100 62 94 51Z" className="scene-fill"/>
+      </g>
+    );
+  }
+  if (cardId === "major-strength") {
+    return (
+      <g className="arcana-scene arcana-scene--strength">
+        <path d="M100 43c-17-20-38-4-24 9 8 8 16 1 24-9 8 10 16 17 24 9 14-13-7-29-24-9Z" className="scene-line"/>
+        <path d="M64 119q0-35 36-35t36 35q0 27-36 43-36-16-36-43Z" className="scene-line"/>
+        <path d="M73 118q10-20 27 0 17-20 27 0M85 128h30M91 139l9 6 9-6" className="scene-line"/>
+        <path d="M79 85q-17-12-20 6m62-6q17-12 20 6M52 171q18-13 35 0m26 0q17-13 35 0" className="scene-line scene-line--muted"/>
+        <circle cx="88" cy="116" r="3" className="scene-dot"/><circle cx="112" cy="116" r="3" className="scene-dot"/>
+      </g>
+    );
+  }
+  if (cardId === "major-hanged-man") {
+    return (
+      <g className="arcana-scene arcana-scene--hanged-man">
+        <path d="M43 62h114M56 62v112m88-112v112M44 174h112" className="scene-line"/>
+        <path d="M100 62v30m0 0-24 22m24-22 25 20m-25-20v31m0 0-16 26m16-26 21 25" className="scene-line"/>
+        <circle cx="100" cy="108" r="13" className="scene-line"/>
+        <path d="M89 109q11-12 22 0M100 93v-8m-7 4h14" className="scene-line"/>
+        <circle cx="100" cy="108" r="25" className="scene-line scene-line--muted"/>
+        <path d="M60 48h80M68 39h64" className="scene-line scene-line--muted"/>
+      </g>
+    );
+  }
+  if (cardId === "major-death") {
+    return (
+      <g className="arcana-scene arcana-scene--death">
+        <path d="M100 40c-20 23-31 42-31 62 0 22 14 39 31 39s31-17 31-39c0-20-11-39-31-62Z" className="scene-line"/>
+        <path d="M100 72c-12 16-18 27-18 39 0 12 8 21 18 21s18-9 18-21c0-12-6-23-18-39Z" className="scene-fill"/>
+        <path d="M100 92v30m-8-15 8-8 8 8" className="scene-line"/>
+        <path d="M54 161q22-13 46 0t46 0M63 176q17-9 37 0t37 0" className="scene-line scene-line--muted"/>
+        <path d="m51 96 4 7 8 3-8 3-4 7-4-7-8-3 8-3zM149 98l3 6 7 3-7 3-3 6-3-6-7-3 7-3z" className="scene-fill"/>
+      </g>
+    );
+  }
+  if (cardId === "major-temperance") {
+    return (
+      <g className="arcana-scene arcana-scene--temperance">
+        <path d="M67 75h30l-4 33q-11 13-22 0zM103 75h30l-4 33q-11 13-22 0z" className="scene-line"/>
+        <path d="M82 109q18 3 18 19t18 19M118 109q-18 3-18 19t-18 19" className="scene-line"/>
+        <path d="M100 54v22m-10-12 10-10 10 10M100 145v27m-9-9 9 9 9-9" className="scene-line"/>
+        <path d="M58 176q22-13 42 0t42 0M71 186h58" className="scene-line scene-line--muted"/>
+        <circle cx="100" cy="96" r="5" className="scene-fill"/>
+      </g>
+    );
+  }
+  if (cardId === "major-devil") {
+    return (
+      <g className="arcana-scene arcana-scene--devil">
+        <path d="M61 92 49 57q30 0 42 25M139 92l12-35q-30 0-42 25" className="scene-line"/>
+        <path d="M62 119q0-43 38-43t38 43q0 35-38 50-38-15-38-50Z" className="scene-fill"/>
+        <path d="M81 111h10m18 0h10M85 132q15 12 30 0M100 76V54m-7 8h14" className="scene-line"/>
+        <path d="M72 165v20m56-20v20M58 185h84M74 193h52" className="scene-line"/>
+        <path d="M54 145 42 160l16 2m88-17 12 15-16 2" className="scene-line scene-line--muted"/>
+      </g>
+    );
+  }
+  if (cardId === "major-judgement") {
+    return (
+      <g className="arcana-scene arcana-scene--judgement">
+        <path d="M100 45v54m0-54-25 23 25 9 25-9z" className="scene-line"/>
+        <path d="M100 45 85 35l-15 4 15 11M100 45l15-10 15 4-15 11" className="scene-line"/>
+        <path d="M70 132q-18-23 1-36 19 13 1 36ZM130 132q-18-23 1-36 19 13 1 36Z" className="scene-fill"/>
+        <path d="M53 173q0-27 18-27 18 0 18 27m20 0q0-27 18-27 18 0 18 27" className="scene-line"/>
+        <path d="M44 182h112M61 190h78M100 27v-9m-6 5h12" className="scene-line scene-line--muted"/>
+      </g>
+    );
+  }
   if (cardId === "major-moon") {
     return (
       <g className="arcana-scene arcana-scene--moon">
@@ -175,8 +279,19 @@ function MajorArcanaScene({ cardId }: { cardId: string }): ReactNode {
   );
 }
 
-function MinorArcanaScene({ suit }: { suit?: string }): ReactNode {
+function MinorArcanaScene({ suit, cardId }: { suit?: string; cardId: string }): ReactNode {
   const normalized = (suit ?? "").toLowerCase();
+  const rank = cardId.split("-").at(-1) ?? "";
+  const rankPips: Record<string, number> = {
+    ace: 1, two: 2, three: 3, four: 4, five: 5,
+    six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
+    page: 1, knight: 2, queen: 3, king: 4,
+  };
+  const pipCount = rankPips[rank] ?? 1;
+  const pips = Array.from({ length: pipCount }, (_, index) => {
+    const angle = (index / pipCount) * Math.PI * 2 - Math.PI / 2;
+    return { x: 100 + Math.cos(angle) * 70, y: 112 + Math.sin(angle) * 70 };
+  });
   if (normalized.includes("куб")) {
     return (
       <g className="arcana-scene arcana-scene--cups">
@@ -265,7 +380,18 @@ export function TarotCardIllustration({ cardId, arcana, suit }: CardArtProps) {
       <circle cx="154" cy="58" r="2.2" className="card-art-star"/>
       <circle cx="47" cy="155" r="2.2" className="card-art-star"/>
       <circle cx="153" cy="154" r="2.2" className="card-art-star"/>
-      {isMajor ? <MajorArcanaScene cardId={cardId}/> : <MinorArcanaScene suit={suit}/>}
+      {isMajor ? (
+        <MajorArcanaScene cardId={cardId}/>
+      ) : (
+        <>
+          <MinorArcanaScene suit={suit} cardId={cardId}/>
+          <g className={rank === "page" || rank === "knight" || rank === "queen" || rank === "king" ? "minor-pips minor-pips--court" : "minor-pips"} aria-hidden="true">
+            {pips.map((pip, index) => (
+              <circle key={index} cx={pip.x} cy={pip.y} r={rank === "page" || rank === "knight" || rank === "queen" || rank === "king" ? 3.1 : 2.3} className="scene-dot"/>
+            ))}
+          </g>
+        </>
+      )}
       <path d="m100 20 3 5 5 3-5 3-3 5-3-5-5-3 5-3zM100 178l3 5 5 3-5 3-3 5-3-5-5-3 5-3z" className="card-art-star card-art-star--ornament"/>
     </svg>
   );
