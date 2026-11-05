@@ -269,4 +269,4 @@ jobs:
           $telegram_setup$;
           SQL
           unset PGPASSWORD
-
+# The feature-branch Pages test is explicitly gated by the approved request marker.
