@@ -279,19 +279,8 @@ function MajorArcanaScene({ cardId }: { cardId: string }): ReactNode {
   );
 }
 
-function MinorArcanaScene({ suit, cardId }: { suit?: string; cardId: string }): ReactNode {
+function MinorArcanaScene({ suit }: { suit?: string }): ReactNode {
   const normalized = (suit ?? "").toLowerCase();
-  const rank = cardId.split("-").at(-1) ?? "";
-  const rankPips: Record<string, number> = {
-    ace: 1, two: 2, three: 3, four: 4, five: 5,
-    six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
-    page: 1, knight: 2, queen: 3, king: 4,
-  };
-  const pipCount = rankPips[rank] ?? 1;
-  const pips = Array.from({ length: pipCount }, (_, index) => {
-    const angle = (index / pipCount) * Math.PI * 2 - Math.PI / 2;
-    return { x: 100 + Math.cos(angle) * 70, y: 112 + Math.sin(angle) * 70 };
-  });
   if (normalized.includes("куб")) {
     return (
       <g className="arcana-scene arcana-scene--cups">
@@ -361,6 +350,18 @@ export function TarotCardBackArtwork() {
 
 export function TarotCardIllustration({ cardId, arcana, suit }: CardArtProps) {
   const isMajor = arcana === "major";
+  const rank = cardId.split("-").at(-1) ?? "";
+  const rankPips: Record<string, number> = {
+    ace: 1, two: 2, three: 3, four: 4, five: 5,
+    six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
+    page: 1, knight: 2, queen: 3, king: 4,
+  };
+  const pipCount = rankPips[rank] ?? 1;
+  const pips = Array.from({ length: pipCount }, (_, index) => {
+    const angle = (index / pipCount) * Math.PI * 2 - Math.PI / 2;
+    return { x: 100 + Math.cos(angle) * 70, y: 112 + Math.sin(angle) * 70 };
+  });
+  const isCourtCard = rank === "page" || rank === "knight" || rank === "queen" || rank === "king";
   return (
     <svg className="tarot-card-illustration" viewBox="0 0 200 210" aria-hidden="true">
       <defs>
@@ -385,9 +386,9 @@ export function TarotCardIllustration({ cardId, arcana, suit }: CardArtProps) {
       ) : (
         <>
           <MinorArcanaScene suit={suit} cardId={cardId}/>
-          <g className={rank === "page" || rank === "knight" || rank === "queen" || rank === "king" ? "minor-pips minor-pips--court" : "minor-pips"} aria-hidden="true">
+          <g className={isCourtCard ? "minor-pips minor-pips--court" : "minor-pips"} aria-hidden="true">
             {pips.map((pip, index) => (
-              <circle key={index} cx={pip.x} cy={pip.y} r={rank === "page" || rank === "knight" || rank === "queen" || rank === "king" ? 3.1 : 2.3} className="scene-dot"/>
+              <circle key={index} cx={pip.x} cy={pip.y} r={isCourtCard ? 3.1 : 2.3} className="scene-dot"/>
             ))}
           </g>
         </>
