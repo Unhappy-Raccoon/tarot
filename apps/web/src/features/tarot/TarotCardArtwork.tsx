@@ -299,42 +299,112 @@ function MajorArcanaScene({ cardId }: { cardId: string }): ReactNode {
   );
 }
 
-function MinorArcanaScene({ suit }: { suit?: string }): ReactNode {
-  const normalized = (suit ?? "").toLowerCase();
-  if (normalized.includes("куб")) {
-    return (
-      <g className="arcana-scene arcana-scene--cups">
-        <path d="M73 73h54l-8 48q-19 23-38 0zM100 144v25m-24 0h48" className="scene-line"/>
-        <path d="M80 91q20 8 40 0m-34 15q14 7 28 0" className="scene-line scene-line--muted"/>
-        <path d="M100 50c-9 13-15 20-15 28a15 15 0 0 0 30 0c0-8-6-15-15-28Z" className="scene-fill"/>
-        <circle cx="100" cy="79" r="4" className="scene-dot"/>
-      </g>
-    );
-  }
-  if (normalized.includes("меч")) {
-    return (
-      <g className="arcana-scene arcana-scene--swords">
-        <path d="M100 42 116 127 100 151 84 127z" className="scene-fill"/>
-        <path d="M100 42v109m-28-29h56m-39 12h22M100 151v33m-14-12h28" className="scene-line"/>
-        <path d="m100 34 4 8-4 8-4-8zM72 83l8 8-8 8-8-8zM128 83l8 8-8 8-8-8z" className="scene-line"/>
-      </g>
-    );
-  }
-  if (normalized.includes("пент")) {
-    return (
-      <g className="arcana-scene arcana-scene--pentacles">
-        <circle cx="100" cy="112" r="44" className="scene-line"/>
-        <circle cx="100" cy="112" r="34" className="scene-line scene-line--muted"/>
-        <path d="m100 78 9 24 25 10-25 9-9 25-9-25-25-9 25-10z" className="scene-fill"/>
-        <path d="m100 91 6 16 16 5-16 6-6 16-6-16-16-6 16-5z" className="scene-line"/>
-      </g>
-    );
-  }
+type SuitKey = "cups" | "swords" | "pentacles" | "wands";
+
+function getSuitKey(suit?: string): SuitKey {
+  const value = (suit ?? "").toLowerCase();
+  if (value.includes("куб")) return "cups";
+  if (value.includes("меч")) return "swords";
+  if (value.includes("пент")) return "pentacles";
+  return "wands";
+}
+
+function SuitPipGlyph({ suit, x, y, scale = 1 }: { suit?: string; x: number; y: number; scale?: number }): ReactNode {
+  const key = getSuitKey(suit);
   return (
-    <g className="arcana-scene arcana-scene--wands">
-      <path d="M100 48v127M91 58l9-12 9 12M89 84q-19-13-25 5 13 9 25-5ZM111 110q19-13 25 5-13 9-25-5ZM89 139q-18-12-24 5 13 9 24-5Z" className="scene-line"/>
-      <path d="M100 72v15m0 18v15m0 18v15" className="scene-line scene-line--muted"/>
-      <circle cx="100" cy="42" r="5" className="scene-dot"/>
+    <g className={`minor-pip-glyph minor-pip-glyph--${key}`} transform={`translate(${x - 12 * scale} ${y - 12 * scale}) scale(${scale})`}>
+      {key === "cups" ? (
+        <>
+          <path d="M5 5h14l-2 10q-5 7-10 0zM8 7q4 3 8 0M12 17v4m-4 0h8" className="pip-outline"/>
+          <path d="M7 7C3 7 3 13 7 14M17 7c4 0 4 6 0 7" className="pip-outline"/>
+          <path d="M12 1c-2 3-3 4-3 6a3 3 0 0 0 6 0c0-2-1-3-3-6Z" className="pip-fill"/>
+        </>
+      ) : key === "swords" ? (
+        <>
+          <path d="M12 1 16 15 12 19 8 15z" className="pip-fill"/>
+          <path d="M12 1v18m-7-7h14M9 16l-2 2m8-2 2 2M12 19v4m-3-2h6" className="pip-outline"/>
+          <path d="m12 1 1.6 3.5L12 7 10.4 4.5z" className="pip-detail"/>
+        </>
+      ) : key === "pentacles" ? (
+        <>
+          <circle cx="12" cy="12" r="10" className="pip-outline"/>
+          <circle cx="12" cy="12" r="8" className="pip-outline pip-outline--fine"/>
+          <path d="m12 3 2.1 6.5 6.8 2.5-6.8 2.2-2.1 6.8-2.2-6.8L3 12l6.8-2.5z" className="pip-outline"/>
+          <circle cx="12" cy="12" r="2" className="pip-fill"/>
+        </>
+      ) : (
+        <>
+          <path d="M12 2v20M9 5l3-3 3 3M8 8q-5-4-6 1 4 3 6-1ZM16 12q5-4 6 1-4 3-6-1ZM8 16q-5-4-6 1 4 3 6-1Z" className="pip-outline"/>
+          <path d="m12 1 2 3-2 3-2-3z" className="pip-fill"/>
+          <path d="M10 10h4m-4 5h4" className="pip-outline pip-outline--fine"/>
+        </>
+      )}
+    </g>
+  );
+}
+
+const minorPipLayouts: Record<string, { x: number; y: number; scale?: number }[]> = {
+  ace: [{ x: 100, y: 104, scale: 1.55 }],
+  two: [{ x: 100, y: 58 }, { x: 100, y: 150 }],
+  three: [{ x: 100, y: 45 }, { x: 100, y: 104 }, { x: 100, y: 163 }],
+  four: [{ x: 67, y: 60 }, { x: 133, y: 60 }, { x: 67, y: 150 }, { x: 133, y: 150 }],
+  five: [{ x: 67, y: 60 }, { x: 133, y: 60 }, { x: 100, y: 105 }, { x: 67, y: 150 }, { x: 133, y: 150 }],
+  six: [{ x: 66, y: 46 }, { x: 134, y: 46 }, { x: 66, y: 105 }, { x: 134, y: 105 }, { x: 66, y: 164 }, { x: 134, y: 164 }],
+  seven: [{ x: 66, y: 43 }, { x: 134, y: 43 }, { x: 66, y: 88 }, { x: 100, y: 105 }, { x: 134, y: 88 }, { x: 66, y: 164 }, { x: 134, y: 164 }],
+  eight: [{ x: 66, y: 40 }, { x: 134, y: 40 }, { x: 66, y: 83 }, { x: 134, y: 83 }, { x: 66, y: 126 }, { x: 134, y: 126 }, { x: 66, y: 169 }, { x: 134, y: 169 }],
+  nine: [{ x: 66, y: 42 }, { x: 100, y: 42 }, { x: 134, y: 42 }, { x: 66, y: 105 }, { x: 100, y: 105 }, { x: 134, y: 105 }, { x: 66, y: 168 }, { x: 100, y: 168 }, { x: 134, y: 168 }],
+  ten: [{ x: 58, y: 48 }, { x: 100, y: 48 }, { x: 142, y: 48 }, { x: 58, y: 86 }, { x: 100, y: 86 }, { x: 142, y: 86 }, { x: 58, y: 124 }, { x: 100, y: 124 }, { x: 142, y: 124 }, { x: 100, y: 164 }],
+};
+
+function CourtCrown({ rank }: { rank: string }): ReactNode {
+  if (rank === "king") {
+    return <g className="court-regalia"><path d="M70 55 75 34 89 46 100 27 111 46 125 34 130 55Z" className="court-crown"/><path d="M74 58h52m-46 7h40" className="court-crown-detail"/><circle cx="100" cy="34" r="3" className="scene-dot"/></g>;
+  }
+  if (rank === "queen") {
+    return <g className="court-regalia"><path d="M76 54 80 32 92 45 100 26 108 45 120 32 124 54Z" className="court-crown"/><path d="M78 58h44" className="court-crown-detail"/><circle cx="100" cy="33" r="3.2" className="scene-dot"/></g>;
+  }
+  if (rank === "knight") {
+    return <g className="court-regalia"><path d="M76 53q-3-16 8-25l12 11 13-12q13 12 10 26Z" className="court-helm"/><path d="M83 49h34m-17-26v18" className="court-crown-detail"/><path d="m100 22 4 6-4 6-4-6z" className="scene-dot"/></g>;
+  }
+  return <g className="court-regalia"><path d="M79 53q2-20 21-24 19 4 21 24M83 51h34" className="court-crown-detail"/><path d="M100 27v-8m-4 4h8" className="court-crown-detail"/></g>;
+}
+
+function MinorArcanaScene({ suit, rank }: { suit?: string; rank: string }): ReactNode {
+  const key = getSuitKey(suit);
+  const isCourt = rank === "page" || rank === "knight" || rank === "queen" || rank === "king";
+
+  if (isCourt) {
+    return (
+      <g className={`arcana-scene minor-court minor-court--${key} minor-court--${rank}`}>
+        <path d="M51 183V73q49-45 98 0v110" className="scene-line scene-line--muted"/>
+        <path d="M58 181q7-39 42-44 35 5 42 44Z" className="court-mantle"/>
+        <path d="M73 95q0-31 27-37 27 6 27 37 0 35-27 43-27-8-27-43Z" className="court-face"/>
+        <path d="M77 96q23-19 46 0M83 112h7m20 0h7M91 124q9 7 18 0" className="scene-line scene-line--muted"/>
+        <path d="M82 137q18 9 36 0M72 156q28-13 56 0" className="scene-line"/>
+        <CourtCrown rank={rank}/>
+        <path d="M66 157 52 174m82-17 14 17M77 178l-7 12m53-12 7 12" className="scene-line scene-line--muted"/>
+        <g className="court-held-symbol"><SuitPipGlyph suit={suit} x={145} y={113} scale={1.14}/></g>
+        <path d="M42 184h116M57 192h86M68 199h64" className="scene-line scene-line--muted"/>
+        <circle cx="57" cy="79" r="2.2" className="scene-dot"/><circle cx="143" cy="79" r="2.2" className="scene-dot"/>
+        {key === "cups" && <path d="M53 111q-9 6 0 13m94-13q9 6 0 13" className="scene-line scene-line--muted"/>}
+        {key === "swords" && <path d="M52 93 60 79m80 14-8-14" className="scene-line"/>}
+        {key === "pentacles" && <circle cx="100" cy="95" r="48" className="scene-line scene-line--muted"/>}
+        {key === "wands" && <path d="M54 126q-12-18 2-27m90 27q12-18-2-27" className="scene-line"/>}
+      </g>
+    );
+  }
+
+  return (
+    <g className={`arcana-scene minor-numbered minor-numbered--${key} minor-numbered--${rank}`}>
+      <circle cx="100" cy="105" r="81" className="minor-watermark-ring"/>
+      <circle cx="100" cy="105" r="70" className="minor-watermark-ring minor-watermark-ring--fine"/>
+      <g className="minor-watermark" opacity=".22">
+        <SuitPipGlyph suit={suit} x={100} y={105} scale={2.7}/>
+      </g>
+      <path d="M31 105h15m108 0h15M100 22v13m0 140v13" className="scene-line scene-line--muted"/>
+      <path d="m100 16 3 6 6 3-6 3-3 6-3-6-6-3 6-3zM100 181l3 6 6 3-6 3-3 6-3-6-6-3 6-3z" className="scene-fill"/>
+      <path d="M46 35q-12 8-11 22m119-22q12 8 11 22M46 175q-12-8-11-22m119 22q12-8 11-22" className="scene-line scene-line--muted"/>
+      <path d="M56 191h88" className="scene-line scene-line--muted"/>
     </g>
   );
 }
@@ -377,17 +447,8 @@ export function TarotCardBackArtwork() {
 export function TarotCardIllustration({ cardId, arcana, suit }: CardArtProps) {
   const isMajor = arcana === "major";
   const rank = cardId.split("-").at(-1) ?? "";
-  const rankPips: Record<string, number> = {
-    ace: 1, two: 2, three: 3, four: 4, five: 5,
-    six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
-    page: 1, knight: 2, queen: 3, king: 4,
-  };
-  const pipCount = rankPips[rank] ?? 1;
-  const pips = Array.from({ length: pipCount }, (_, index) => {
-    const angle = (index / pipCount) * Math.PI * 2 - Math.PI / 2;
-    return { x: 100 + Math.cos(angle) * 70, y: 112 + Math.sin(angle) * 70 };
-  });
   const isCourtCard = rank === "page" || rank === "knight" || rank === "queen" || rank === "king";
+  const pips = minorPipLayouts[rank] ?? minorPipLayouts.ace!;
   return (
     <svg className="tarot-card-illustration" viewBox="0 0 200 210" aria-hidden="true">
       <defs>
@@ -411,12 +472,14 @@ export function TarotCardIllustration({ cardId, arcana, suit }: CardArtProps) {
         <MajorArcanaScene cardId={cardId}/>
       ) : (
         <>
-          <MinorArcanaScene suit={suit}/>
-          <g className={isCourtCard ? "minor-pips minor-pips--court" : "minor-pips"} aria-hidden="true">
-            {pips.map((pip, index) => (
-              <circle key={index} cx={pip.x} cy={pip.y} r={isCourtCard ? 3.1 : 2.3} className="scene-dot"/>
-            ))}
-          </g>
+          <MinorArcanaScene suit={suit} rank={rank}/>
+          {!isCourtCard && (
+            <g className={`minor-pips minor-pips--${getSuitKey(suit)} minor-pips--${rank}`} aria-hidden="true">
+              {pips.map((pip, index) => (
+                <SuitPipGlyph key={index} suit={suit} x={pip.x} y={pip.y} scale={pip.scale ?? (rank === "ace" ? 1.18 : 0.72)}/>
+              ))}
+            </g>
+          )}
         </>
       )}
       <path d="m100 20 3 5 5 3-5 3-3 5-3-5-5-3 5-3zM100 178l3 5 5 3-5 3-3 5-3-5-5-3 5-3z" className="card-art-star card-art-star--ornament"/>

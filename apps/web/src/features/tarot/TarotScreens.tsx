@@ -81,6 +81,22 @@ interface ResultProps {
 }
 
 
+const minorRankNumerals: Record<string, string> = {
+  ace: "I", two: "II", three: "III", four: "IV", five: "V",
+  six: "VI", seven: "VII", eight: "VIII", nine: "IX", ten: "X",
+  page: "PAJ", knight: "RYC", queen: "QUE", king: "KNG",
+};
+
+const minorRankNames: Record<string, string> = {
+  ace: "ТУЗ", two: "ДВОЙКА", three: "ТРОЙКА", four: "ЧЕТВЁРКА", five: "ПЯТЁРКА",
+  six: "ШЕСТЁРКА", seven: "СЕМЁРКА", eight: "ВОСЬМЁРКА", nine: "ДЕВЯТКА", ten: "ДЕСЯТКА",
+  page: "ПАЖ", knight: "РЫЦАРЬ", queen: "КОРОЛЕВА", king: "КОРОЛЬ",
+};
+
+function getMinorRank(cardId: string): string {
+  return cardId.split("-").at(-1) ?? "ace";
+}
+
 export function TarotResultScreen({ reading, onBack }: ResultProps) {
   const [revealed, setRevealed] = useState<string[]>([]);
   const allRevealed = reading.cards.every((card) => revealed.includes(card.cardId));
@@ -121,7 +137,8 @@ export function TarotResultScreen({ reading, onBack }: ResultProps) {
                     <TarotCardBackArtwork />
                   </span>
                   <span className="tarot-flip-card__front">
-                    <span className="revealed-card__corner">{card.arcana === "major" ? card.glyph : String(index + 1).padStart(2, "0")}</span>
+                    <span className="revealed-card__corner">{card.arcana === "major" ? card.glyph : minorRankNumerals[getMinorRank(card.cardId)]}</span>
+                    {card.arcana === "minor" && <span className="revealed-card__suit"><TarotCardMark cardId={card.cardId} arcana={card.arcana} suit={card.suit}/></span>}
                     <TarotCardIllustration cardId={card.cardId} arcana={card.arcana} suit={card.suit} />
                     <span className="revealed-card__taxonomy">{card.arcana === "major" ? "СТАРШИЙ АРКАН" : `МЛАДШИЙ АРКАН · ${card.suit ?? "МАСТЬ"}`}</span>
                     <span className="revealed-card__title">{card.name}</span>
@@ -143,7 +160,7 @@ export function TarotResultScreen({ reading, onBack }: ResultProps) {
           <article className="meaning-row" key={card.positionId}>
             <span className="meaning-symbol" aria-hidden="true"><TarotCardMark cardId={card.cardId} arcana={card.arcana} suit={card.suit} /></span>
             <div>
-              <small className="meaning-overline">{card.positionLabel} · {card.arcana === "major" ? "СТАРШИЙ АРКАН" : `МЛАДШИЙ АРКАН · ${card.suit ?? ""}`}</small>
+              <small className="meaning-overline">{card.positionLabel} · {card.arcana === "major" ? "СТАРШИЙ АРКАН" : `МЛАДШИЙ АРКАН · ${minorRankNames[getMinorRank(card.cardId)]} · ${card.suit ?? ""}`}</small>
               <h3>{card.name}</h3>
               <p>{card.interpretation}</p>
               <p className="reflection-question">Для размышления: {card.reflectionPrompt}</p>

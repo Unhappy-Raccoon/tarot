@@ -2322,3 +2322,124 @@ h1, h2, h3, .serif-title, .spread-card__title, .revealed-card__title,
 }
 
 /* Celestial Archive test release marker — shared card, icon and typography system. */
+
+
+/* Minor Arcana — rank-specific pips and illustrated court portraits. */
+.minor-pip-glyph { overflow: visible; color: #e8c89e; }
+.minor-pip-glyph .pip-outline {
+  fill: rgba(224,189,140,.08);
+  stroke: #e8c89e;
+  stroke-width: 1.35;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.minor-pip-glyph .pip-outline--fine {
+  stroke: rgba(224,189,140,.55);
+  stroke-width: .75;
+}
+.minor-pip-glyph .pip-fill {
+  fill: rgba(224,189,140,.2);
+  stroke: #e8c89e;
+  stroke-width: 1.1;
+  stroke-linejoin: round;
+}
+.minor-pip-glyph .pip-detail {
+  fill: #f2dfc0;
+  stroke: #e8c89e;
+  stroke-width: .8;
+}
+.minor-pips {
+  color: #e8c89e;
+}
+.minor-pips .minor-pip-glyph {
+  filter: drop-shadow(0 0 3px rgba(224,189,140,.16));
+}
+.minor-watermark-ring {
+  fill: none;
+  stroke: rgba(224,189,140,.36);
+  stroke-width: .8;
+}
+.minor-watermark-ring--fine {
+  stroke: rgba(224,189,140,.2);
+  stroke-dasharray: 2 4;
+  stroke-width: .65;
+}
+.minor-watermark {
+  color: #e8c89e;
+  filter: drop-shadow(0 0 12px rgba(224,189,140,.2));
+}
+.minor-numbered--ace .minor-watermark { opacity: .7; }
+.minor-numbered--two .minor-watermark,
+.minor-numbered--three .minor-watermark,
+.minor-numbered--four .minor-watermark { opacity: .46; }
+.minor-numbered--five .minor-watermark,
+.minor-numbered--six .minor-watermark,
+.minor-numbered--seven .minor-watermark,
+.minor-numbered--eight .minor-watermark,
+.minor-numbered--nine .minor-watermark,
+.minor-numbered--ten .minor-watermark { opacity: .28; }
+.minor-court .court-mantle {
+  fill: rgba(117,81,143,.15);
+  stroke: #e8c89e;
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+}
+.minor-court .court-face {
+  fill: rgba(224,189,140,.12);
+  stroke: #e8c89e;
+  stroke-width: 1.25;
+}
+.minor-court .court-crown {
+  fill: rgba(224,189,140,.25);
+  stroke: #e8c89e;
+  stroke-width: 1.25;
+  stroke-linejoin: round;
+}
+.minor-court .court-helm {
+  fill: rgba(117,81,143,.28);
+  stroke: #e8c89e;
+  stroke-width: 1.25;
+  stroke-linejoin: round;
+}
+.minor-court .court-crown-detail {
+  fill: none;
+  stroke: rgba(232,200,158,.84);
+  stroke-width: 1.15;
+  stroke-linecap: round;
+}
+.minor-court .court-held-symbol {
+  filter: drop-shadow(0 0 5px rgba(224,189,140,.2));
+}
+.minor-court--queen .court-mantle { fill: rgba(224,189,140,.12); }
+.minor-court--king .court-mantle { fill: rgba(117,81,143,.24); }
+.minor-court--knight .court-mantle { fill: rgba(91,102,139,.18); }
+.minor-court--page .court-mantle { fill: rgba(134,99,146,.18); }
+.minor-court--cups .court-mantle { stroke: rgba(217,192,218,.9); }
+.minor-court--swords .court-mantle { stroke: rgba(222,205,183,.9); }
+.minor-court--pentacles .court-mantle { stroke: rgba(224,189,140,.9); }
+.minor-court--wands .court-mantle { stroke: rgba(224,189,140,.95); }
+.revealed-card__suit {
+  position: absolute;
+  z-index: 2;
+  top: .72rem;
+  right: .8rem;
+  display: grid;
+  place-items: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  color: #e0bd8c;
+}
+.revealed-card__suit svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.meaning-overline { line-height: 1.65; }
+@media (max-width: 370px) {
+  .revealed-card__suit { top: .5rem; right: .55rem; width: 1rem; height: 1rem; }
+}
