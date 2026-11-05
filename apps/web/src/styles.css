@@ -2443,3 +2443,5 @@ h1, h2, h3, .serif-title, .spread-card__title, .revealed-card__title,
 @media (max-width: 370px) {
   .revealed-card__suit { top: .5rem; right: .55rem; width: 1rem; height: 1rem; }
 }
+
+/* Approved Celestial Archive full-deck release marker. */
