@@ -299,6 +299,48 @@ function MajorArcanaScene({ cardId }: { cardId: string }): ReactNode {
   );
 }
 
+const majorConstellations: Record<string, [number, number][]> = {
+  "major-fool": [[42, 54], [53, 40], [67, 51], [79, 38], [91, 48]],
+  "major-magician": [[142, 38], [154, 49], [168, 39], [160, 60], [145, 67]],
+  "major-high-priestess": [[35, 103], [46, 91], [58, 104], [50, 120], [37, 131]],
+  "major-empress": [[141, 37], [155, 45], [163, 61], [151, 72], [137, 59]],
+  "major-emperor": [[36, 60], [48, 48], [62, 60], [48, 75], [33, 88]],
+  "major-hierophant": [[143, 100], [155, 87], [168, 99], [158, 115], [145, 126]],
+  "major-lovers": [[38, 43], [51, 35], [64, 45], [51, 58], [39, 69]],
+  "major-chariot": [[138, 44], [151, 34], [166, 46], [155, 60], [141, 70]],
+  "major-strength": [[42, 115], [55, 102], [67, 116], [54, 130], [41, 143]],
+  "major-hermit": [[144, 43], [157, 55], [169, 43], [157, 30], [144, 19]],
+  "major-wheel": [[36, 78], [48, 65], [62, 78], [49, 91], [36, 104]],
+  "major-justice": [[139, 82], [152, 69], [166, 82], [153, 96], [139, 110]],
+  "major-hanged-man": [[37, 42], [50, 31], [63, 43], [50, 56], [37, 68]],
+  "major-death": [[143, 112], [157, 99], [171, 112], [157, 126], [143, 139]],
+  "major-temperance": [[38, 144], [51, 131], [64, 144], [51, 158], [38, 171]],
+  "major-devil": [[139, 42], [153, 30], [168, 44], [155, 59], [140, 70]],
+  "major-tower": [[35, 54], [49, 40], [64, 55], [49, 70], [35, 85]],
+  "major-star": [[38, 45], [50, 32], [63, 45], [50, 58], [38, 71]],
+  "major-moon": [[143, 31], [157, 43], [171, 31], [157, 18], [144, 10]],
+  "major-sun": [[36, 92], [48, 79], [62, 92], [48, 105], [36, 118]],
+  "major-judgement": [[141, 130], [154, 117], [168, 131], [155, 145], [141, 157]],
+  "major-world": [[40, 132], [53, 119], [66, 132], [53, 145], [40, 158]],
+};
+
+function MajorArcanaConstellation({ cardId }: { cardId: string }): ReactNode {
+  const points = majorConstellations[cardId] ?? majorConstellations["major-fool"]!;
+  const path = points.map(([x, y], index) => `${index === 0 ? "M" : "L"}${x} ${y}`).join(" ");
+  return (
+    <g className="arcana-constellation" aria-hidden="true">
+      <path d={path} className="arcana-constellation__line"/>
+      {points.map(([x, y], index) => (
+        <g key={index} className="arcana-constellation__node">
+          <circle cx={x} cy={y} r={index === 2 ? 2.6 : 1.65}/>
+          {index === 2 && <path d={`M${x} ${y - 5}v10m-5-5h10`}/>}
+        </g>
+      ))}
+      <circle cx={points[0]![0]} cy={points[0]![1]} r="5.5" className="arcana-constellation__halo"/>
+    </g>
+  );
+}
+
 type SuitKey = "cups" | "swords" | "pentacles" | "wands";
 
 function getSuitKey(suit?: string): SuitKey {
@@ -367,6 +409,29 @@ function CourtCrown({ rank }: { rank: string }): ReactNode {
     return <g className="court-regalia"><path d="M76 53q-3-16 8-25l12 11 13-12q13 12 10 26Z" className="court-helm"/><path d="M83 49h34m-17-26v18" className="court-crown-detail"/><path d="m100 22 4 6-4 6-4-6z" className="scene-dot"/></g>;
   }
   return <g className="court-regalia"><path d="M79 53q2-20 21-24 19 4 21 24M83 51h34" className="court-crown-detail"/><path d="M100 27v-8m-4 4h8" className="court-crown-detail"/></g>;
+}
+
+function MinorPipConstellation({ rank }: { rank: string }): ReactNode {
+  const count = Number(rank === "ace" ? 1 : rank === "two" ? 2 : rank === "three" ? 3 : rank === "four" ? 4 : rank === "five" ? 5 : rank === "six" ? 6 : rank === "seven" ? 7 : rank === "eight" ? 8 : rank === "nine" ? 9 : rank === "ten" ? 10 : 0);
+  if (count < 2) return null;
+  const paths: Record<string, string> = {
+    two: "M100 58V150",
+    three: "M100 45V163",
+    four: "M67 60H133M67 150H133",
+    five: "M67 60H133M67 60 100 105 133 150M67 150H133",
+    six: "M66 46V164M134 46V164M66 105H134",
+    seven: "M66 43V164M134 43V164M66 88H134M100 105V45",
+    eight: "M66 40V169M134 40V169M66 83H134M66 126H134",
+    nine: "M66 42V168M100 42V168M134 42V168M66 105H134",
+    ten: "M58 48V124M100 48V164M142 48V124M58 86H142M58 124H142",
+  };
+  return (
+    <g className="minor-pip-constellation" aria-hidden="true">
+      <path d={paths[rank] ?? paths.two!}/>
+      <circle cx="100" cy="105" r="3"/>
+      <circle cx="100" cy="105" r="8"/>
+    </g>
+  );
 }
 
 function MinorArcanaScene({ suit, rank }: { suit?: string; rank: string }): ReactNode {
@@ -469,10 +534,14 @@ export function TarotCardIllustration({ cardId, arcana, suit }: CardArtProps) {
       <circle cx="47" cy="155" r="2.2" className="card-art-star"/>
       <circle cx="153" cy="154" r="2.2" className="card-art-star"/>
       {isMajor ? (
-        <MajorArcanaScene cardId={cardId}/>
+        <>
+          <MajorArcanaConstellation cardId={cardId}/>
+          <MajorArcanaScene cardId={cardId}/>
+        </>
       ) : (
         <>
           <MinorArcanaScene suit={suit} rank={rank}/>
+          {!isCourtCard && <MinorPipConstellation rank={rank}/>}
           {!isCourtCard && (
             <g className={`minor-pips minor-pips--${getSuitKey(suit)} minor-pips--${rank}`} aria-hidden="true">
               {pips.map((pip, index) => (
